@@ -1,0 +1,7 @@
+{
+  "name": "lyl",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
