@@ -1,0 +1,14 @@
+// For information on how to create your own theme, please see:
+// http://ionicframework.com/docs/theming/
+:root{
+--color-primario: #E10600;
+--color-secundario: #000000;
+--color-fondo: #ffffff;
+--color-texto1: #000000;
+--color-texto2: #ffffff;
+}
+
+body, ion-app {
+    background-color: white !important;
+  }
+  
