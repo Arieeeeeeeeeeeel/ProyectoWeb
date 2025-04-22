@@ -1,0 +1,22 @@
+.contenedor-imagenes {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.2px;
+    padding: 20px;
+  }
+  
+  .imagen-servicio {
+    width: 300px;
+    height: 600px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: block;
+    transition: transform 0.3s ease;
+  }
+  
+  a:hover .imagen-servicio {
+    transform: scale(1.05);
+    
+  }
