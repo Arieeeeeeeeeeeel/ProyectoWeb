@@ -31,7 +31,7 @@ Se incluyen bocetos tanto para la **versión web** como para la **versión móvi
 ## Pasos para ejecutar correctamente
 1. Instalar Node.JS si aún no lo tiene. Se puede descargar desde su página https://nodejs.org/en.
 2. Instalar Ionic si aún no lo tiene. Esto se puede hacer desde una terminal en Windows mediante el comando 'npm install -g @ionic/cli'.
-3. Con una terminal dedicada para Git, tal como Git Bash, se clona el repositorio utilizando el siguiente comando: 'git clone https://github.com/Arieeeeeeeeeeeel/ProyectoWeb.git'.
+3. En una terminal, clonar el repositorio utilizando el siguiente comando: 'git clone https://github.com/Arieeeeeeeeeeeel/ProyectoWeb.git'.
 4. Guardar la ruta donde se creó el proyecto.
 5. Es recomendable tener instalado un editor como VSCode. Si ya está instalado, debe abrir una nueva ventana.
 6. En la nueva ventana, abrir la ruta del proyecto usando el terminal <cmd> (Ojo: No usar PowerShell). Por ejemplo, 'cd .\ProyectoWeb\frontend\'.
