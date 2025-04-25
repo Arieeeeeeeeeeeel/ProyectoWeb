@@ -1,13 +1,28 @@
-.banner {
-    position: relative;
-    width: 100%;
-    height: 250px;
-    overflow: hidden;
-  
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit:contain;
-      object-position: center -600px; // ajusta la posición vertical de la imagen
-    }
+img {
+  display: block;
+  margin: 30px auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.img-center {
+  width: 1300px;
+  height: 400px;
+  object-fit: cover;
+  object-position: center -16px;
+}
+
+.texto-centro {
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+  white-space: normal; // asegura que el texto haga salto de línea
+  margin: 0 auto;
+  padding: 10px 20px;
+  color: #333;
+  font-family: 'inter';
+}
+.texto-centro p {
+  line-height: 1.6;
+  font-size: 1.1rem;
 }
