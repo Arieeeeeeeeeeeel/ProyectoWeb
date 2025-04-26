@@ -1,0 +1,137 @@
+.breadcrumb {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+    text-align: left;
+  
+    a {
+      color: #000;
+      text-decoration: none;
+  
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  .productos-page {
+    --background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 100vh;
+  
+    .page-layout {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap; /* <- ahora soporta pantallas más pequeñas */
+      height: 100%;
+      padding: 16px;
+      gap: 24px;
+      flex: 1;
+    }
+  
+    .buscar-container {
+      background: rgba(0, 0, 0, 0.87);
+      border-radius: 8px;
+      padding: 16px;
+      width: 340px;
+      min-width: 280px; /* <- bajé un poco min-width para móviles */
+      height: fit-content;
+      flex-shrink: 0; /* <- evita que el filtro se achique en pantallas chicas */
+  
+      .titulo-busqueda {
+        background: #e10600;
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 800;
+        font-size: 24px;
+        text-align: center;
+        border-radius: 8px;
+        padding: 8px;
+        margin-bottom: 16px;
+      }
+  
+      .filtros-formulario {
+        display: flex;
+        flex-direction: column;
+  
+        ion-item {
+          --background: white;
+          --color: black;
+          border-radius: 8px;
+          margin-bottom: 12px;
+        }
+  
+        ion-select {
+          --placeholder-color: #b3b3b3;
+          --placeholder-opacity: 1;
+          color: black;
+        }
+  
+        .buscar-button {
+          margin-top: 16px;
+          font-weight: bold;
+        }
+      }
+    }
+  
+    .productos-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto; /* <- más seguro que overflow: auto para evitar doble scroll */
+      min-width: 0; /* <- evita errores de tamaño flex en Safari/Edge */
+    }
+  
+    .ordenamiento-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-start;
+      margin-bottom: 16px;
+  
+      ion-chip {
+        cursor: pointer; /* <- solo usabilidad, sin cambiar diseño */
+      }
+    }
+  
+    .productos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+  
+    ion-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #d9d9d9;
+      border-radius: 8px;
+      padding: 12px;
+  
+      .producto-imagen {
+        width: 200px;
+        height: 200px;
+        background-color: #d9d9d9;
+        border-radius: 8px;
+        object-fit: cover; /* <- si pones imagen real, no se deforma */
+      }
+  
+      .producto-contenido {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 8px;
+  
+        .producto-nombre {
+          margin-bottom: 8px;
+          font-size: 14px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 600; /* <- mejor peso de letra para legibilidad */
+          text-align: center;
+        }
+      }
+    }
+  }
+  

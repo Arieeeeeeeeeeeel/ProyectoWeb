@@ -6,11 +6,33 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./servicios.page.scss'],
   standalone:false
 })
-export class ServiciosPage implements OnInit {
 
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+export class ServiciosPage {
+  imagenes = [
+    {
+      src: '/assets/auto prmo.jpg',
+      alt: 'Imagen promocional de auto 1',
+      link: '/home'
+    },
+    {
+      src: '/assets/auto prmo.jpg',
+      alt: 'Imagen promocional de auto 2',
+      link: '/home'
+    },
+    {
+      src: '/assets/auto prmo.jpg',
+      alt: 'Imagen promocional de auto 3',
+      link: '/home'
+    },
+    {
+      src: '/assets/auto prmo.jpg',
+      alt: 'Imagen promocional de auto 4',
+      link: '/home'
+    },
+    {
+      src: '/assets/auto prmo.jpg',
+      alt: 'Imagen promocional de auto 5',
+      link: '/home'
+    }
+  ];
 }

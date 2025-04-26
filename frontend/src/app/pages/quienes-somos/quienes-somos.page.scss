@@ -1,6 +1,21 @@
+.breadcrumb {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.breadcrumb a {
+  color: #000000;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
 img {
   display: block;
-  margin: 30px auto;
   max-width: 100%;
   height: auto;
 }
@@ -10,6 +25,7 @@ img {
   height: 400px;
   object-fit: cover;
   object-position: center -16px;
+  border-radius: 8px;
 }
 
 .texto-centro {

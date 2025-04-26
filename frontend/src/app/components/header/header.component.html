@@ -1,27 +1,75 @@
-<header class="top-bar">
-  <div class="grid-header">
-    <img src="/assets/LogoLYL.png" alt="Logo" class="logo" />
-    <div class="contacto">
-      <p class="titulo">Atención Personalizada!</p>
-      <p class="numero">
-        <img src="/assets/icon/icono whatsapp.png" alt="WhatsApp" class="icono-wsp" />
-        +56 9 7190 3826
-      </p>
-    </div>
-  </div>
-</header>
+<ion-header>
 
+  <!-- Top-bar: logo + contacto -->
+  <ion-toolbar color="dark">
+    <ion-grid>
+      <ion-row class="grid-header ion-align-items-center">
+        <ion-col size="6" size-md="4">
+          <img src="/assets/LogoLYL.png" alt="Logo" class="logo" />
+        </ion-col>
 
-<nav class="navbar">
-  <ul>
-    <li><a href="home">Inicio</a></li>
-    <li><a href="productos">Productos</a></li>
-    <li><a href="servicios">Servicios</a></li>
-    <li><a href="quienes-somos">Quienes Somos</a></li>
-  </ul>
-  <div class="auth-links">
-    <a href="">Ingresar</a>
-    <span class="divider">|</span>
-    <a href="">Registrar</a>
-  </div>
-</nav>
+        <ion-col size="6" size-md="8" class="contacto-header">
+          <p class="titulo">Atención Personalizada!</p>
+          <p class="numero">
+            <ion-icon name="logo-whatsapp" class="icono-wsp"></ion-icon>
+            +56 9 7190 3826
+          </p>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+
+  <!-- Navbar: navegación + hamburguesa -->
+  <ion-toolbar color="primary" class="navbar">
+    <ion-grid>
+      <ion-row class="ion-align-items-center">
+        <ion-col size="12" class="menu-container">
+
+          <!-- Hamburguesa funcional -->
+          <input type="checkbox" id="menu-toggle" class="menu-toggle" />
+
+          <!-- Cabecera del menú -->
+          <div class="menu-header">
+            <label for="menu-toggle" class="menu-icon">
+              <ion-icon name="menu-outline"></ion-icon>
+            </label>
+          </div>
+
+          <!-- Menú desplegable -->
+          <div class="menu-content">
+            <ul class="nav-links">
+              <li>
+                <a routerLink="/home" (click)="closeMenu()">
+                  <ion-icon name="home-outline" class="icono-menu"></ion-icon> Inicio
+                </a>
+              </li>
+              <li>
+                <a routerLink="/productos" (click)="closeMenu()">
+                  <ion-icon name="cube-outline" class="icono-menu"></ion-icon> Productos
+                </a>
+              </li>
+              <li>
+                <a routerLink="/servicios" (click)="closeMenu()">
+                  <ion-icon name="construct-outline" class="icono-menu"></ion-icon> Servicios
+                </a>
+              </li>
+              <li>
+                <a routerLink="/quienes-somos" (click)="closeMenu()">
+                  <ion-icon name="people-outline" class="icono-menu"></ion-icon> Quienes Somos
+                </a>
+              </li>
+            </ul>
+
+            <div class="auth-links">
+              <a href="" (click)="closeMenu()">Ingresar</a>
+              <span class="divider">|</span>
+              <a href="" (click)="closeMenu()">Registrar</a>
+            </div>
+          </div>
+
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+
+</ion-header>

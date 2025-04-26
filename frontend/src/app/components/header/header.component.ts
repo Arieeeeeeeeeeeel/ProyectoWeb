@@ -11,5 +11,11 @@ export class HeaderComponent  implements OnInit {
   constructor() { }
 
   ngOnInit() {}
-
+  
+  closeMenu() {
+    const toggle = document.getElementById('menu-toggle') as HTMLInputElement;
+    if (toggle && toggle.checked) {
+      toggle.checked = false;
+    }
+  }
 }

@@ -1,16 +1,37 @@
-.banner {
+.home-page {
+  --background: #ffffff;
+
+  .breadcrumb {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 16px;
+    text-align: left;
+
+    a {
+      color: #000;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .banner {
     position: relative;
     width: 100%;
     height: 250px;
     overflow: hidden;
-  
+    border-radius: 8px;
+    margin-bottom: 32px;
+
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center -600px; // ajusta la posición vertical de la imagen
+      object-position: center -600px;
     }
-  
+
     .grad-overlay {
       position: absolute;
       top: 0;
@@ -20,7 +41,7 @@
       background: linear-gradient(to right, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.5) 50%, transparent 100%);
       pointer-events: none;
     }
-  
+
     .banner-text {
       position: absolute;
       top: 50%;
@@ -34,3 +55,110 @@
       text-shadow: 1px 1px 4px black;
     }
   }
+
+  .inicio-layout {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 32px;
+    padding: 32px;
+    min-height: 100%;
+  }
+
+  .buscar-container {
+    background: rgba(0, 0, 0, 0.87);
+    border-radius: 8px;
+    padding: 16px;
+    width: 340px;
+    min-width: 300px;
+    height: fit-content;
+
+    .titulo-busqueda {
+      background: #e10600;
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 24px;
+      text-align: center;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 16px;
+    }
+
+    .filtros-formulario {
+      ion-item {
+        --background: white;
+        --color: black;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+
+      ion-input {
+        color: black;
+      }
+    }
+
+    .buscar-button {
+      margin-top: 16px;
+      font-weight: bold;
+    }
+
+    .olvido-contrasena {
+      margin-top: 12px;
+      text-align: center;
+
+      a {
+        font-size: 14px;
+        color: #ebffee;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .ofertas-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: #000;
+    }
+
+    .ofertas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+
+      .oferta-card {
+        background: #d9d9d9;
+        position: relative;
+        border-radius: 8px;
+        height: 300px;
+        overflow: hidden;
+
+        .oferta-imagen {
+          width: 100%;
+          height: 100%;
+          background-color: #d9d9d9;
+        }
+
+        .nuevo-etiqueta {
+          position: absolute;
+          top: 10px;
+          right: -30px;
+          background: #e10600;
+          color: white;
+          font-size: 16px;
+          font-weight: bold;
+          font-family: 'Montserrat', sans-serif;
+          padding: 4px 12px;
+          transform: rotate(45deg);
+        }
+      }
+    }
+  }
+}

@@ -11,4 +11,22 @@
 body, ion-app {
     background-color: white !important;
   }
-  
+
+ion-content {
+  --padding-top: 20px;
+  --padding-end: 20px;
+  --padding-bottom: 20px;
+  --padding-start: 20px;
+}
+
+ion-app {
+  --ion-color-primary: var(--color-primario);
+  --ion-color-primary-rgb: 0, 102, 204;
+  --ion-color-primary-contrast: var(--color-texto2);
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #005bb5;
+  --ion-color-primary-tint: #1a75ff;
+
+  --ion-color-dark: black; /* Fondo header superior */
+  --ion-color-dark-contrast: var(--color-texto2);
+}

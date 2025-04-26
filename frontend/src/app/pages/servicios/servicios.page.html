@@ -1,12 +1,21 @@
-<ion-header></ion-header>
-  
 <ion-content>
-    <div class="contenedor-imagenes">
-       <a href="home"><img src="/assets/auto prmo.jpg" class="imagen-servicio" alt="Imagen 1" /></a>
-       <a href="home"><img src="/assets/auto prmo.jpg" class="imagen-servicio" alt="Imagen 2" /></a>
-       <a href="home"><img src="/assets/auto prmo.jpg" class="imagen-servicio" alt="Imagen 3" /></a>
-       <a href="home"><img src="/assets/auto prmo.jpg" class="imagen-servicio" alt="Imagen 4" /></a>
-       <a href="home"><img src="/assets/auto prmo.jpg" class="imagen-servicio" alt="Imagen 5" /></a>
+    <div class="breadcrumb">
+        <a [routerLink]="'/home'">Inicio</a> &rarr; 
+        <span>Servicios</span>
       </div>
-</ion-content>
-
+      
+    <div class="titulo-contenedor">
+        <h1 class="titulo-principal">Servicios disponibles</h1>
+        <h2 class="subtitulo">Elige el que más te acomode</h2>
+    </div>
+      
+    <ion-grid>
+      <ion-row class="row-gap">
+        <ion-col size="6" size-md="4" size-lg="3" *ngFor="let imagen of imagenes">
+          <a [routerLink]="imagen.link" aria-label="Ir al inicio">
+            <img [src]="imagen.src" class="imagen-servicio" [alt]="imagen.alt" />
+          </a>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-content>  

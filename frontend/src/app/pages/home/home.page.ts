@@ -13,4 +13,6 @@ export class HomePage implements OnInit {
   ngOnInit() {
   }
 
+  ofertas = [1, 2, 3];
+
 }
