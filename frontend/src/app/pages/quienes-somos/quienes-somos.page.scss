@@ -21,12 +21,15 @@ img {
 }
 
 .img-center {
+  display: block;
+  margin: 0 auto;
   width: 1300px;
   height: 400px;
   object-fit: cover;
   object-position: center -16px;
   border-radius: 8px;
 }
+
 
 .texto-centro {
   max-width: 800px;
