@@ -12,7 +12,7 @@ export class ServiciosPage {
     {
       src: '/assets/auto prmo.jpg',
       alt: 'Imagen promocional de auto 1',
-      link: '/servicios/seleccion'
+      link: '/seleccion-servicio'
     },
     {
       src: '/assets/auto prmo.jpg',

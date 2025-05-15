@@ -8,10 +8,6 @@ const routes: Routes = [
     path: '',
     component: ServiciosPage
   },
-  {
-    path: 'seleccion',
-    loadChildren: () => import('./seleccion/seleccion.module').then( m => m.SeleccionPageModule)
-  },
 ];
 
 @NgModule({

@@ -1,0 +1,74 @@
+<ion-content class="ion-padding">
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Servicio que necesito:</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-select placeholder="Seleccionar servicio" [(ngModel)]="reserva.servicio">
+        <ion-select-option value="Cambio neumático">Cambio neumático</ion-select-option>
+        <ion-select-option value="Mecánico a domicilio">Mecánico a domicilio</ion-select-option>
+        <ion-select-option value="Desabolladura y pintura">Desabolladura y pintura</ion-select-option>
+        <ion-select-option value="Mantenimiento">Mantenimiento</ion-select-option>
+        <ion-select-option value="Diagnóstico">Diagnóstico</ion-select-option>
+      </ion-select>
+
+      <ion-item>
+        <ion-label position="floating">Fecha</ion-label>
+        <ion-datetime display-format="DD/MM/YYYY" [(ngModel)]="reserva.fecha"></ion-datetime>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Datos del vehículo</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="floating">Marca</ion-label>
+        <ion-input [(ngModel)]="reserva.marca" placeholder="Toyota"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Modelo</ion-label>
+        <ion-input [(ngModel)]="reserva.modelo" placeholder="Hilux"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Año</ion-label>
+        <ion-input type="number" [(ngModel)]="reserva.anio" placeholder="2024"></ion-input>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Información de reserva</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="floating">Nombre completo</ion-label>
+        <ion-input [(ngModel)]="reserva.nombre"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Ubicación</ion-label>
+        <ion-select [(ngModel)]="reserva.ubicacion">
+          <ion-select-option value="Concón">Concón</ion-select-option>
+          <ion-select-option value="Viña del Mar">Viña del Mar</ion-select-option>
+          <ion-select-option value="Valparaíso">Valparaíso</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Notas para el mecánico</ion-label>
+        <ion-textarea [(ngModel)]="reserva.notas"></ion-textarea>
+      </ion-item>
+      <ion-item lines="none">
+        <ion-checkbox slot="start" [(ngModel)]="reserva.aceptaTerminos"></ion-checkbox>
+        <ion-label>Acepto los términos de reserva <a href="#">Leer los términos</a></ion-label>
+      </ion-item>
+      <ion-button expand="block" (click)="guardarReserva()" [disabled]="!reserva.aceptaTerminos">
+        Guardar reserva
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
