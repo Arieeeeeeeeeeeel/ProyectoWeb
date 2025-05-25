@@ -124,7 +124,7 @@ class RecoveryToken(db.Model):
 with app.app_context():
     db.create_all()
 
-# 1. Signup
+
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -142,7 +142,7 @@ def signup():
     db.session.commit()
     return jsonify({'message':'Usuario creado','rut':user.rut}),201
 
-# 2. Login
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -154,18 +154,18 @@ def login():
     token = jwt.encode({'rut':user.rut,'exp':datetime.datetime.utcnow()+datetime.timedelta(hours=24)},app.config['SECRET_KEY'],algorithm='HS256')
     return jsonify({'token':token}),200
 
-# 3. Signout
+
 @app.route('/<rut>/signout', methods=['POST'])
 def signout(rut):
     return jsonify({'message':f'Usuario {rut} ha cerrado sesión'}),200
 
-# 4-5. Recovery
+
 @app.route('/recovery', methods=['POST'])
 def start_recovery():
     data=request.get_json()
     if not data.get('correo'):
         return jsonify({'error':'Correo requerido'}),400
-    # Lógica de token omitted
+
     return jsonify({'message':'Recovery token enviado'}),200
 
 @app.route('/<rut>/recovery', methods=['PUT'])
@@ -173,10 +173,10 @@ def complete_recovery(rut):
     data=request.get_json()
     if not data.get('token') or not data.get('nueva_contrasena'):
         return jsonify({'error':'Token y nueva_contrasena requeridos'}),400
-    # Validar token y actualizar omitted
+
     return jsonify({'message':f'Contraseña actualizada para {rut}'}),200
 
-# 6. Update profile
+
 @app.route('/<rut>/update_profile', methods=['PUT'])
 def update_profile(rut):
     user=Usuario.query.get(rut)
@@ -189,7 +189,7 @@ def update_profile(rut):
     db.session.commit()
     return jsonify({'message':f'Perfil de {rut} actualizado'}),200
 
-# 7. Get purchases
+
 @app.route('/<rut>/purchases', methods=['GET'])
 def get_purchases(rut):
     compras=Compra.query.filter_by(usuario_rut=rut).all()
@@ -199,7 +199,7 @@ def get_purchases(rut):
         result.append({'compra_id':c.compra_id,'total':float(c.total),'estado_pago':c.estado_pago,'items':detalles})
     return jsonify(result),200
 
-# 8. Create purchase
+
 @app.route('/<rut>/purchase', methods=['POST'])
 def create_purchase(rut):
     data=request.get_json()
@@ -221,7 +221,7 @@ def create_purchase(rut):
     db.session.commit()
     return jsonify({'message':f'Compra creada para {rut}','compra_id':compra.compra_id}),201
 
-# 9. Update purchase state
+
 @app.route('/<int:purchase_id>', methods=['POST'])
 def update_purchase(purchase_id):
     compra=Compra.query.get(purchase_id)
@@ -233,7 +233,7 @@ def update_purchase(purchase_id):
         db.session.commit()
     return jsonify({'message':f'Compra {purchase_id} actualizada'}),200
 
-# 10. Vehicle data
+
 @app.route('/<int:car_id>/data', methods=['GET'])
 def vehicle_data(car_id):
     v=Vehiculo.query.get(car_id)
@@ -244,7 +244,7 @@ def vehicle_data(car_id):
         'tipo_combustible':v.tipo_combustible,'color':v.color,'apodo':v.apodo,'usuario_rut':v.usuario_rut
     }),200
 
-# 11-12. List services by vehicle
+
 def serialize_reserva(r):return{'reserva_id':r.reserva_id,'fecha_reserva':r.fecha_reserva.isoformat(),'estado':r.estado,'ubicacion':r.ubicacion,'notas':r.notas,'servicio':r.servicio.nombre}
 
 @app.route('/<int:car_id>/mechanic_services', methods=['GET'])
@@ -257,7 +257,7 @@ def list_visual_services(car_id):
     reservas=Reserva.query.filter_by(vehiculo_id=car_id).join(Servicio).filter(Servicio.nombre.ilike('%visual%')).all()
     return jsonify([serialize_reserva(r) for r in reservas]),200
 
-# 13. New car
+
 @app.route('/<rut>/new_car', methods=['POST'])
 def new_car(rut):
     data=request.get_json()
@@ -269,7 +269,7 @@ def new_car(rut):
     db.session.commit()
     return jsonify({'message':f'Vehículo creado para {rut}','vehiculo_id':v.vehiculo_id}),201
 
-# 14-15. Create service reservation
+
 @app.route('/<int:car_id>/mechanic_services', methods=['POST'])
 def create_mechanic_service(car_id):
     data=request.get_json()
@@ -290,7 +290,6 @@ def create_visual_service(car_id):
     db.session.add(res);db.session.commit()
     return jsonify({'message':'Reserva visual creada','reserva_id':res.reserva_id}),201
 
-# 16-17. Update reservation
 @app.route('/<int:mechanic_services_id>', methods=['POST'])
 def update_mechanic_service(mechanic_services_id):
     r=Reserva.query.get(mechanic_services_id)
@@ -320,7 +319,7 @@ def get_all_visual_services():
     servicios=Servicio.query.filter(Servicio.nombre.ilike('%visual%')).all()
     return jsonify([{'servicio_id':s.servicio_id,'nombre':s.nombre,'precio':float(s.precio)} for s in servicios]),200
 
-# 20-21. Products
+
 @app.route('/products', methods=['GET'])
 def get_products():
     prods=Producto.query.all()
