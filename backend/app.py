@@ -3,6 +3,30 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 import jwt
+from functools import wraps
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.headers.get('Authorization', None)
+        if not auth:
+            return jsonify({'error': 'Token faltante'}), 401
+        parts = auth.split()
+        if parts[0].lower() != 'bearer' or len(parts) != 2:
+            return jsonify({'error': 'Formato de token inválido'}), 401
+        token = parts[1]
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            # opcionalmente puedes cargar aquí al usuario y pasarlo a la función
+            request.user = Usuario.query.get(data['personaid'])
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expirado'}), 401
+        except Exception:
+            return jsonify({'error': 'Token inválido'}), 401
+        return f(*args, **kwargs)
+    return decorated
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:axeler8@localhost/BD_lyl'
@@ -158,6 +182,7 @@ def login():
 
 
 @app.route('/<personaid>/signout', methods=['POST'])
+@token_required
 def signout(personaid):
     return jsonify({'message':f'Usuario {personaid} ha cerrado sesión'}), 200
 
@@ -180,6 +205,7 @@ def complete_recovery(personaid):
 
 
 @app.route('/<personaid>/update_profile', methods=['PUT'])
+@token_required
 def update_profile(personaid):
     user = Usuario.query.get(personaid)
     if not user:
@@ -193,6 +219,7 @@ def update_profile(personaid):
 
 
 @app.route('/<personaid>/purchases', methods=['GET'])
+@token_required
 def get_purchases(personaid):
     user = Usuario.query.get(personaid)
     if not user:
@@ -214,6 +241,7 @@ def get_purchases(personaid):
 
 
 @app.route('/<personaid>/purchase', methods=['POST'])
+@token_required
 def create_purchase(personaid):
     user = Usuario.query.get(personaid)
     if not user:
@@ -256,6 +284,7 @@ def create_purchase(personaid):
 
 
 @app.route('/purchase/<int:purchase_id>', methods=['POST'])
+@token_required
 def update_purchase(purchase_id):
     compra = Compra.query.get(purchase_id)
     if not compra:
@@ -268,6 +297,7 @@ def update_purchase(purchase_id):
 
 
 @app.route('/<int:car_id>/data', methods=['GET'])
+@token_required
 def vehicle_data(car_id):
     v = Vehiculo.query.get(car_id)
     if not v:
@@ -296,12 +326,14 @@ def serialize_reserva(r):
     }
 
 @app.route('/<int:car_id>/mechanic_services', methods=['GET'])
+@token_required
 def list_mechanic_services(car_id):
     reservas = Reserva.query.filter_by(vehiculo_id=car_id)\
         .join(Servicio).filter(Servicio.nombre.ilike('%mecánico%')).all()
     return jsonify([serialize_reserva(r) for r in reservas]), 200
 
 @app.route('/<int:car_id>/visual_services', methods=['GET'])
+@token_required
 def list_visual_services(car_id):
     reservas = Reserva.query.filter_by(vehiculo_id=car_id)\
         .join(Servicio).filter(Servicio.nombre.ilike('%visual%')).all()
@@ -309,6 +341,7 @@ def list_visual_services(car_id):
 
 
 @app.route('/<personaid>/new_car', methods=['POST'])
+@token_required
 def new_car(personaid):
     user = Usuario.query.get(personaid)
     if not user:
@@ -333,6 +366,7 @@ def new_car(personaid):
 
 
 @app.route('/<int:car_id>/mechanic_services', methods=['POST'])
+@token_required
 def create_mechanic_service(car_id):
     data = request.get_json()
     for f in ['usuario_rut','servicio_id','fecha_reserva','ubicacion']:
@@ -353,6 +387,7 @@ def create_mechanic_service(car_id):
     return jsonify({'message':'Reserva mecánica creada','reserva_id':res.reserva_id}), 201
 
 @app.route('/<int:car_id>/visual_services', methods=['POST'])
+@token_required
 def create_visual_service(car_id):
     data = request.get_json()
     for f in ['usuario_rut','servicio_id','fecha_reserva','ubicacion']:
@@ -373,6 +408,7 @@ def create_visual_service(car_id):
     return jsonify({'message':'Reserva visual creada','reserva_id':res.reserva_id}), 201
 
 @app.route('/mechanic_services/<int:mechanic_services_id>', methods=['POST'])
+@token_required
 def update_mechanic_service(mechanic_services_id):
     r = Reserva.query.get(mechanic_services_id)
     if not r:
@@ -384,6 +420,7 @@ def update_mechanic_service(mechanic_services_id):
     return jsonify({'message':'Reserva mecánica actualizada'}),200
 
 @app.route('/visual_services/<int:visual_services_id>', methods=['POST'])
+@token_required
 def update_visual_service(visual_services_id):
     r = Reserva.query.get(visual_services_id)
     if not r:
