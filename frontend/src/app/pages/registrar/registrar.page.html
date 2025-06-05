@@ -1,0 +1,119 @@
+<ion-content class="ion-padding">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <ion-list>
+      <ion-item>
+        <ion-input
+          label="Usuario"
+          labelPlacement="floating"
+          formControlName="usuario"
+          type="text"
+          placeholder="Ej: tu_nombre_de_usuario"
+        ></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('usuario')?.invalid && registerForm.get('usuario')?.touched" class="validation-error">
+        <small *ngIf="registerForm.get('usuario')?.errors?.['required']">El usuario es requerido.</small>
+        <small *ngIf="registerForm.get('usuario')?.errors?.['minlength']">Mínimo 3 caracteres.</small>
+      </div>
+
+      <ion-item>
+        <ion-input
+          label="RUT"
+          labelPlacement="floating"
+          formControlName="rut"
+          type="text"
+          placeholder="Ej: 12.345.678-K"
+          (ionChange)="formatRut()"
+        ></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('rut')?.invalid && registerForm.get('rut')?.touched" class="validation-error">
+        <small *ngIf="registerForm.get('rut')?.errors?.['required']">El RUT es requerido.</small>
+        <small *ngIf="registerForm.get('rut')?.errors?.['pattern']">Formato de RUT inválido.</small>
+      </div>
+
+      <ion-item>
+        <ion-input
+          label="Correo Electrónico"
+          labelPlacement="floating"
+          formControlName="correo"
+          type="email"
+          placeholder="Ej: correo@ejemplo.com"
+        ></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched" class="validation-error">
+        <small *ngIf="registerForm.get('correo')?.errors?.['required']">El correo es requerido.</small>
+        <small *ngIf="registerForm.get('correo')?.errors?.['email']">Formato de correo inválido.</small>
+      </div>
+
+      <ion-item>
+        <ion-select
+          label="Región"
+          labelPlacement="floating"
+          formControlName="region"
+          placeholder="Selecciona tu región"
+          (ionChange)="onRegionChange()"
+        >
+          <ion-select-option *ngFor="let region of regiones" [value]="region.nombre">{{ region.nombre }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div *ngIf="registerForm.get('region')?.invalid && registerForm.get('region')?.touched" class="validation-error">
+        <small *ngIf="registerForm.get('region')?.errors?.['required']">La región es requerida.</small>
+      </div>
+
+      <ion-item>
+        <ion-select
+          label="Comuna"
+          labelPlacement="floating"
+          formControlName="comuna"
+          placeholder="Selecciona tu comuna"
+          [disabled]="!comunas.length"
+        >
+          <ion-select-option *ngFor="let comuna of comunas" [value]="comuna">{{ comuna }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div *ngIf="registerForm.get('comuna')?.invalid && registerForm.get('comuna')?.touched" class="validation-error">
+        <small *ngIf="registerForm.get('comuna')?.errors?.['required']">La comuna es requerida.</small>
+      </div>
+
+      <ion-item>
+        <ion-input
+          label="Contraseña"
+          labelPlacement="floating"
+          formControlName="contrasena"
+          type="password"
+          placeholder="Ingresa tu contraseña"
+        ></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched" class="validation-error">
+        <small *ngIf="registerForm.get('contrasena')?.errors?.['required']">La contraseña es requerida.</small>
+        <small *ngIf="registerForm.get('contrasena')?.errors?.['minlength']">Mínimo 6 caracteres.</small>
+      </div>
+
+      <ion-item>
+        <ion-input
+          label="Confirmar Contraseña"
+          labelPlacement="floating"
+          formControlName="confirmarContrasena"
+          type="password"
+          placeholder="Repite tu contraseña"
+        ></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('confirmarContrasena')?.invalid && registerForm.get('confirmarContrasena')?.touched" class="validation-error">
+        <small *ngIf="registerForm.get('confirmarContrasena')?.errors?.['required']">La confirmación es requerida.</small>
+        <small *ngIf="registerForm.get('confirmarContrasena')?.errors?.['passwordMismatch']">Las contraseñas no coinciden.</small>
+      </div>
+
+      <ion-item lines="none">
+        <ion-checkbox formControlName="terminos" justify="start"></ion-checkbox>
+        <ion-label class="ion-text-wrap ion-padding-start">Acepto los <a href="#" (click)="showTermsAndConditions($event)">términos y condiciones</a></ion-label>
+      </ion-item>
+      <div *ngIf="registerForm.get('terminos')?.invalid && registerForm.get('terminos')?.touched" class="validation-error">
+        <small *ngIf="registerForm.get('terminos')?.errors?.['requiredTrue']">Debes aceptar los términos y condiciones.</small>
+      </div>
+
+    </ion-list>
+
+    <ion-button expand="block" type="submit" [disabled]="registerForm.invalid" class="ion-margin-top">
+      Registrarme
+    </ion-button>
+  </form>
+</ion-content>

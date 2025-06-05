@@ -1,6 +1,4 @@
 <ion-header>
-
-  <!-- Top-bar: logo + contacto -->
   <ion-toolbar color="dark">
     <ion-grid>
       <ion-row class="grid-header ion-align-items-center">
@@ -19,62 +17,83 @@
     </ion-grid>
   </ion-toolbar>
 
-  <!-- Navbar: navegación + hamburguesa -->
   <ion-toolbar color="primary" class="navbar">
     <ion-grid>
       <ion-row class="ion-align-items-center">
         <ion-col size="12" class="menu-container">
-
-          <!-- Hamburguesa funcional -->
           <input type="checkbox" id="menu-toggle" class="menu-toggle" />
 
-          <!-- Cabecera del menú -->
           <div class="menu-header">
             <label for="menu-toggle" class="menu-icon">
               <ion-icon name="menu-outline"></ion-icon>
             </label>
           </div>
 
-          <!-- Menú desplegable -->
           <div class="menu-content">
             <ul class="nav-links">
               <li>
                 <a routerLink="/home" (click)="closeMenu()">
-                  <ion-icon name="home-outline" class="icono-menu"></ion-icon> Inicio
+                  <ion-icon name="home-outline" class="icono-menu"></ion-icon>
+                  Inicio
                 </a>
               </li>
               <li>
                 <a routerLink="/productos" (click)="closeMenu()">
-                  <ion-icon name="cube-outline" class="icono-menu"></ion-icon> Productos
+                  <ion-icon name="cube-outline" class="icono-menu"></ion-icon>
+                  Productos
                 </a>
               </li>
               <li>
                 <a routerLink="/servicios" (click)="closeMenu()">
-                  <ion-icon name="construct-outline" class="icono-menu"></ion-icon> Servicios
+                  <ion-icon
+                    name="construct-outline"
+                    class="icono-menu"
+                  ></ion-icon>
+                  Servicios
                 </a>
               </li>
               <li>
                 <a routerLink="/quienes-somos" (click)="closeMenu()">
-                  <ion-icon name="people-outline" class="icono-menu"></ion-icon> Quienes Somos
+                  <ion-icon name="people-outline" class="icono-menu"></ion-icon>
+                  Quienes Somos
                 </a>
               </li>
-              <li>
-                <a routerLink="/inventario" (click)="closeMenu()">
-                  <ion-icon name="today" class="icono-menu"></ion-icon> Inventario
+              <li *ngIf="isLoggedIn">
+                <a (click)="goToUserPage(); closeMenu()">
+                  <ion-icon name="person-circle-outline" class="icono-menu"></ion-icon>
+                  Mi Perfil
+                </a>
+              </li>
+              <li *ngIf="isLoggedIn">
+                <a (click)="logout(); closeMenu()">
+                  <ion-icon name="log-out-outline" class="icono-menu"></ion-icon>
+                  Cerrar Sesión
                 </a>
               </li>
             </ul>
 
             <div class="auth-links">
-              <ion-button id="present-alert">Ingresar</ion-button>
-              <span class="divider">|</span>
-              <ion-button id="present-alert">Ingresar</ion-button>
+              <ng-container *ngIf="!isLoggedIn">
+                <ion-button (click)="presentLoginAlert()">Ingresar</ion-button>
+                <span class="divider">|</span>
+                <ion-button routerLink="/registrar">Registrar</ion-button>
+              </ng-container>
+
+              <ng-container *ngIf="isLoggedIn">
+                <ion-button (click)="goToUserPage()">
+                  <ion-icon name="person-circle-outline"></ion-icon>
+                  Usuario
+                </ion-button>
+                <span class="divider">|</span>
+                <ion-button (click)="logout()">
+                  <ion-icon name="log-out-outline"></ion-icon>
+                  Salir
+                </ion-button>
+              </ng-container>
             </div>
           </div>
-
         </ion-col>
       </ion-row>
     </ion-grid>
   </ion-toolbar>
-
 </ion-header>

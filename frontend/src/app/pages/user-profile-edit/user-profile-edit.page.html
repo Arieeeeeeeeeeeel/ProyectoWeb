@@ -1,0 +1,92 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/user-profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Editar Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="editProfileForm" (ngSubmit)="onSubmit()">
+    <ion-list>
+      <ion-item>
+        <ion-input
+          label="Usuario"
+          labelPlacement="floating"
+          formControlName="usuario"
+          type="text"
+          placeholder="Ej: tu_nombre_de_usuario"
+        ></ion-input>
+      </ion-item>
+      <div *ngIf="editProfileForm.get('usuario')?.invalid && editProfileForm.get('usuario')?.touched" class="validation-error">
+        <small *ngIf="editProfileForm.get('usuario')?.errors?.['required']">El usuario es requerido.</small>
+        <small *ngIf="editProfileForm.get('usuario')?.errors?.['minlength']">Mínimo 3 caracteres.</small>
+      </div>
+
+      <ion-item>
+        <ion-input
+          label="RUT"
+          labelPlacement="floating"
+          formControlName="rut"
+          type="text"
+          placeholder="Ej: 12.345.678-K"
+          (ionChange)="formatRut()"
+        ></ion-input>
+      </ion-item>
+      <div *ngIf="editProfileForm.get('rut')?.invalid && editProfileForm.get('rut')?.touched" class="validation-error">
+        <small *ngIf="editProfileForm.get('rut')?.errors?.['required']">El RUT es requerido.</small>
+        <small *ngIf="editProfileForm.get('rut')?.errors?.['pattern']">Formato de RUT inválido.</small>
+      </div>
+
+      <ion-item>
+        <ion-input
+          label="Correo Electrónico"
+          labelPlacement="floating"
+          formControlName="email"
+          type="email"
+          placeholder="Ej: correo@ejemplo.com"
+          [readonly]="true" ></ion-input>
+      </ion-item>
+      <div *ngIf="editProfileForm.get('email')?.invalid && editProfileForm.get('email')?.touched" class="validation-error">
+        <small *ngIf="editProfileForm.get('email')?.errors?.['required']">El correo es requerido.</small>
+        <small *ngIf="editProfileForm.get('email')?.errors?.['email']">Formato de correo inválido.</small>
+      </div>
+
+      <ion-item>
+        <ion-select
+          label="Región"
+          labelPlacement="floating"
+          formControlName="region"
+          placeholder="Selecciona tu región"
+          (ionChange)="onRegionChange()"
+        >
+          <ion-select-option *ngFor="let region of regiones" [value]="region.nombre">{{ region.nombre }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div *ngIf="editProfileForm.get('region')?.invalid && editProfileForm.get('region')?.touched" class="validation-error">
+        <small *ngIf="editProfileForm.get('region')?.errors?.['required']">La región es requerida.</small>
+      </div>
+
+      <ion-item>
+        <ion-select
+          label="Comuna"
+          labelPlacement="floating"
+          formControlName="comuna"
+          placeholder="Selecciona tu comuna"
+          [disabled]="!comunas.length"
+        >
+          <ion-select-option *ngFor="let comuna of comunas" [value]="comuna">{{ comuna }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div *ngIf="editProfileForm.get('comuna')?.invalid && editProfileForm.get('comuna')?.touched" class="validation-error">
+        <small *ngIf="editProfileForm.get('comuna')?.errors?.['required']">La comuna es requerida.</small>
+      </div>
+
+    </ion-list>
+
+    <ion-button expand="block" type="submit" [disabled]="editProfileForm.invalid" class="ion-margin-top">
+      Guardar Cambios
+    </ion-button>
+  </form>
+</ion-content>

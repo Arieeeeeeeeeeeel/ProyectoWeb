@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mi Perfil de Usuario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card *ngIf="currentUser">
+    <ion-card-header>
+      <ion-card-title>¡Bienvenido, {{ currentUser.usuario }}!</ion-card-title>
+      <ion-card-subtitle>Este es tu espacio personal.</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p><strong>Usuario:</strong> {{ currentUser.usuario }}</p>
+      <p><strong>RUT:</strong> {{ currentUser.rut }}</p>
+      <p><strong>Correo Electrónico:</strong> {{ currentUser.email }}</p>
+      <p><strong>Región:</strong> {{ currentUser.region }}</p>
+      <p><strong>Comuna:</strong> {{ currentUser.comuna }}</p>
+      <p>Aquí podrás ver y gestionar tu información personal, historial de pedidos, favoritos, etc.</p>
+
+      <ion-button expand="block" class="ion-margin-top" (click)="goToEditProfile()">
+        <ion-icon slot="start" name="create-outline"></ion-icon>
+        Editar Perfil
+      </ion-button>
+
+      <ion-button expand="block" color="danger" class="ion-margin-top" (click)="logout()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Cerrar Sesión
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <div *ngIf="!currentUser" class="ion-text-center">
+    <p>Cargando información del usuario o no has iniciado sesión.</p>
+    <ion-spinner></ion-spinner>
+  </div>
+</ion-content>
