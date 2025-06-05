@@ -132,7 +132,7 @@ export class RegistrarPage implements OnInit {
   async showTermsAndConditions(event: Event) {
     event.preventDefault();
     const toast = await this.toastController.create({
-      message: 'Aquí irían los términos y condiciones de tu servicio. Podrías mostrar un modal más grande o redirigir a una página dedicada.',
+      message: 'jaja acepta no más mi washx, confia',
       duration: 5000,
       color: 'light',
       position: 'middle',
