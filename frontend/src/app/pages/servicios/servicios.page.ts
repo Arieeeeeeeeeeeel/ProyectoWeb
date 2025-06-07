@@ -10,27 +10,27 @@ import { Component, OnInit } from '@angular/core';
 export class ServiciosPage {
   imagenes = [
     {
-      src: '/assets/auto prmo.jpg',
+      src: '/assets/diagnostico.png',
       alt: 'Imagen promocional de auto 1',
       link: '/seleccion-servicio'
     },
     {
-      src: '/assets/auto prmo.jpg',
+      src: '/assets/desabolladura.png',
       alt: 'Imagen promocional de auto 2',
       link: '/home'
     },
     {
-      src: '/assets/auto prmo.jpg',
+      src: '/assets/neumaticos.png',
       alt: 'Imagen promocional de auto 3',
       link: '/home'
     },
     {
-      src: '/assets/auto prmo.jpg',
+      src: '/assets/domicilio.png',
       alt: 'Imagen promocional de auto 4',
       link: '/home'
     },
     {
-      src: '/assets/auto prmo.jpg',
+      src: '/assets/mantenimiento.png',
       alt: 'Imagen promocional de auto 5',
       link: '/home'
     }
