@@ -4,7 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 import jwt
 from functools import wraps
-
+from flask_marshmallow import Marshmallow
+from marshmallow import ValidationError, fields, validate
+from models import Usuario, Vehiculo, Servicio, Producto, Oferta, Carrito, CarritoItem, DetalleCompra, Compra, Reserva
 
 def token_required(f):
     @wraps(f)
@@ -29,150 +31,139 @@ def token_required(f):
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:axeler8@localhost/BD_lyl'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Cachulo1500_@localhost/BD_lyl'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'root'
 
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 
-class Usuario(db.Model):
-    __tablename__ = 'USUARIO'
-    personaid      = db.Column(db.Integer, primary_key=True)
-    rut            = db.Column(db.String(20), unique=True, nullable=False)
-    nombre         = db.Column(db.String(100), nullable=False)
-    apellido       = db.Column(db.String(100), nullable=False)
-    correo         = db.Column(db.String(150), unique=True, nullable=False)
-    contrasena     = db.Column(db.String(255), nullable=False)
-    telefono       = db.Column(db.String(20), nullable=False)
-    region         = db.Column(db.String(100), nullable=False)
-    comuna         = db.Column(db.String(100), nullable=False)
-    fecha_registro = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    vehiculos      = db.relationship('Vehiculo', backref='usuario', lazy=True)
-    compras        = db.relationship('Compra', backref='usuario', lazy=True)
-    reservas       = db.relationship('Reserva', backref='usuario', lazy=True)
+class UsuarioSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Usuario
+        load_instance = True
 
-class Vehiculo(db.Model):
-    __tablename__ = 'VEHICULO'
-    vehiculo_id      = db.Column(db.Integer, primary_key=True)
-    marca            = db.Column(db.String(50), nullable=False)
-    modelo           = db.Column(db.String(50), nullable=False)
-    ano              = db.Column(db.Integer, nullable=False)
-    patente          = db.Column(db.String(20), nullable=False)
-    tipo_combustible = db.Column(db.String(50), nullable=False)
-    color            = db.Column(db.String(30), nullable=False)
-    apodo            = db.Column(db.String(50))
-    usuario_rut      = db.Column(db.String(20), db.ForeignKey('USUARIO.rut'), nullable=False)
-    reservas         = db.relationship('Reserva', backref='vehiculo', lazy=True)
+    # Validaciones específicas para los campos
+    correo = fields.Email(required=True)  # Validación de formato de correo
+    contrasena = fields.String(required=True, load_only=True, validate=validate.Length(min=6))  # `load_only=True` para que no se incluya en las respuestas
+    rut = fields.String(required=True)
+    telefono = fields.String(required=True)
+    region = fields.String(required=True)
+    comuna = fields.String(required=True)
+    nombre = fields.String(required=True)
+    apellido = fields.String(required=True)
 
-class Servicio(db.Model):
-    __tablename__ = 'SERVICIO'
-    servicio_id       = db.Column(db.Integer, primary_key=True)
-    nombre            = db.Column(db.String(100), nullable=False)
-    descripcion       = db.Column(db.Text)
-    precio            = db.Column(db.Numeric(10,2), nullable=False)
-    duracion_estimada = db.Column(db.Integer)
-    a_domicilio       = db.Column(db.Boolean, default=False)
-    reservas          = db.relationship('Reserva', backref='servicio', lazy=True)
-    ofertas           = db.relationship('Oferta', backref='servicio', lazy=True)
+class VehiculoSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Vehiculo
+        load_instance = True   
+    
+class ServicioSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Servicio
+        load_instance = True
 
-class Producto(db.Model):
-    __tablename__ = 'PRODUCTO'
-    producto_id    = db.Column(db.Integer, primary_key=True)
-    nombre         = db.Column(db.String(100), nullable=False)
-    descripcion    = db.Column(db.Text)
-    marca          = db.Column(db.String(50))
-    modelo         = db.Column(db.String(50))
-    ano_compatible = db.Column(db.Integer)
-    stock          = db.Column(db.Integer, default=0)
-    precio         = db.Column(db.Numeric(10,2), nullable=False)
-    rating         = db.Column(db.Numeric(3,2))
-    imagen_url     = db.Column(db.String(255))
-    ofertas        = db.relationship('Oferta', backref='producto', lazy=True)
+class ProductoSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Producto
+        load_instance = True
 
-class Oferta(db.Model):
-    __tablename__ = 'OFERTA'
-    oferta_id    = db.Column(db.Integer, primary_key=True)
-    tipo         = db.Column(db.String(50))
-    descuento    = db.Column(db.Numeric(5,2))
-    fecha_inicio = db.Column(db.Date)
-    fecha_fin    = db.Column(db.Date)
-    servicio_id  = db.Column(db.Integer, db.ForeignKey('SERVICIO.servicio_id'))
-    producto_id  = db.Column(db.Integer, db.ForeignKey('PRODUCTO.producto_id'))
+class OfertaSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Oferta
+        load_instance = True
 
-class Carrito(db.Model):
-    __tablename__ = 'CARRITO'
-    carrito_id     = db.Column(db.Integer, primary_key=True)
-    fecha_creacion = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    usuario_rut    = db.Column(db.String(20), db.ForeignKey('USUARIO.rut'))
-    items          = db.relationship('CarritoItem', backref='carrito', lazy=True, cascade='all, delete-orphan')
+class CarritoSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Carrito
+        load_instance = True
 
-class CarritoItem(db.Model):
-    __tablename__ = 'CARRITO_ITEM'
-    carrito_id   = db.Column(db.Integer, db.ForeignKey('CARRITO.carrito_id'), primary_key=True)
-    producto_id  = db.Column(db.Integer, db.ForeignKey('PRODUCTO.producto_id'), primary_key=True)
-    cantidad     = db.Column(db.Integer, nullable=False)
+class CarritoItemSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CarritoItem
+        load_instance = True
 
-class Compra(db.Model):
-    __tablename__ = 'COMPRA'
-    compra_id           = db.Column(db.Integer, primary_key=True)
-    fecha_compra        = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    fecha_entrega_estim = db.Column(db.DateTime)
-    total               = db.Column(db.Numeric(10,2), nullable=False)
-    estado_pago         = db.Column(db.String(50), nullable=False)
-    usuario_rut         = db.Column(db.String(20), db.ForeignKey('USUARIO.rut'), nullable=False)
-    detalles            = db.relationship('DetalleCompra', backref='compra', lazy=True, cascade='all, delete-orphan')
+class DetalleCompraSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = DetalleCompra
+        load_instance = True
+    
+    producto_id = fields.Integer()
+    cantidad = fields.Integer()
+    precio_unitario = fields.Float()
 
-class DetalleCompra(db.Model):
-    __tablename__ = 'DETALLE_COMPRA'
-    compra_id       = db.Column(db.Integer, db.ForeignKey('COMPRA.compra_id'), primary_key=True)
-    producto_id     = db.Column(db.Integer, db.ForeignKey('PRODUCTO.producto_id'), primary_key=True)
-    cantidad        = db.Column(db.Integer, nullable=False)
-    precio_unitario = db.Column(db.Numeric(10,2), nullable=False)
+class CompraSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Compra
+        load_instance = True
+    
+    detalles = fields.Nested(DetalleCompraSchema, many=True)  # 'many=True' porque es una lista de detalles
+    compra_id = fields.Integer()
+    total = fields.Float()
+    estado_pago = fields.String()
+    fecha_compra = fields.DateTime()
+    fecha_entrega_estim = fields.DateTime()
 
-class Reserva(db.Model):
-    __tablename__ = 'RESERVA'
-    reserva_id    = db.Column(db.Integer, primary_key=True)
-    fecha_reserva = db.Column(db.DateTime, nullable=False)
-    estado        = db.Column(db.String(50), nullable=False)
-    ubicacion     = db.Column(db.String(255), nullable=False)
-    notas         = db.Column(db.Text)
-    usuario_rut   = db.Column(db.String(20), db.ForeignKey('USUARIO.rut'), nullable=False)
-    vehiculo_id   = db.Column(db.Integer, db.ForeignKey('VEHICULO.vehiculo_id'), nullable=False)
-    servicio_id   = db.Column(db.Integer, db.ForeignKey('SERVICIO.servicio_id'), nullable=False)
+class ReservaSchema(ma.SQLAlchemyAutoSchema): 
+    class Meta:
+        model = Reserva
+        load_instance = True
 
+
+class LoginSchema(ma.Schema):
+    correo = fields.Email(required=True)
+    contrasena = fields.String(required=True, load_only=True, validate=validate.Length(min=6))
+
+class UpdateProfileSchema(ma.Schema):
+    nombre = fields.String(validate=validate.Length(min=1))
+    apellido = fields.String(validate=validate.Length(min=1))
+    telefono = fields.String(validate=validate.Length(min=1))
+    region = fields.String(validate=validate.Length(min=1))
+    comuna = fields.String(validate=validate.Length(min=1))
+    correo = fields.Email(validate=validate.Length(min=1))
 
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    required = ['rut','nombre','apellido','correo','contrasena','telefono','region','comuna']
-    if any(field not in data for field in required):
-        return jsonify({'error':'Faltan datos obligatorios'}), 400
-    if Usuario.query.filter_by(rut=data['rut']).first() or Usuario.query.filter_by(correo=data['correo']).first():
-        return jsonify({'error':'Usuario ya existe'}), 400
+
+    user_schema = UsuarioSchema()
+    try:
+        user_data = user_schema.load(data) 
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+    
+    if Usuario.query.filter_by(rut=user_data.rut).first() or Usuario.query.filter_by(correo=user_data.correo).first():
+        return jsonify({'error': 'Usuario ya existe'}), 400
     user = Usuario(
-        rut=data['rut'],
-        nombre=data['nombre'],
-        apellido=data['apellido'],
-        correo=data['correo'],
-        contrasena=generate_password_hash(data['contrasena']),
-        telefono=data['telefono'],
-        region=data['region'],
-        comuna=data['comuna']
+        rut=user_data.rut,
+        nombre=user_data.nombre,
+        apellido=user_data.apellido,
+        correo=user_data.correo,
+        contrasena=generate_password_hash(user_data.contrasena),
+        telefono=user_data.telefono,
+        region=user_data.region,
+        comuna=user_data.comuna
     )
     db.session.add(user)
     db.session.commit()
-    return jsonify({'message':'Usuario creado','personaid':user.personaid}), 201
+    return user_schema.jsonify(user), 201
 
 
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    if not data.get('correo') or not data.get('contrasena'):
-        return jsonify({'error':'Correo y contraseña requeridos'}), 400
-    user = Usuario.query.filter_by(correo=data['correo']).first()
-    if not user or not check_password_hash(user.contrasena, data['contrasena']):
+    login_schema = LoginSchema()
+    
+    try :
+        login_data = login_schema.load(data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+    
+    user = Usuario.query.filter_by(correo=login_data['correo']).first()
+    if not user or not check_password_hash(user.contrasena, login_data['contrasena']):
         return jsonify({'error':'Credenciales inválidas'}), 401
+    
     token = jwt.encode(
         {'personaid': user.personaid, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)},
         app.config['SECRET_KEY'],
@@ -192,6 +183,10 @@ def start_recovery():
     data = request.get_json()
     if not data.get('correo'):
         return jsonify({'error':'Correo requerido'}), 400
+    user = Usuario.query.filter_by(correo=data['correo']).first()
+    if not user:
+        return jsonify({'error':'Usuario no encontrado'}), 404
+    
 
     return jsonify({'message':'Recovery token enviado'}), 200
 
@@ -210,10 +205,17 @@ def update_profile(personaid):
     user = Usuario.query.get(personaid)
     if not user:
         return jsonify({'error':'Usuario no encontrado'}), 404
+    
     data = request.get_json()
-    for field in ['nombre','apellido','telefono','region','comuna','correo']:
-        if field in data:
-            setattr(user, field, data[field])
+    update_schema = UpdateProfileSchema()
+    try:
+        update_data = update_schema.load(data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+    
+    for field in update_data:
+        setattr(user, field, update_data[field])
+
     db.session.commit()
     return jsonify({'message':f'Perfil de {personaid} actualizado'}), 200
 
@@ -225,6 +227,10 @@ def get_purchases(personaid):
     if not user:
         return jsonify({'error':'Usuario no encontrado'}), 404
     compras = Compra.query.filter_by(usuario_rut=user.rut).all()
+
+    compras_schema = CompraSchema(many=True)
+    return compras_schema.jsonify(compras), 200
+
     result = []
     for c in compras:
         detalles = [
