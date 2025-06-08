@@ -3,7 +3,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { ToastController, NavController } from '@ionic/angular'; // Importa NavController
-import { AuthService } from '../../services/auth.service'; // Importa el AuthService
+import { AuthService, UserProfile } from '../../services/auth.service'; // Importa el AuthService
 
 // ... (tu interfaz Region y array regiones) ...
 interface Region {
@@ -106,27 +106,23 @@ export class RegistrarPage implements OnInit {
 
   async onSubmit() {
     this.registerForm.markAllAsTouched();
-
-    if (this.registerForm.valid) {
-      console.log('Formulario de registro válido:', this.registerForm.value);
-
-      // LLAMAR AL SERVICIO DE AUTENTICACIÓN PARA REGISTRAR AL USUARIO
-      const registeredSuccessfully = this.authService.registerUser(this.registerForm.value);
-
-      if (registeredSuccessfully) {
-        await this.presentToast('¡Registro exitoso! Ya puedes iniciar sesión.', 'success');
-        this.registerForm.reset(); // Limpiar el formulario
-        this.registerForm.get('comuna')?.disable(); // Deshabilitar comuna después del reset
-        // Opcional: Redirigir al usuario a la página de login
-        this.navController.navigateRoot('/home'); // O a '/login' si tienes una página de login dedicada
-      } else {
-        await this.presentToast('Error: El correo electrónico ya está registrado.', 'danger');
-      }
-
-    } else {
-      console.log('Formulario de registro inválido');
-      await this.presentToast('Por favor, completa todos los campos correctamente.', 'danger');
+    if (!this.registerForm.valid) {
+      return this.presentToast('Por favor, completa todos los campos correctamente.', 'danger');
     }
+    const { usuario, rut, correo, region, comuna, contrasena } = this.registerForm.value;
+    this.authService.registerUser({ usuario, rut, correo, region, comuna, contrasena })
+      .subscribe({
+        next: async (user: UserProfile) => {
+          await this.presentToast('¡Registro exitoso! Bienvenido, ' + user.usuario, 'success');
+          // Navegar a perfil
+          this.navController.navigateRoot('/user-profile');
+        },
+        error: async err => {
+          console.error(err);
+          const msg = err.error?.error || 'Hubo un problema en el registro.';
+          await this.presentToast(`Error: ${msg}`, 'danger');
+        }
+      });
   }
 
   async showTermsAndConditions(event: Event) {
@@ -140,13 +136,8 @@ export class RegistrarPage implements OnInit {
     toast.present();
   }
 
-  async presentToast(message: string, color: string) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      color: color,
-      position: 'bottom',
-    });
+  private async presentToast(message: string, color: string) {
+    const toast = await this.toastController.create({ message, duration: 3000, color, position: 'bottom' });
     toast.present();
   }
 }

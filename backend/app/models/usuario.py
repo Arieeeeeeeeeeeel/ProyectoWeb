@@ -15,3 +15,4 @@ class Usuario(db.Model):
     vehiculos      = db.relationship('Vehiculo', backref='usuario', lazy=True)
     compras        = db.relationship('Compra', backref='usuario', lazy=True)
     reservas       = db.relationship('Reserva', backref='usuario', lazy=True)
+    

@@ -72,7 +72,7 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
         this.editProfileForm.patchValue({
           usuario: this.currentUser.usuario,
           rut: this.currentUser.rut,
-          email: this.currentUser.email,
+          email: this.currentUser.correo,
           region: this.currentUser.region,
           comuna: this.currentUser.comuna,
         });
@@ -131,14 +131,16 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
         email: this.editProfileForm.value.email.trim().toLowerCase(),
       };
 
-      const success = this.authService.updateUserProfile(updatedProfile);
-
-      if (success) {
-        await this.presentToast('Perfil actualizado exitosamente!', 'success');
-        this.navController.navigateBack('/user-profile'); // Volver a la página de perfil
-      } else {
-        await this.presentToast('Error al actualizar el perfil.', 'danger');
-      }
+      this.authService.updateUserProfile(updatedProfile)
+      .subscribe({
+        next: async user => {
+          await this.presentToast('Perfil actualizado exitosamente!', 'success');
+          this.navController.navigateBack('/user-profile');
+        },
+        error: async err => {
+          await this.presentToast('Error al actualizar el perfil.', 'danger');
+        }
+      });
     } else {
       await this.presentToast('Por favor, completa todos los campos correctamente.', 'danger');
     }
