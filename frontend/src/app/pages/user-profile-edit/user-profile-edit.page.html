@@ -43,14 +43,14 @@
         <ion-input
           label="Correo Electrónico"
           labelPlacement="floating"
-          formControlName="email"
+          formControlName="correo"
           type="email"
           placeholder="Ej: correo@ejemplo.com"
           [readonly]="true" ></ion-input>
       </ion-item>
-      <div *ngIf="editProfileForm.get('email')?.invalid && editProfileForm.get('email')?.touched" class="validation-error">
-        <small *ngIf="editProfileForm.get('email')?.errors?.['required']">El correo es requerido.</small>
-        <small *ngIf="editProfileForm.get('email')?.errors?.['email']">Formato de correo inválido.</small>
+      <div *ngIf="editProfileForm.get('correo')?.invalid && editProfileForm.get('correo')?.touched" class="validation-error">
+        <small *ngIf="editProfileForm.get('correo')?.errors?.['required']">El correo es requerido.</small>
+        <small *ngIf="editProfileForm.get('correo')?.errors?.['email']">Formato de correo inválido.</small>
       </div>
 
       <ion-item>

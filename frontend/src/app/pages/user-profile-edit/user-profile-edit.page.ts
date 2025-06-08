@@ -55,7 +55,7 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
     this.editProfileForm = this.fb.group({
       usuario: ['', [Validators.required, Validators.minLength(3)]],
       rut: ['', [Validators.required, Validators.pattern(/^[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}-[0-9Kk]$/)]],
-      email: ['', [Validators.required, Validators.email]], // Usar 'email' consistentemente
+      correo: ['', [Validators.required, Validators.email]], // Usar 'email' consistentemente
       region: ['', Validators.required],
       comuna: ['', Validators.required],
       // La contraseña y confirmación no las incluimos aquí para una edición simple
@@ -72,7 +72,7 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
         this.editProfileForm.patchValue({
           usuario: this.currentUser.usuario,
           rut: this.currentUser.rut,
-          email: this.currentUser.correo,
+          correo: this.currentUser.correo,
           region: this.currentUser.region,
           comuna: this.currentUser.comuna,
         });
@@ -124,14 +124,14 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
 
     if (this.editProfileForm.valid && this.currentUser) {
       // Crear un objeto UserProfile actualizado, manteniendo la contraseña original
-      const updatedProfile: UserProfile = {
-        ...this.currentUser, // Copia los datos actuales
-        ...this.editProfileForm.value, // Sobreescribe con los datos del formulario
-        // Asegúrate de que email siempre esté en minúsculas y sin espacios al guardar
-        email: this.editProfileForm.value.email.trim().toLowerCase(),
+      const payload = {
+        usuario: this.editProfileForm.value.usuario.trim(),
+        correo: this.editProfileForm.value.correo.trim().toLowerCase(),
+        region: this.editProfileForm.value.region,
+        comuna: this.editProfileForm.value.comuna
       };
 
-      this.authService.updateUserProfile(updatedProfile)
+      this.authService.updateUserProfile(this.currentUser.personaid, payload)
       .subscribe({
         next: async user => {
           await this.presentToast('Perfil actualizado exitosamente!', 'success');

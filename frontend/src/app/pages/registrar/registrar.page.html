@@ -41,7 +41,7 @@
       </ion-item>
       <div *ngIf="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched" class="validation-error">
         <small *ngIf="registerForm.get('correo')?.errors?.['required']">El correo es requerido.</small>
-        <small *ngIf="registerForm.get('correo')?.errors?.['email']">Formato de correo inválido.</small>
+        <small *ngIf="registerForm.get('correo')?.errors?.['correo']">Formato de correo inválido.</small>
       </div>
 
       <ion-item>

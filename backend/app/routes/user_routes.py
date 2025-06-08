@@ -4,10 +4,12 @@ from ..models.usuario import Usuario
 from ..schemas.update_profile_schema import UpdateProfileSchema
 from app.utils import token_required
 from .. import db
+from flask_cors import cross_origin
 
-bp = Blueprint('user', __name__)
+bp = Blueprint('profile', __name__)
 
 @bp.route('/<personaid>/update_profile', methods=['PUT'])
+@cross_origin(origin="*")
 @token_required
 def update_profile(personaid):
     user = Usuario.query.get(personaid)
@@ -21,8 +23,10 @@ def update_profile(personaid):
     except ValidationError as err:
         return jsonify(err.messages), 400
     
-    for field in update_data:
-        setattr(user, field, update_data[field])
-
+    for field, value in update_data.items():
+       setattr(user, field, value)
     db.session.commit()
-    return jsonify({'message':f'Perfil de {personaid} actualizado'}), 200
+
+    from ..schemas.usuario_schema import UsuarioSchema
+    user_schema = UsuarioSchema()
+    return user_schema.jsonify(user), 200
