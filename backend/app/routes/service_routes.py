@@ -2,7 +2,8 @@ from flask import Blueprint, jsonify, request
 from ..models.reserva import Reserva
 from ..models.servicio import Servicio
 from app.utils import token_required
-
+from .. import db
+import datetime
 bp = Blueprint('service', __name__)
 
 def serialize_reserva(r):
