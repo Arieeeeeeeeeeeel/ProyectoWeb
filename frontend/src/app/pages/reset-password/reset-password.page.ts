@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -11,38 +12,65 @@ import { AlertController, ToastController } from '@ionic/angular';
 export class ResetPasswordPage implements OnInit {
   newPassword!: string;
   confirmPassword!: string;
+  token!: string;
+  personaid!: number;
 
   constructor(
     private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private authService: AuthService,
     private alertController: AlertController,
     private toastController: ToastController
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.token = params['token'] || '';
+      this.personaid = params['id'] ? +params['id'] : 0;
+    });
+  }
 
   async resetPassword() {
     if (this.newPassword !== this.confirmPassword) {
       const alert = await this.alertController.create({
         header: 'Error',
-        message: 'Las contraseñas no coinciden. Por favor, inténtalo de nuevo.',
-        buttons: ['OK'],
+        message: 'Las contraseñas no coinciden.',
+        buttons: ['OK']
       });
       await alert.present();
       return;
     }
 
-    // Aquí es donde integrarías la lógica para enviar la nueva contraseña a tu backend.
-    // Por ejemplo, podrías llamar a un servicio de autenticación.
-    console.log('Nueva Contraseña:', this.newPassword);
+    if (!this.token || !this.personaid) {
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'Faltan token o identificador de usuario.',
+        buttons: ['OK']
+      });
+      await alert.present();
+      return;
+    }
 
-    // Simulación de éxito
-    const toast = await this.toastController.create({
-      message: 'Tu contraseña ha sido restablecida con éxito.',
-      duration: 2000,
-      color: 'success',
-    });
-    await toast.present();
-
-    this.router.navigateByUrl('/login', { replaceUrl: true });
+    this.authService
+      .confirmPasswordReset(this.personaid, this.token, this.newPassword)
+      .subscribe({
+        next: async () => {
+          const toast = await this.toastController.create({
+            message: 'Contraseña restablecida con éxito.',
+            duration: 2000,
+            color: 'success'
+          });
+          await toast.present();
+          this.router.navigateByUrl('/login', { replaceUrl: true });
+        },
+        error: async err => {
+          const alert = await this.alertController.create({
+            header: 'Error',
+            message: err.error?.error || 'Problema al restablecer contraseña.',
+            buttons: ['OK']
+          });
+          await alert.present();
+        }
+      });
   }
 }

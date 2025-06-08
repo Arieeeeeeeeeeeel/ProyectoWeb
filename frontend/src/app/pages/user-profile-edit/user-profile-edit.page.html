@@ -32,6 +32,7 @@
           type="text"
           placeholder="Ej: 12.345.678-K"
           (ionChange)="formatRut()"
+          [readonly]="true"
         ></ion-input>
       </ion-item>
       <div *ngIf="editProfileForm.get('rut')?.invalid && editProfileForm.get('rut')?.touched" class="validation-error">
@@ -46,7 +47,7 @@
           formControlName="correo"
           type="email"
           placeholder="Ej: correo@ejemplo.com"
-          [readonly]="true" ></ion-input>
+          ></ion-input>
       </ion-item>
       <div *ngIf="editProfileForm.get('correo')?.invalid && editProfileForm.get('correo')?.touched" class="validation-error">
         <small *ngIf="editProfileForm.get('correo')?.errors?.['required']">El correo es requerido.</small>

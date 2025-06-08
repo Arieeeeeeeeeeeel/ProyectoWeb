@@ -113,9 +113,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         {
           text: 'Cancelar',
           role: 'cancel',
-          handler: () => {
-            console.log('Alerta de restablecimiento de contraseña cancelada.');
-          }
         },
         {
           text: 'Enviar',
@@ -125,15 +122,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
               this.presentToast('Por favor, ingresa un correo electrónico válido.', 'danger');
               return false; // Evita que el alert se cierre
             }
-
             // Llama al servicio para restablecer la contraseña
-            this.authService.resetPassword(email).subscribe({
+            this.authService.requestPasswordReset(email).subscribe({
               next: () => {
                 this.presentToast('Se ha enviado un enlace de restablecimiento a tu correo electrónico.', 'success');
                 forgotPasswordAlert.dismiss(); // Cierra el alert de restablecimiento
               },
-              error: err => {
-                console.error('Error al restablecer contraseña:', err);
+              error: () => {
                 this.presentToast('No se pudo enviar el enlace. Por favor, intenta de nuevo.', 'danger');
               }
             });

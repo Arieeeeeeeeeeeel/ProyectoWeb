@@ -21,7 +21,8 @@ export interface UserProfile {
 export class AuthService {
   private API_URL = 'http://localhost:5000/auth'; // URL base para autenticación
   private USER_URL = 'http://localhost:5000/profile'; // URL base para perfiles de usuario
-  
+  private RECOVERY_URL = 'http://localhost:5000/recovery'; // URL base para recuperación de contraseña
+
   private currentUserSubject = new BehaviorSubject<UserProfile | null>(null);
   currentUser$: Observable<UserProfile | null> = this.currentUserSubject.asObservable();
 
@@ -87,10 +88,17 @@ export class AuthService {
    * @param correo El correo electrónico del usuario que olvidó su contraseña.
    * @returns Un Observable que se completa si la solicitud es exitosa.
    */
-  resetPassword(correo: string): Observable<any> {
-    // El endpoint para restablecimiento de contraseña podría ser algo como '/forgot-password'
-    // o '/reset-password-request'. Ajusta 'forgot-password' si tu API usa otro.
-    return this.http.post<any>(`${this.API_URL}/forgot-password`, { correo });
+  requestPasswordReset(correo: string): Observable<any> {
+    return this.http.post<any>(`${this.RECOVERY_URL}/recovery`, { correo });
+  }
+
+  confirmPasswordReset(
+    personaid: number,
+    token: string,
+    nuevaContrasena: string
+  ): Observable<any> {
+    const url = `${this.RECOVERY_URL}/${personaid}/recovery?token=${token}`;
+    return this.http.put<any>(url, { token, nueva_contrasena: nuevaContrasena });
   }
 
   /**
