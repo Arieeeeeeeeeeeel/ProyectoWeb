@@ -37,11 +37,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   async presentLoginAlert() {
     const alert = await this.alertController.create({
       header: 'Iniciar Sesión',
-      subHeader: `
-        <div style="text-align: right; margin-top: 5px;">
-          <a href="#" id="forgotPasswordLink" style="color: var(--ion-color-primary); text-decoration: none;">¿Olvidaste tu contraseña?</a>
-        </div>
-      `,
       inputs: [
         { name: 'email', type: 'email', placeholder: 'Correo electrónico', attributes: { required: true } },
         { name: 'password', type: 'password', placeholder: 'Contraseña', attributes: { required: true } },

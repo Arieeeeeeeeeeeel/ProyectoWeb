@@ -6,11 +6,9 @@ USE BD_lyl;
 CREATE TABLE USUARIO (
   personaid       INT            NOT NULL AUTO_INCREMENT,
   rut             VARCHAR(20)    NOT NULL UNIQUE,
-  nombre          VARCHAR(100)   NOT NULL,
-  apellido        VARCHAR(100)   NOT NULL,
+  usuario         VARCHAR(100)   NOT NULL,
   correo          VARCHAR(150)   NOT NULL UNIQUE,
   contrasena      VARCHAR(255)   NOT NULL,
-  telefono        VARCHAR(20)    NOT NULL,
   region          VARCHAR(100)   NOT NULL,
   comuna          VARCHAR(100)   NOT NULL,
   fecha_registro  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -168,44 +166,3 @@ CREATE TABLE RESERVA (
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
-
--- 2. Datos de prueba
-
-INSERT INTO USUARIO (rut, nombre, apellido, correo, contrasena, telefono, region, comuna) VALUES
- ('11.111.111-1', 'Juan',   'Pérez',  'juan.perez@mail.cl',   'hashclave1', '912345678', 'Metropolitana', 'Santiago'),
- ('22.222.222-2', 'María',  'Gómez',  'maria.gomez@mail.cl',  'hashclave2', '923456789', 'Valparaíso',    'Viña del Mar'),
- ('33.333.333-3', 'Carlos', 'Rojas',  'carlos.rojas@mail.cl', 'hashclave3', '934567890', 'Biobío',         'Concepción');
-
-INSERT INTO VEHICULO (marca, modelo, ano, patente, tipo_combustible, color, apodo, usuario_rut) VALUES
- ('Toyota', 'Corolla', 2020, 'ABC123', 'Gasolina', 'Blanco', 'MiCorolla', '11.111.111-1'),
- ('Honda',  'Civic',   2018, 'XYZ987', 'Diésel',   'Negro',  'Civi',      '22.222.222-2');
-
-INSERT INTO SERVICIO (nombre, descripcion, precio, duracion_estimada, a_domicilio) VALUES
- ('Cambio de aceite', 'Servicio completo de cambio de aceite y filtro', 45.00, 1, FALSE),
- ('Lavado premium',   'Lavado exterior e interior con cera',             30.00, 2, TRUE);
-
-INSERT INTO PRODUCTO (nombre, descripcion, marca, modelo, ano_compatible, stock, precio, rating, imagen_url) VALUES
- ('Filtro de aire', 'Filtro de aire para motor', 'Bosch', 'A123', 2020, 50, 15.99, 4.5, 'http://.../filtro.jpg'),
- ('Bujía',         'Bujía de alta performance', 'NGK',   'B456', 2018, 80,  9.49, 4.7, 'http://.../bujia.jpg');
-
-INSERT INTO OFERTA (tipo, descuento, fecha_inicio, fecha_fin, servicio_id, producto_id) VALUES
- ('Temporada', 10.00, '2025-06-01', '2025-06-30', 1, NULL),
- ('Especial',   5.00, '2025-06-05', '2025-06-20', NULL, 2);
-
-INSERT INTO CARRITO (usuario_rut) VALUES
- ('11.111.111-1');
-
-INSERT INTO CARRITO_ITEM (carrito_id, producto_id, cantidad) VALUES
- (1, 1, 2),
- (1, 2, 1);
-
-INSERT INTO COMPRA (fecha_entrega_estim, total, estado_pago, usuario_rut) VALUES
- ('2025-06-10 15:00:00', 41.47, 'Pagado', '11.111.111-1');
-
-INSERT INTO DETALLE_COMPRA (compra_id, producto_id, cantidad, precio_unitario) VALUES
- (1, 1, 2, 15.99),
- (1, 2, 1,  9.49);
-
-INSERT INTO RESERVA (fecha_reserva, estado, ubicacion, notas, usuario_rut, vehiculo_id, servicio_id) VALUES
- ('2025-06-12 10:30:00', 'Confirmada', 'Taller Central, Stgo.', 'Sin observaciones', '22.222.222-2', 2, 1);

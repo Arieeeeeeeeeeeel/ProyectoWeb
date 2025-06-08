@@ -26,11 +26,9 @@ def signup():
         return jsonify({'error': 'Usuario ya existe'}), 400
     user = Usuario(
         rut=user_data.rut,
-        nombre=user_data.nombre,
-        apellido=user_data.apellido,
+        usuario=user_data.usuario,
         correo=user_data.correo,
         contrasena=generate_password_hash(user_data.contrasena),
-        telefono=user_data.telefono,
         region=user_data.region,
         comuna=user_data.comuna
     )
