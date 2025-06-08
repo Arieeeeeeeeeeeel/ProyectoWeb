@@ -62,7 +62,12 @@ def login():
         algorithm='HS256'
     )
 
-    return jsonify({'token': token}), 200
+    user_schema = UsuarioSchema()
+    user_data = user_schema.dump(user)
+    return jsonify({
+        'token': token,
+        'user': user_data
+    }), 200
 
 @bp.route('/<personaid>/signout', methods=['POST'])
 @cross_origin(origin="http://localhost:8100")

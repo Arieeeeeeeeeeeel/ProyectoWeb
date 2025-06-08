@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { NavController } from '@ionic/angular';
 
 export interface UserProfile {
@@ -49,15 +49,19 @@ export class AuthService {
       );
   }
 
-  login(correo: string, contrasena: string): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(`${this.API_URL}/login`, { correo, contrasena })
-      .pipe(
-        tap(res => {
-          // Opcional: guardar token
-          localStorage.setItem('authToken', res.token);
-        })
-      );
-  }
+  login(correo: string, contrasena: string): Observable<UserProfile> {
+  return this.http.post<{ token: string; user: UserProfile }>(
+    `${this.API_URL}/login`, { correo, contrasena }
+  ).pipe(
+    tap(res => {
+      localStorage.setItem('authToken', res.token);
+      this.currentUserSubject.next(res.user);
+      localStorage.setItem('currentUser', JSON.stringify(res.user));
+    }),
+    // mapeamos el Observable para que devuelva directamente el UserProfile
+    map(res => res.user)
+  );
+}
 
   logout(): void {
     localStorage.removeItem('authToken');

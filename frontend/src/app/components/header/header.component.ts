@@ -23,7 +23,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-
+    this.authSubscription = this.authService.currentUser$
+      .subscribe(user => {
+        this.isLoggedIn = !!user;
+      });
   }
 
   ngOnDestroy() {
@@ -33,47 +36,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   async presentLoginAlert() {
-    const alert = await this.alertController.create({
-      header: 'Iniciar Sesión',
-      inputs: [
-        { name: 'email', type: 'email', placeholder: 'Correo electrónico', attributes: { required: true } },
-        { name: 'password', type: 'password', placeholder: 'Contraseña', attributes: { required: true } },
-      ],
-      buttons: [
-        { text: 'Cancelar', role: 'cancel', cssClass: 'secondary', handler: () => { console.log('Login cancelado'); return true; } },
-        {
-          text: 'Ingresar',
-          handler: (data) => {
-            if (!data.email || !data.password) {
-              this.presentToast('Por favor, ingresa tu correo y contraseña.', 'danger');
-              return false;
-            }
-
-            // LLAMAR AL SERVICIO DE AUTENTICACIÓN CON LOS DATOS INGRESADOS
-            const loginSuccessful = this.authService.login(data.email, data.password);
-
-            if (loginSuccessful) {
-              this.presentToast('¡Bienvenido!', 'success');
-              return true; // Cerrar el alert
-            } else {
+  const alert = await this.alertController.create({
+    header: 'Iniciar Sesión',
+    inputs: [
+      { name: 'email', type: 'email', placeholder: 'Correo electrónico' },
+      { name: 'password', type: 'password', placeholder: 'Contraseña' },
+    ],
+    buttons: [
+      { text: 'Cancelar', role: 'cancel' },
+      {
+        text: 'Ingresar',
+        handler: (data) => {
+          if (!data.email || !data.password) {
+            this.presentToast('Por favor, ingresa tu correo y contraseña.', 'danger');
+            return false;
+          }
+          // Llamamos al servicio y nos suscribimos
+          this.authService.login(data.email, data.password).subscribe({
+            next: user => {
+              this.presentToast(`¡Bienvenido, ${user.usuario}!`, 'success');
+              this.navController.navigateRoot('/user-profile');
+              alert.dismiss();        // cerramos el alert
+            },
+            error: err => {
               this.presentToast('Correo o contraseña incorrectos.', 'danger');
-              return false; // No cerrar el alert
             }
-          },
-        },
-      ],
-    });
-
-    await alert.present();
-
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    if (forgotPasswordLink) {
-      forgotPasswordLink.addEventListener('click', () => {
-        alert.dismiss();
-        this.navController.navigateForward('/forgot-password');
-      });
-    }
-  }
+          });
+          return false; // evitamos que el alert se cierre automáticamente
+        }
+      }
+    ]
+  });
+  await alert.present();
+}
 
   // --- Si usas ModalController, modifica tu presentLoginModal así: ---
   // async presentLoginModal() {
