@@ -37,7 +37,19 @@ def signup():
     )
     db.session.add(user)
     db.session.commit()
-    return user_schema.jsonify(user), 201
+    token = jwt.encode(
+        {
+            'personaid': user.personaid,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+        },
+        Config.SECRET_KEY,
+        algorithm='HS256'
+    )
+    result = user_schema.dump(user)
+    return jsonify({
+        'token': token,
+        'user': result
+    }), 201
 
 @bp.route('/login', methods=['POST'])
 @cross_origin(origin="http://localhost:8100")

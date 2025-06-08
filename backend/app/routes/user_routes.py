@@ -9,7 +9,7 @@ from flask_cors import cross_origin
 bp = Blueprint('profile', __name__)
 
 @bp.route('/<personaid>/update_profile', methods=['PUT'])
-@cross_origin(origin="*")
+@cross_origin(origin="http://localhost:8100")
 @token_required
 def update_profile(personaid):
     user = Usuario.query.get(personaid)

@@ -50,13 +50,16 @@ export class AuthService {
     comuna: string;
     contrasena: string;
   }): Observable<UserProfile> {
-    return this.http.post<UserProfile>(`${this.API_URL}/signup`, data)
-      .pipe(
-        tap(user => {
-          // Guarda el usuario actual en el BehaviorSubject y en localStorage
-          this.currentUserSubject.next(user);
-          localStorage.setItem('currentUser', JSON.stringify(user));
-        })
+    return this.http.post<{ token: string; user: UserProfile }>(
+      `${this.API_URL}/signup`, data
+    ).pipe(
+      tap(res => {
+        // Guarda el usuario actual en el BehaviorSubject y en localStorage
+        localStorage.setItem('authToken', res.token);
+        this.currentUserSubject.next(res.user);
+        localStorage.setItem('currentUser', JSON.stringify(res.user));
+      }),
+      map(res => res.user)
       );
   }
 
