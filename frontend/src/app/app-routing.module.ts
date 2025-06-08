@@ -52,7 +52,11 @@ const routes: Routes = [
   {
     path: 'user-profile-edit', // Nueva ruta para la edición del perfil
     loadChildren: () => import('./pages/user-profile-edit/user-profile-edit.module').then( m => m.UserProfileEditPageModule)
+  },  {
+    path: 'reset-password',
+    loadChildren: () => import('./pages/reset-password/reset-password.module').then( m => m.ResetPasswordPageModule)
   }
+
 ];
 
 
