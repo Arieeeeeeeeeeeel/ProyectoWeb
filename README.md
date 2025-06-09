@@ -50,7 +50,7 @@ cd ProyectoWeb/backend/database
 sudo mysql -u root -p < bd.sql
 ```
 
-Si deseas tener algunos datos de prueba, reemplaza `bd.sql` con `bd_lyl_prueba.sql`:
+Si deseas tener algunos datos de prueba, reemplaza `bd.sql` con `bd_lyl_prueba.sql`
 
 ```bash
 
