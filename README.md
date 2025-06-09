@@ -50,6 +50,10 @@ cd ProyectoWeb/backend/database
 sudo mysql -u root -p < bd.sql
 ```
 
+Si deseas tener algunos datos de prueba, reemplaza `bd.sql` con `bd_lyl_prueba.sql`:
+
+```bash
+
 **Importante**: Después de ejecutar el comando anterior, se te pedirá la contraseña del usuario `root` de MySQL.
 
 Luego, necesitas actualizar la cadena de conexión de la base de datos en el archivo de configuración del backend. Abre el archivo `ProyectoWeb/backend/app/config/config.py` y modifica la línea de conexión para que coincida con tu usuario y contraseña de MySQL:
