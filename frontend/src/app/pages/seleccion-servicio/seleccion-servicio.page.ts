@@ -24,7 +24,6 @@ export class SeleccionPage {
   guardarReserva() {
     if (this.reserva.aceptaTerminos) {
       console.log('Reserva guardada:', this.reserva);
-      // Aquí podrías llamar a un servicio para guardar en una API o base de datos
     }
   }
 }

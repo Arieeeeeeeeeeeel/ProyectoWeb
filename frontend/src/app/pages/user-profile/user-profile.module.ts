@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // Importa ReactiveFormsModule
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -12,7 +12,7 @@ import { UserProfilePage } from './user-profile.page';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule, // ¡Importante para profileForm!
+    ReactiveFormsModule, 
     IonicModule,
     UserProfilePageRoutingModule
   ],

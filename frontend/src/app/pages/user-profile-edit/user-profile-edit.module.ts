@@ -1,8 +1,6 @@
-// src/app/user-profile-edit/user-profile-edit.module.ts
-
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // ¡Importa ReactiveFormsModule!
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
 
 import { IonicModule } from '@ionic/angular';
 
@@ -14,7 +12,7 @@ import { UserProfileEditPage } from './user-profile-edit.page';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule, // ¡ESTO ES LO CLAVE!
+    ReactiveFormsModule, 
     IonicModule,
     UserProfileEditPageRoutingModule
   ],

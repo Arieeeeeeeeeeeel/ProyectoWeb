@@ -12,12 +12,10 @@ export class InventarioPage implements OnInit {
 
   ngOnInit() {
   }
-  // variable usada por *ngIf en el HTML
   modo: string = '';
 
-  // método usado por los botones
   setModo(m: string) {
     this.modo = m;
-    console.log('Modo cambiado a:', this.modo); // útil para debug
+    console.log('Modo cambiado a:', this.modo); 
   }
 }

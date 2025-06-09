@@ -21,7 +21,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
             
-            request.user = Usuario.query.get(data['personaid'])  # Puedes usar request.user en la ruta
+            request.user = Usuario.query.get(data['personaid']) 
         except jwt.ExpiredSignatureError:
             return jsonify({'error': 'Token expirado'}), 401
         except Exception:

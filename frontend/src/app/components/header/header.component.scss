@@ -1,4 +1,3 @@
-/* HEADER: logo + contacto */
 .logo {
   height: 60px;
   width: auto;
@@ -35,7 +34,6 @@ ion-toolbar[color="dark"] {
   padding-bottom: 10px;
 }
 
-/* NAVBAR */
 .navbar {
   display: flex;
   justify-content: center;
@@ -65,7 +63,6 @@ ion-toolbar[color="dark"] {
   color: var(--color-texto2);
 }
 
-/* Menú principal */
 .menu-content {
   display: flex;
   flex-direction: row;
@@ -78,7 +75,6 @@ ion-toolbar[color="dark"] {
   display: none;
 }
 
-/* Nav Links */
 .nav-links {
   list-style: none;
   display: flex;
@@ -105,21 +101,17 @@ ion-toolbar[color="dark"] {
   }
 }
 
-/* Auth Links */
 .auth-links {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* Iconos en el menú */
 .icono-menu {
   font-size: 20px;
 }
 
-/* RESPONSIVE: Adaptaciones móviles */
 @media (max-width: 768px) {
-  /* Ajuste de top-bar */
   .grid-header {
     flex-direction: column;
     justify-content: center;
@@ -138,12 +130,10 @@ ion-toolbar[color="dark"] {
     }
   }
 
-  /* Mostrar hamburguesa */
   .menu-icon {
     display: block;
   }
 
-  /* Menú colapsado inicial */
   .menu-content {
     display: flex;
     flex-direction: column;
@@ -159,7 +149,6 @@ ion-toolbar[color="dark"] {
     transition: max-height 0.5s ease, opacity 0.5s ease;
   }
 
-  /* Al abrir menú */
   .menu-toggle:checked ~ .menu-content {
     max-height: 600px;
     opacity: 1;

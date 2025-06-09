@@ -1,4 +1,4 @@
--- 1. Tablas
+
 
 CREATE DATABASE IF NOT EXISTS BD_lyl;
 USE BD_lyl;

@@ -1,12 +1,9 @@
-// src/app/user-profile-edit/user-profile-edit.page.ts
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { NavController, ToastController } from '@ionic/angular';
-import { AuthService, UserProfile } from '../../services/auth.service'; // Importa UserProfile
+import { AuthService, UserProfile } from '../../services/auth.service'; 
 import { Subscription } from 'rxjs';
 
-// Define las regiones y comunas (copia del registrar.page.ts)
 interface Region {
   nombre: string;
   comunas: string[];
@@ -23,7 +20,6 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
   currentUser: UserProfile | null = null;
   private userSubscription: Subscription | undefined;
 
-  // Datos de regiones y comunas (copia del registrar.page.ts)
   regiones: Region[] = [
     { nombre: 'Arica y Parinacota', comunas: ['Arica', 'Camarones', 'Putre', 'General Lagos'] },
     { nombre: 'Tarapacá', comunas: ['Iquique', 'Alto Hospicio', 'Pozo Almonte', 'Pica', 'Huara', 'Colchane', 'Camiña'] },
@@ -43,7 +39,6 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
     { nombre: 'Magallanes y la Antártica Chilena', comunas: ['Punta Arenas', 'Laguna Blanca', 'Puerto Natales', 'Torres del Paine', 'Porvenir', 'Primavera', 'Timaukel', 'Cabo de Hornos', 'Antártica'] }
   ];
   comunas: string[] = [];
-  // Asegúrate de tener la misma lista que en registrar.page.ts
 
   constructor(
     private fb: FormBuilder,
@@ -51,24 +46,19 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
     private authService: AuthService,
     private toastController: ToastController
   ) {
-    // Inicializar el formulario con los mismos campos que el de registro
     this.editProfileForm = this.fb.group({
       usuario: ['', [Validators.required, Validators.minLength(3)]],
       rut: ['', [Validators.required, Validators.pattern(/^[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}-[0-9Kk]$/)]],
-      correo: ['', [Validators.required, Validators.email]], // Usar 'email' consistentemente
+      correo: ['', [Validators.required, Validators.email]], 
       region: ['', Validators.required],
       comuna: ['', Validators.required],
-      // La contraseña y confirmación no las incluimos aquí para una edición simple
-      // Si el usuario quiere cambiar la contraseña, debería ser un flujo separado.
     });
   }
 
   ngOnInit() {
-    // Suscribirse para obtener los datos del usuario actual y rellenar el formulario
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       if (this.currentUser) {
-        // Rellenar el formulario con los datos actuales del usuario
         this.editProfileForm.patchValue({
           usuario: this.currentUser.usuario,
           rut: this.currentUser.rut,
@@ -76,10 +66,8 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
           region: this.currentUser.region,
           comuna: this.currentUser.comuna,
         });
-        // Asegurarse de que las comunas se carguen correctamente al precargar la región
         this.onRegionChange();
       } else {
-        // Si no hay usuario, redirigir
         this.navController.navigateRoot('/home');
       }
     });
@@ -110,12 +98,11 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
     const selectedRegionName = this.editProfileForm.get('region')?.value;
     const region = this.regiones.find(r => r.nombre === selectedRegionName);
     this.comunas = region ? region.comunas : [];
-    // No reseteamos la comuna si ya hay una y es válida para la nueva región
     if (this.comunas.length > 0) {
       this.editProfileForm.get('comuna')?.enable();
     } else {
       this.editProfileForm.get('comuna')?.disable();
-      this.editProfileForm.get('comuna')?.setValue(''); // Limpia si no hay comunas
+      this.editProfileForm.get('comuna')?.setValue('');
     }
   }
 
@@ -123,7 +110,6 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
     this.editProfileForm.markAllAsTouched();
 
     if (this.editProfileForm.valid && this.currentUser) {
-      // Crear un objeto UserProfile actualizado, manteniendo la contraseña original
       const payload = {
         usuario: this.editProfileForm.value.usuario.trim(),
         correo: this.editProfileForm.value.correo.trim().toLowerCase(),

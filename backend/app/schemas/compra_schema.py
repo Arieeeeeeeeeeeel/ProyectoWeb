@@ -8,7 +8,7 @@ class CompraSchema(ma.SQLAlchemyAutoSchema):
         model = Compra
         load_instance = True
     
-    detalles = fields.Nested(DetalleCompraSchema, many=True)  # 'many=True' porque es una lista de detalles
+    detalles = fields.Nested(DetalleCompraSchema, many=True)  
     compra_id = fields.Integer()
     total = fields.Float()
     estado_pago = fields.String()

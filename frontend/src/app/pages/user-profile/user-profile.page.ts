@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthService, UserProfile } from '../../services/auth.service'; // Importa UserProfile
+import { AuthService, UserProfile } from '../../services/auth.service'; 
 import { NavController, ToastController } from '@ionic/angular';
-import { Subscription } from 'rxjs'; // Para manejar la suscripción
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user-profile',
@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs'; // Para manejar la suscripción
   standalone:false,
 })
 export class UserProfilePage implements OnInit, OnDestroy {
-  currentUser: UserProfile | null = null; // Para almacenar los datos del usuario
+  currentUser: UserProfile | null = null;
   private userSubscription: Subscription | undefined;
 
   constructor(
@@ -20,11 +20,9 @@ export class UserProfilePage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Suscribirse para obtener los datos del usuario actual
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       if (!user) {
-        // Si el usuario deja de estar logueado, redirigir
         this.navController.navigateRoot('/home');
       }
     });
@@ -36,7 +34,6 @@ export class UserProfilePage implements OnInit, OnDestroy {
     }
   }
 
-  // Función para ir a la página de edición
   goToEditProfile() {
     this.navController.navigateForward('/user-profile-edit');
   }
@@ -44,7 +41,6 @@ export class UserProfilePage implements OnInit, OnDestroy {
   async logout() {
     this.authService.logout();
     await this.presentToast('Sesión cerrada correctamente.', 'light');
-    // La redirección a /home se maneja en el subscribe de ngOnInit si el usuario es null
   }
 
   async presentToast(message: string, color: string) {

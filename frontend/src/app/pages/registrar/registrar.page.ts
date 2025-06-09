@@ -1,11 +1,8 @@
-// src/app/registrar/registrar.page.ts
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-import { ToastController, NavController } from '@ionic/angular'; // Importa NavController
-import { AuthService, UserProfile } from '../../services/auth.service'; // Importa el AuthService
+import { ToastController, NavController } from '@ionic/angular';
+import { AuthService, UserProfile } from '../../services/auth.service';
 
-// ... (tu interfaz Region y array regiones) ...
 interface Region {
   nombre: string;
   comunas: string[];
@@ -43,8 +40,8 @@ export class RegistrarPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private toastController: ToastController,
-    private navController: NavController, // Asegúrate de tener NavController inyectado
-    private authService: AuthService // Inyecta el AuthService
+    private navController: NavController,
+    private authService: AuthService 
   ) {
     this.registerForm = this.fb.group({
       usuario: ['', [Validators.required, Validators.minLength(3)]],
@@ -114,7 +111,6 @@ export class RegistrarPage implements OnInit {
       .subscribe({
         next: async (user: UserProfile) => {
           await this.presentToast('¡Registro exitoso! Bienvenido, ' + user.usuario, 'success');
-          // Navegar a perfil
           this.navController.navigateRoot('/user-profile');
         },
         error: async err => {

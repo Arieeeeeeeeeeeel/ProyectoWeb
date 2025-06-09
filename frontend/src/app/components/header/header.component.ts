@@ -1,5 +1,3 @@
-// src/app/components/header/header.component.ts
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AlertController, ToastController, NavController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
@@ -35,10 +33,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Presenta la alerta de inicio de sesión con campos para correo y contraseña.
-   * Ahora incluye una opción para "Olvidé mi contraseña".
-   */
   async presentLoginAlert() {
     const alert = await this.alertController.create({
       header: 'Iniciar Sesión',
@@ -56,13 +50,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         },
         {
           text: 'Olvidé mi contraseña',
-          cssClass: 'forgot-password-button', // Clase CSS opcional para estilizar
+          cssClass: 'forgot-password-button',
           handler: () => {
-            // Cierra la alerta actual y luego presenta la alerta de restablecimiento de contraseña
             alert.dismiss().then(() => {
               this.presentForgotPasswordAlert();
             });
-            return false; // Evita que la alerta se cierre automáticamente antes de la dismisión
+            return false; 
           }
         },
         {
@@ -70,20 +63,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
           handler: (data) => {
             if (!data.email || !data.password) {
               this.presentToast('Por favor, ingresa tu correo y contraseña.', 'danger');
-              return false; // Evita que el alert se cierre
+              return false; 
             }
-            // Llamamos al servicio y nos suscribimos
             this.authService.login(data.email, data.password).subscribe({
               next: user => {
                 this.presentToast(`¡Bienvenido, ${user.usuario}!`, 'success');
                 this.navController.navigateRoot('/user-profile');
-                alert.dismiss(); // Cerramos el alert al iniciar sesión exitosamente
+                alert.dismiss(); 
               },
               error: err => {
                 this.presentToast('Correo o contraseña incorrectos.', 'danger');
               }
             });
-            return false; // Evitamos que el alert se cierre automáticamente
+            return false; 
           }
         }
       ]
@@ -91,10 +83,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  /**
-   * Presenta una alerta para que el usuario ingrese su correo electrónico
-   * para restablecer la contraseña.
-   */
   async presentForgotPasswordAlert() {
     const forgotPasswordAlert = await this.alertController.create({
       header: 'Restablecer Contraseña',
@@ -105,7 +93,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           type: 'email',
           placeholder: 'Correo electrónico',
           attributes: {
-            required: true // Hace el campo requerido
+            required: true 
           }
         },
       ],
@@ -120,19 +108,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
             const email = data.email;
             if (!email || !this.isValidEmail(email)) {
               this.presentToast('Por favor, ingresa un correo electrónico válido.', 'danger');
-              return false; // Evita que el alert se cierre
+              return false; 
             }
-            // Llama al servicio para restablecer la contraseña
             this.authService.requestPasswordReset(email).subscribe({
               next: () => {
                 this.presentToast('Se ha enviado un enlace de restablecimiento a tu correo electrónico.', 'success');
-                forgotPasswordAlert.dismiss(); // Cierra el alert de restablecimiento
+                forgotPasswordAlert.dismiss(); 
               },
               error: () => {
                 this.presentToast('No se pudo enviar el enlace. Por favor, intenta de nuevo.', 'danger');
               }
             });
-            return false; // Evita que el alert se cierre automáticamente hasta que la suscripción se complete
+            return false; 
           }
         }
       ]
@@ -141,37 +128,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
     await forgotPasswordAlert.present();
   }
 
-  /**
-   * Valida un formato de correo electrónico simple.
-   * @param email El correo electrónico a validar.
-   * @returns `true` si el correo es válido, `false` en caso contrario.
-   */
+
   private isValidEmail(email: string): boolean {
-    // Expresión regular simple para validar el formato de correo electrónico
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  /**
-   * Cierra la sesión del usuario.
-   */
   async logout() {
     this.authService.logout();
     await this.presentToast('Sesión cerrada.', 'light');
     this.navController.navigateRoot('/home');
   }
 
-  /**
-   * Navega a la página de perfil del usuario.
-   */
   goToUserPage() {
     this.navController.navigateForward('/user-profile');
   }
 
-  /**
-   * Presenta un mensaje de tipo Toast.
-   * @param message El mensaje a mostrar.
-   * @param color El color del Toast (ej. 'success', 'danger', 'light').
-   */
+
   async presentToast(message: string, color: string) {
     const toast = await this.toastController.create({
       message: message,
@@ -182,9 +154,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     toast.present();
   }
 
-  /**
-   * Cierra el menú, si está abierto.
-   */
+
   closeMenu() {
     const menuToggle = document.getElementById('menu-toggle') as HTMLInputElement;
     if (menuToggle) {
