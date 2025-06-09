@@ -93,7 +93,7 @@ El backend se ejecutará y estará disponible, por defecto, en `http://localhost
 
 -----
 # Postman
-Importar el archivo  archivo en Postman para ejecutar las peticiones de ejemplo a la API. [Postman]([otros/LYL-API-Collection-(Completa).postman_collection.json](https://github.com/Arieeeeeeeeeeeel/ProyectoWeb/blob/Avance/otros/LYL%20API%20Collection%20(Completa).postman_collection.json))
+Importar el archivo  archivo en Postman para ejecutar las peticiones de ejemplo a la API. [Postman](otros/LYL-API-Collection-(Completa).postman_collection.json)
 
 El archivo contiene ejemplos de peticiones a los endpoints de la API, incluyendo autenticación, gestión de usuarios, productos, entre otras cosas. En caso de ser necesario, puedes modificar las variables de entorno en Postman para adaptarlas a la configuración local.
 
