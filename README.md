@@ -92,6 +92,10 @@ python run.py
 El backend se ejecutará y estará disponible, por defecto, en `http://localhost:5000`.
 
 -----
+# Postman
+Importar este archivo en Postman para ejecutar las peticiones de ejemplo a la API. otros/LYL API Collection (Completa).postman_collection
+
+El archivo contiene ejemplos de peticiones a los endpoints de la API, incluyendo autenticación, gestión de usuarios, productos, entre otras cosas. En caso de ser necesario, puedes modificar las variables de entorno en Postman para adaptarlas a la configuración local.
 
 ## Información de la Entrega Parcial 2
 
