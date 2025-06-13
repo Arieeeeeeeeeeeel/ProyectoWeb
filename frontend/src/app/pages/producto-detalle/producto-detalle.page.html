@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/pages/productos"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle del Producto</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="product-detail-container" *ngIf="producto; else loadingOrError">
+    <div class="image-section">
+      <img [src]="producto.imagen || 'assets/placeholder-detail.png'" alt="Imagen del producto">
+      <div class="new-badge" *ngIf="producto.esNuevo">NUEVO</div>
+    </div>
+
+    <div class="info-section">
+      <h1 class="product-title">{{ producto.nombre }}</h1>
+      <p><strong>Marca:</strong> {{ producto.marca }}</p>
+      <p><strong>Modelo:</strong> {{ producto.modelo }}</p>
+      <p><strong>Año:</strong> {{ producto.anio }}</p>
+
+      <div class="compatibility-section">
+        <p>
+          <strong>¿Sirve para mi auto?</strong>
+          <span *ngIf="isLoggedIn && hasCars; else notAvailable">
+            <span *ngIf="isCompatible" class="compatible-text">Sí, es compatible con tu {{ compatibleCarModel }}</span>
+            <span *ngIf="!isCompatible" class="not-compatible-text">No es compatible con ninguno de tus autos.</span>
+          </span>
+          <ng-template #notAvailable>
+            <span class="not-available-text">: No disponible</span>
+            <ion-icon name="information-circle-outline" id="info-icon"></ion-icon>
+            <ion-popover trigger="info-icon" triggerAction="hover" side="bottom" alignment="start">
+              <ng-template>
+                <ion-content class="ion-padding">
+                  Regístrate e ingresa tus autos para verificar la compatibilidad.
+                </ion-content>
+              </ng-template>
+            </ion-popover>
+          </ng-template>
+        </p>
+      </div>
+
+      <p>
+        <strong>Stock:</strong>
+        <span class="stock-available" *ngIf="producto.stock > 0">¡Sí! Quedan {{ producto.stock }} disponibles</span>
+        <span class="stock-unavailable" *ngIf="producto.stock === 0">Sin stock</span>
+      </p>
+      <p class="product-price">Precio: ${{ producto.precio | number: '1.0-0' }}</p>
+
+      <ion-button expand="block" color="danger" class="add-to-cart-button" (click)="addToCart()">
+        <ion-icon slot="start" name="cart"></ion-icon>
+        Añadir al carrito
+      </ion-button>
+    </div>
+  </div>
+
+  <ng-template #loadingOrError>
+    <div class="message-center">
+      <ion-spinner *ngIf="!producto && !loadError" name="circles"></ion-spinner>
+      <p *ngIf="loadError">Error al cargar el producto. Por favor, inténtalo de nuevo.</p>
+    </div>
+  </ng-template>
+</ion-content>

@@ -1,0 +1,148 @@
+// src/app/pages/producto-detalle/producto-detalle.page.scss
+
+.product-detail-container {
+  display: flex;
+  flex-direction: column; // Por defecto para móviles (elementos apilados verticalmente)
+  align-items: flex-start;
+  padding: 20px;
+  max-width: 900px;
+  margin: 20px auto; // Centra el contenedor en pantallas grandes
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  @media (min-width: 768px) {
+    flex-direction: row; // Para pantallas más grandes (elementos uno al lado del otro)
+    gap: 30px; // Espacio entre la imagen y la información
+  }
+}
+
+.image-section {
+  flex-shrink: 0; // Evita que la imagen se reduzca
+  position: relative;
+  width: 100%; // Ocupa todo el ancho en móviles
+  max-width: 350px; // Ancho máximo para la imagen
+  margin-bottom: 20px; // Espacio debajo de la imagen en móviles
+  border-radius: 8px;
+  overflow: hidden; // Asegura que la imagen no se desborde
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  @media (min-width: 768px) {
+    width: 350px; // Ancho fijo para la imagen en desktop
+    height: 350px; // Altura fija para la imagen en desktop
+    margin-bottom: 0;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; // Asegura que la imagen se ajuste sin recortarse
+    padding: 10px; // Pequeño padding dentro del contenedor de la imagen
+  }
+
+  .new-badge {
+    position: absolute;
+    top: 15px;
+    right: -30px; // Posiciona la esquina fuera para el efecto de cinta
+    background-color: red;
+    color: white;
+    padding: 5px 30px;
+    font-weight: bold;
+    transform: rotate(45deg); // Gira la etiqueta
+    transform-origin: center;
+    font-size: 0.9em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.info-section {
+  flex-grow: 1; // Ocupa el espacio restante
+  width: 100%; // Ocupa todo el ancho en móviles
+
+  .product-title {
+    font-size: 1.8em;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  p {
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 1em;
+
+    strong {
+      color: #333;
+    }
+  }
+
+  .compatibility-section {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; // Permite que los elementos se envuelvan si no hay espacio
+
+    .not-available-text {
+      color: #777;
+      font-style: italic;
+    }
+
+    .compatible-text {
+      color: #28a745; // Color verde para compatible
+      font-weight: bold;
+    }
+
+    .not-compatible-text {
+      color: #dc3545; // Color rojo para no compatible
+      font-weight: bold;
+    }
+
+    #info-icon {
+      font-size: 1.1em;
+      color: #777;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+  }
+
+  .stock-available {
+    color: #28a745;
+    font-weight: bold;
+  }
+
+  .stock-unavailable {
+    color: #dc3545;
+    font-weight: bold;
+  }
+
+  .product-price {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #000;
+    margin-top: 20px;
+    margin-bottom: 25px;
+  }
+
+  .add-to-cart-button {
+    --background: red;
+    --background-activated: darkred;
+    height: 50px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(255, 0, 0, 0.3);
+  }
+}
+
+.message-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #666;
+}

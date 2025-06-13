@@ -1,0 +1,109 @@
+<ion-content class="ion-padding">
+  <div *ngIf="cartItems.length > 0; else emptyCart">
+    <ion-list>
+      <ion-item *ngFor="let item of cartItems">
+        <ion-thumbnail slot="start">
+          <img [src]="item.imagen || 'assets/placeholder.png'" alt="Imagen del producto">
+        </ion-thumbnail>
+        <ion-label>
+          <h2>{{ item.nombre }}</h2>
+          <p>Precio: ${{ item.precio | number: '1.0-0' }}</p>
+          <div class="quantity-controls">
+            <ion-button size="small" fill="outline" (click)="updateQuantity(item, -1)">-</ion-button>
+            <span>{{ item.quantity }}</span>
+            <ion-button size="small" fill="outline" (click)="updateQuantity(item, 1)">+</ion-button>
+            <ion-button size="small" color="danger" (click)="removeItem(item.productoId)">
+              <ion-icon name="trash"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-item class="cart-total">
+      <ion-label>Total del Carrito:</ion-label>
+      <ion-text color="primary">{{ cartTotal | currency:'USD':'symbol':'1.0-0' }}</ion-text>
+    </ion-item>
+
+    <ion-card class="shipping-options">
+      <ion-card-header>
+        <ion-card-title>Opciones de Entrega</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-radio-group [(ngModel)]="deliveryOption">
+          <ion-item>
+            <ion-label>Despacho a domicilio</ion-label>
+            <ion-radio slot="start" value="delivery"></ion-radio>
+          </ion-item>
+          <ion-item>
+            <ion-label>Retiro en tienda</ion-label>
+            <ion-radio slot="start" value="pickup"></ion-radio>
+          </ion-item>
+        </ion-radio-group>
+
+        <div *ngIf="deliveryOption === 'delivery'" class="delivery-details">
+          <ion-list *ngIf="isLoggedIn && userAddresses.length > 0">
+            <ion-item>
+              <ion-label position="stacked">Seleccionar Dirección Guardada</ion-label>
+              <ion-select [(ngModel)]="selectedAddressId" placeholder="Selecciona una dirección">
+                <ion-select-option *ngFor="let address of userAddresses" [value]="address.id">
+                  {{ address.street }}, {{ address.city }}
+                  <span *ngIf="address.isDefault">(Por defecto)</span>
+                </ion-select-option>
+                <ion-select-option value="custom">Ingresar una nueva dirección</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+
+          <div *ngIf="!isLoggedIn || selectedAddressId === 'custom' || userAddresses.length === 0">
+            <ion-item>
+              <ion-input label="Calle y Número" [(ngModel)]="customAddress.street" labelPlacement="floating" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input label="Ciudad" [(ngModel)]="customAddress.city" labelPlacement="floating" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input label="Código Postal" [(ngModel)]="customAddress.zipCode" labelPlacement="floating" required></ion-input>
+            </ion-item>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="payment-options">
+      <ion-card-header>
+        <ion-card-title>Método de Pago</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-radio-group [(ngModel)]="paymentMethod" (ionChange)="onPaymentMethodChange()">
+          <ion-item>
+            <ion-label>Tarjeta de Crédito</ion-label>
+            <ion-radio slot="start" value="credit"></ion-radio>
+          </ion-item>
+          <ion-item>
+            <ion-label>Tarjeta de Débito</ion-label>
+            <ion-radio slot="start" value="debit"></ion-radio>
+          </ion-item>
+          <ion-item *ngIf="deliveryOption === 'pickup'">
+            <ion-label>Efectivo (Solo Retiro en Tienda)</ion-label>
+            <ion-radio slot="start" value="cash"></ion-radio>
+          </ion-item>
+        </ion-radio-group>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-button expand="block" color="success" (click)="processCheckout()">
+      <ion-icon slot="start" name="card"></ion-icon>
+      Pagar ${{ cartTotal | number: '1.0-0' }}
+    </ion-button>
+
+  </div>
+
+  <ng-template #emptyCart>
+    <div class="empty-cart-message ion-text-center">
+      <ion-icon name="cart-outline" class="empty-cart-icon"></ion-icon>
+      <p>Tu carrito está vacío.</p>
+      <ion-button routerLink="/productos" expand="block">Ir a Productos</ion-button>
+    </div>
+  </ng-template>
+</ion-content>

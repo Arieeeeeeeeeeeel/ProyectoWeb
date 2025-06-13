@@ -3,7 +3,7 @@
     <ion-grid>
       <ion-row class="grid-header ion-align-items-center">
         <ion-col size="6" size-md="4">
-          <img src="/assets/LogoLYL.png" alt="Logo" class="logo" />
+          <img src="assets/LogoLYL.png" alt="Logo" class="logo" />
         </ion-col>
 
         <ion-col size="6" size-md="8" class="contacto-header">
@@ -45,10 +45,7 @@
               </li>
               <li>
                 <a routerLink="/servicios" (click)="closeMenu()">
-                  <ion-icon
-                    name="construct-outline"
-                    class="icono-menu"
-                  ></ion-icon>
+                  <ion-icon name="construct-outline" class="icono-menu"></ion-icon>
                   Servicios
                 </a>
               </li>
@@ -57,6 +54,9 @@
                   <ion-icon name="people-outline" class="icono-menu"></ion-icon>
                   Quienes Somos
                 </a>
+              </li>
+              <li>
+                
               </li>
               <li *ngIf="isLoggedIn">
                 <a (click)="goToUserPage(); closeMenu()">
@@ -73,12 +73,15 @@
             </ul>
 
             <div class="auth-links">
+              <ion-button routerLink="/carrito" class="cart-button">
+                <ion-icon name="cart-outline"></ion-icon>
+                <ion-badge color="dark" *ngIf="cartItemCount > 0">{{ cartItemCount }}</ion-badge>
+              </ion-button>
               <ng-container *ngIf="!isLoggedIn">
                 <ion-button (click)="presentLoginAlert()">Ingresar</ion-button>
-                <span class="divider">|</span>
+                <span class="divider"></span>
                 <ion-button routerLink="/registrar">Registrar</ion-button>
               </ng-container>
-
               <ng-container *ngIf="isLoggedIn">
                 <ion-button (click)="goToUserPage()">
                   <ion-icon name="person-circle-outline"></ion-icon>

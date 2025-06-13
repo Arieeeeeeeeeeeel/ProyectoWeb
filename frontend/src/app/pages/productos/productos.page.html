@@ -1,64 +1,62 @@
-<ion-content class="productos-page">
-  <div class="breadcrumb">
-    <a [routerLink]="'/home'">Inicio</a> &rarr; 
-    <span>Productos</span>
-  </div>
-  <div class="page-layout">
-    <div class="buscar-container">
-      <div class="titulo-busqueda">BUSCA TUS PRODUCTOS</div>
-      <ion-list class="filtros-formulario">
+<ion-content>
+  <div class="main-container">
+    <div class="search-panel">
+      <h2>BUSCA TUS PRODUCTOS</h2>
+      <ion-list>
         <ion-item>
-          <ion-label position="stacked">Marca</ion-label>
-          <ion-select placeholder="Toyota">
-            <ion-select-option value="toyota">Toyota</ion-select-option>
-          </ion-select>
+          <ion-input label="Marca" labelPlacement="stacked" [(ngModel)]="searchFilters.marca" placeholder="Toyota"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">Modelo</ion-label>
-          <ion-select placeholder="Hilux">
-            <ion-select-option value="hilux">Hilux</ion-select-option>
-          </ion-select>
+          <ion-input label="Modelo" labelPlacement="stacked" [(ngModel)]="searchFilters.modelo" placeholder="Hilux"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">Año</ion-label>
-          <ion-select placeholder="2024">
-            <ion-select-option value="2024">2024</ion-select-option>
-          </ion-select>
+          <ion-input label="Año" labelPlacement="stacked" type="number" [(ngModel)]="searchFilters.anio" placeholder="2024"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">Repuesto</ion-label>
-          <ion-select placeholder="Todo">
-            <ion-select-option value="todo">Todo</ion-select-option>
-          </ion-select>
+          <ion-input label="Repuesto" labelPlacement="stacked" [(ngModel)]="searchFilters.repuesto" placeholder="Todo"></ion-input>
         </ion-item>
 
-        <ion-button expand="block" color="danger" class="buscar-button">Buscar</ion-button>
+        <ion-button expand="block" class="search-button" (click)="buscarProductos()">Buscar</ion-button>
       </ion-list>
     </div>
 
-    <div class="productos-container">
-      <div class="ordenamiento-container">
-        <ion-chip color="dark" outline>Nuevo</ion-chip>
-        <ion-chip color="medium" outline>Precio ascendente</ion-chip>
-        <ion-chip color="medium" outline>Precio descendente</ion-chip>
-        <ion-chip color="medium" outline>Valoración</ion-chip>
+    <div class="main-content">
+      <div class="filter-buttons">
+        <ion-button [color]="currentSort === 'nuevo' ? 'dark' : 'medium'" (click)="aplicarFiltro('nuevo')">
+          <ion-icon name="checkmark" *ngIf="currentSort === 'nuevo'"></ion-icon>
+          Nuevo
+        </ion-button>
+        <ion-button [color]="currentSort === 'precioAsc' ? 'dark' : 'medium'" (click)="aplicarFiltro('precioAsc')">
+          Precio ascendente
+        </ion-button>
+        <ion-button [color]="currentSort === 'precioDesc' ? 'dark' : 'medium'" (click)="aplicarFiltro('precioDesc')">
+          Precio descendente
+        </ion-button>
+        <ion-button [color]="currentSort === 'valoracion' ? 'dark' : 'medium'" (click)="aplicarFiltro('valoracion')">
+          Valoración
+        </ion-button>
       </div>
 
-      <div class="productos-grid">
-        <ion-card *ngFor="let producto of productos">
-          <div class="producto-imagen"></div>
-          <ion-card-content class="producto-contenido">
-            <div class="producto-nombre">{{ producto.nombre }}</div>
-            <ion-button size="small" color="danger" expand="block">Ver</ion-button>
-          </ion-card-content>
-        </ion-card>
+      <div class="product-grid" *ngIf="productos.length > 0; else noProducts">
+        <div *ngFor="let producto of productos; trackBy: trackByProductoId" class="product-card">
+          <div class="product-image-placeholder">
+        <img [src]="producto.imagen || 'assets/placeholder.png'" alt="Imagen de producto">
+        <!-- El botón "Ver" navega al detalle del producto usando routerLink -->
+        <ion-button color="danger" class="view-button" [routerLink]="['/producto-detalle', producto.id]">Ver</ion-button>
+          </div>
+          <p class="product-name">{{ producto.nombre }}</p>
+        </div>
       </div>
 
+      <ng-template #noProducts>
+        <div class="no-products-message">
+          <p *ngIf="!hasSearched">Usa el formulario de la izquierda para buscar productos.</p>
+          <p *ngIf="hasSearched">No se encontraron productos con los criterios de búsqueda.</p>
+        </div>
+      </ng-template>
     </div>
-
   </div>
-
 </ion-content>

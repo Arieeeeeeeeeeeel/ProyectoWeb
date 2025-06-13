@@ -1,137 +1,154 @@
-.breadcrumb {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 10px;
-    text-align: left;
-  
-    a {
-      color: #000;
-      text-decoration: none;
-  
-      &:hover {
-        text-decoration: underline;
-      }
+.main-container {
+  display: flex;
+  height: 100%; // Ocupa toda la altura disponible
+}
+
+.search-panel {
+  width: 280px; /* Ancho fijo para el panel de búsqueda */
+  background-color: #333; /* Color de fondo oscuro como en la imagen */
+  color: white;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+
+  h2 {
+    color: white;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    border-bottom: 2px solid red; /* Línea roja debajo del título */
+    padding-bottom: 10px;
+  }
+
+  ion-list {
+    background: transparent; // Para que el ion-list no tenga fondo blanco
+  }
+
+  ion-item {
+    --background: transparent;
+    --border-color: transparent;
+    margin-bottom: 15px;
+
+    ion-label {
+      color: lightgray;
+      font-size: 0.9em;
+    }
+
+    ion-input {
+      --background: white;
+      --padding-start: 10px;
+      --padding-end: 10px;
+      --color: #333;
+      border-radius: 4px;
+      height: 40px;
     }
   }
-  
-  .productos-page {
-    --background: #ffffff;
-    display: flex;
-    flex-direction: column;
+
+  .search-button {
+    --background: red;
+    --background-activated: darkred;
+    margin-top: 30px;
+    height: 45px;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+}
+
+.main-content {
+  flex-grow: 1; /* Ocupa el espacio restante */
+  padding: 20px;
+  background-color: #f0f0f0; /* Un fondo claro para los resultados */
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-buttons {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px; /* Espacio entre los botones de filtro */
+
+  ion-button {
+    --border-radius: 4px;
+    font-size: 0.9em;
+    height: 35px;
+    text-transform: none; // Evita que el texto sea todo mayúsculas por defecto
+  }
+
+  ion-button[color="dark"] {
+    --background: #333;
+    --color: white;
+  }
+  ion-button[color="medium"] {
+    --background: #ccc;
+    --color: #333;
+  }
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Columnas responsivas */
+  gap: 20px; /* Espacio entre las tarjetas de producto */
+  justify-items: center; /* Centra los elementos en la cuadrícula */
+}
+
+.product-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 100%; // Asegura que la tarjeta ocupe el ancho de su celda
+  max-width: 200px; // Limita el ancho máximo de la tarjeta
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 10px; /* Espacio debajo del nombre */
+}
+
+.product-image-placeholder {
+  width: 100%;
+  height: 120px; /* Altura fija para la imagen */
+  background-color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; // Para posicionar el botón "Ver"
+  overflow: hidden; // Para que la imagen no se desborde
+
+  img {
+    width: 100%;
     height: 100%;
-    min-height: 100vh;
-  
-    .page-layout {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap; /* <- ahora soporta pantallas más pequeñas */
-      height: 100%;
-      padding: 16px;
-      gap: 24px;
-      flex: 1;
-    }
-  
-    .buscar-container {
-      background: rgba(0, 0, 0, 0.87);
-      border-radius: 8px;
-      padding: 16px;
-      width: 340px;
-      min-width: 280px; /* <- bajé un poco min-width para móviles */
-      height: fit-content;
-      flex-shrink: 0; /* <- evita que el filtro se achique en pantallas chicas */
-  
-      .titulo-busqueda {
-        background: #e10600;
-        color: white;
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 800;
-        font-size: 24px;
-        text-align: center;
-        border-radius: 8px;
-        padding: 8px;
-        margin-bottom: 16px;
-      }
-  
-      .filtros-formulario {
-        display: flex;
-        flex-direction: column;
-  
-        ion-item {
-          --background: white;
-          --color: black;
-          border-radius: 8px;
-          margin-bottom: 12px;
-        }
-  
-        ion-select {
-          --placeholder-color: #b3b3b3;
-          --placeholder-opacity: 1;
-          color: black;
-        }
-  
-        .buscar-button {
-          margin-top: 16px;
-          font-weight: bold;
-        }
-      }
-    }
-  
-    .productos-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto; /* <- más seguro que overflow: auto para evitar doble scroll */
-      min-width: 0; /* <- evita errores de tamaño flex en Safari/Edge */
-    }
-  
-    .ordenamiento-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-start;
-      margin-bottom: 16px;
-  
-      ion-chip {
-        cursor: pointer; /* <- solo usabilidad, sin cambiar diseño */
-      }
-    }
-  
-    .productos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-  
-    ion-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #d9d9d9;
-      border-radius: 8px;
-      padding: 12px;
-  
-      .producto-imagen {
-        width: 200px;
-        height: 200px;
-        background-color: #d9d9d9;
-        border-radius: 8px;
-        object-fit: cover; /* <- si pones imagen real, no se deforma */
-      }
-  
-      .producto-contenido {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 8px;
-  
-        .producto-nombre {
-          margin-bottom: 8px;
-          font-size: 14px;
-          font-family: 'Inter', sans-serif;
-          font-weight: 600; /* <- mejor peso de letra para legibilidad */
-          text-align: center;
-        }
-      }
-    }
+    object-fit: cover; // Asegura que la imagen cubra el área sin distorsionarse
   }
-  
+
+  .view-button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    --background: red;
+    --background-activated: darkred;
+    height: 30px;
+    font-size: 0.8em;
+    padding: 0 15px;
+    opacity: 0; // Oculto por defecto
+    transition: opacity 0.3s ease-in-out;
+  }
+}
+
+.product-card:hover .view-button {
+  opacity: 1; // Visible al pasar el mouse
+}
+
+.product-name {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 1em;
+  color: #333;
+  text-align: center;
+}
+
+.no-products-message {
+  text-align: center;
+  margin-top: 50px;
+  color: #666;
+}

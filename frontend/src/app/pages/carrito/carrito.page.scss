@@ -1,0 +1,65 @@
+/* src/app/pages/carrito/carrito.page.scss */
+.empty-cart-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh; /* Ajusta según sea necesario */
+  .empty-cart-icon {
+    font-size: 8em;
+    color: var(--ion-color-medium);
+  }
+  p {
+    font-size: 1.2em;
+    color: var(--ion-color-medium-shade);
+  }
+  ion-button {
+    margin-top: 20px;
+  }
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Espacio entre los botones y el número */
+  ion-button {
+    min-width: 32px; // Asegura que los botones tengan un tamaño mínimo
+    height: 32px;
+  }
+  span {
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+  }
+}
+
+.cart-total {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-top: 20px;
+  --inner-padding-end: 0; // Para que el texto se alinee bien
+}
+
+ion-card {
+  margin-top: 20px;
+  ion-card-header {
+    padding-bottom: 0;
+  }
+  ion-item {
+    --inner-padding-end: 0;
+    --padding-start: 0;
+    padding-left: 0;
+  }
+}
+
+.delivery-details {
+  margin-top: 15px;
+  ion-list {
+    margin-bottom: 10px;
+    padding-bottom: 0;
+  }
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+  }
+}
