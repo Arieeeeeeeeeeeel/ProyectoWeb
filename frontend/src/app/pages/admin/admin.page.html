@@ -73,7 +73,13 @@
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Inventario de Productos</ion-card-title>
+      <ion-card-title style="display: flex; align-items: center; justify-content: space-between;">
+        <span>Inventario de Productos</span>
+        <ion-button [routerLink]="['/inventario-admin']" size="small" color="primary" fill="outline">
+          Ver listado
+          <ion-icon name="list-outline" slot="end"></ion-icon>
+        </ion-button>
+      </ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-list>

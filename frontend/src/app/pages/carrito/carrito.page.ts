@@ -177,10 +177,45 @@ export class CarritoPage implements OnInit, OnDestroy {
     console.log('Dirección de entrega/retiro:', addressToUse);
     console.log('Método de pago:', this.paymentMethod);
 
-    // Simulación de éxito del pedido
+    // === AGREGAR RESERVAS A HORAS AGENDADAS ADMIN ===
+    try {
+      // Cargar horas agendadas actuales
+      const horasStr = localStorage.getItem('admin_horas');
+      let horas: any[] = horasStr ? JSON.parse(horasStr) : [];
+
+      // Por cada item de tipo reserva, agregarlo a horas agendadas si no existe
+      this.cartItems.forEach(item => {
+        if (item.detalles && item.detalles.servicio && item.detalles.fecha && item.detalles.hora && item.detalles.nombre) {
+          // Genera un identificador único para la hora agendada
+          const id = Date.now() + Math.floor(Math.random() * 10000);
+          // Verifica si ya existe una hora igual (por servicio, fecha, hora y nombre)
+          const existe = horas.some(h =>
+            h.cliente === item.detalles.nombre &&
+            h.fecha === `${item.detalles.fecha} ${item.detalles.hora}` &&
+            h.detalle === item.detalles.servicio
+          );
+          if (!existe) {
+            horas.push({
+              id,
+              cliente: item.detalles.nombre,
+              fecha: `${item.detalles.fecha} ${item.detalles.hora}`,
+              prioridad: 3, // Puedes ajustar la prioridad según tu lógica
+              detalle: item.detalles.servicio
+            });
+          }
+        }
+      });
+
+      // Guarda las horas agendadas actualizadas
+      localStorage.setItem('admin_horas', JSON.stringify(horas));
+    } catch (e) {
+      await this.presentToast('No se pudo actualizar las horas agendadas.', 'warning');
+    }
+    // === FIN AGREGAR RESERVAS A HORAS AGENDADAS ADMIN ===
+
     await this.presentAlertOrderSuccess();
     this.cartService.clearCart();
-    this.navController.navigateRoot('/home'); // O a una página de confirmación de pedido
+    this.navController.navigateRoot('/home');
   }
 
   async presentToast(message: string, color: string) {

@@ -68,6 +68,10 @@ const routes: Routes = [
   {
     path: 'admin',
     loadChildren: () => import('./pages/admin/admin.module').then( m => m.AdminPageModule)
+  },
+  {
+    path: 'inventario-admin',
+    loadChildren: () => import('./pages/inventario-admin/inventario-admin.module').then( m => m.InventarioAdminPageModule)
   }
 
 

@@ -1,0 +1,31 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService {
+  private userSubject = new BehaviorSubject<string | null>(null);
+  user$ = this.userSubject.asObservable();
+
+  login(username: string) {
+    this.userSubject.next(username);
+    localStorage.setItem('user', username);
+  }
+
+  logout() {
+    this.userSubject.next(null);
+    localStorage.removeItem('user');
+  }
+
+  get currentUser(): string | null {
+    return this.userSubject.value;
+  }
+
+  restoreUser() {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      this.userSubject.next(savedUser);
+    }
+  }
+}
