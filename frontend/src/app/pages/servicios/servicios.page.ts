@@ -40,6 +40,10 @@ export class ServiciosPage {
   constructor(private router: Router) {}
 
   seleccionarServicio(servicio: string) {
+    // Busca la imagen correspondiente al servicio seleccionado
+    const index = this.getServicioPorIndiceNombre(servicio);
+    const imagenSeleccionada = this.imagenes[index]?.src || '/assets/img/default-service.png';
+    localStorage.setItem('servicioImagenSeleccionada', imagenSeleccionada);
     this.router.navigate(['/seleccion-servicio'], { queryParams: { servicio } });
   }
 
@@ -52,5 +56,17 @@ export class ServiciosPage {
       'Mantenimiento'
     ];
     return servicios[i] || '';
+  }
+
+  // Nuevo método para obtener el índice por nombre de servicio
+  getServicioPorIndiceNombre(servicio: string): number {
+    const servicios = [
+      'Diagnóstico',
+      'Desabolladura y pintura',
+      'Cambio neumático',
+      'Mecánico a domicilio',
+      'Mantenimiento'
+    ];
+    return servicios.findIndex(s => s === servicio);
   }
 }

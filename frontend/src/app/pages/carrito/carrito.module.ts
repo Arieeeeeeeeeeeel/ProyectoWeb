@@ -10,6 +10,9 @@ import { CarritoPageRoutingModule } from './carrito-routing.module';
 
 import { CarritoPage } from './carrito.page';
 
+// Agrega la importación de UserService
+import { UserService } from './carrito.page'; // Ahora funcionará porque UserService está exportado
+
 @NgModule({
   imports: [
     CommonModule, // <--- Make sure CommonModule is imported here
@@ -17,6 +20,7 @@ import { CarritoPage } from './carrito.page';
     IonicModule,
     CarritoPageRoutingModule
   ],
-  declarations: [CarritoPage]
+  declarations: [CarritoPage],
+  providers: [UserService] // <-- Agrega esto
 })
 export class CarritoPageModule {}

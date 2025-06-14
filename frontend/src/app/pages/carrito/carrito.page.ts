@@ -18,7 +18,7 @@ interface UserAddress {
 
 // SERVICIO SIMULADO PARA USUARIO Y DIRECCIONES
 // En un proyecto real, esto sería un servicio separado (e.g., UserService)
-class UserService {
+export class UserService {
   getUserAddresses(): Observable<UserAddress[]> {
     // Simula una llamada a la API o datos de usuario
     return of([
@@ -33,8 +33,7 @@ class UserService {
   selector: 'app-carrito',
   templateUrl: './carrito.page.html',
   styleUrls: ['./carrito.page.scss'],
-  standalone: false,
-  providers: [UserService]
+  standalone: false
 })
 export class CarritoPage implements OnInit, OnDestroy {
   // === VERIFICA QUE TODAS ESTAS PROPIEDADES ESTÉN DECLARADAS ===

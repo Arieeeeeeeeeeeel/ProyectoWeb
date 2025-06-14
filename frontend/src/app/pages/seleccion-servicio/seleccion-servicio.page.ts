@@ -1,29 +1,28 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router'; // <-- Agrega Router
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { CartService } from '../../services/cart.service'; // Ajusta la ruta si es necesario
-import { ToastController } from '@ionic/angular'; // <-- Agrega ToastController
+import { CartService } from '../../services/cart.service';
+import { ToastController } from '@ionic/angular';
 
 export interface CartItem {
   id: string;
   nombre: string;
   imagen?: string;
   precio: number;
-  stock?: number; // Hacer stock opcional para reservas
-  detalles?: any; // Permitir detalles adicionales
+  stock?: number;
+  detalles?: any;
 }
 
 @Component({
   selector: 'app-seleccion-servicio',
   templateUrl: './seleccion-servicio.page.html',
   styleUrls: ['./seleccion-servicio.page.scss'],
-  standalone:false,
-  
+  standalone: false,
 })
 export class SeleccionPage {
   minDate: string;
   horasDisponibles: string[] = [];
-  reservaPrecio: number = 50000; // Puedes ajustar este valor o cargarlo dinámicamente
+  reservaPrecio: number = 50000;
 
   reserva = {
     servicio: '',
@@ -42,10 +41,9 @@ export class SeleccionPage {
     private route: ActivatedRoute,
     private http: HttpClient,
     private cartService: CartService,
-    private router: Router, // <-- Agrega Router
-    private toastController: ToastController // <-- Agrega ToastController
+    private router: Router,
+    private toastController: ToastController
   ) {
-    // Leer el parámetro 'servicio' si existe y preseleccionarlo
     this.route.queryParams.subscribe(params => {
       if (params['servicio']) {
         this.reserva.servicio = params['servicio'];
@@ -57,64 +55,77 @@ export class SeleccionPage {
 
   getToday(): string {
     const today = new Date();
-    // Formato YYYY-MM-DD
     return today.toISOString().split('T')[0];
   }
 
   generarHorasDisponibles(): string[] {
     const horas: string[] = [];
     for (let h = 9; h <= 20; h++) {
-      if (h === 13) continue; // Saltar hora de almuerzo
+      if (h === 13) continue;
       const horaStr = h.toString().padStart(2, '0') + ':00';
       horas.push(horaStr);
     }
     return horas;
   }
 
+  // Validación de campos requeridos (excepto notas)
+  reservaValida(): boolean {
+    return (
+      !!this.reserva.servicio &&
+      !!this.reserva.fecha &&
+      !!this.reserva.hora &&
+      !!this.reserva.marca &&
+      !!this.reserva.modelo &&
+      !!this.reserva.anio &&
+      this.reserva.anio >= 1900 &&
+      this.reserva.anio <= 2099 &&
+      !!this.reserva.nombre &&
+      !!this.reserva.ubicacion &&
+      this.reserva.aceptaTerminos
+    );
+  }
+
   async guardarReserva() {
-    if (this.reserva.aceptaTerminos) {
-      const reservaPayload = {
-        ...this.reserva
-      };
-      this.http.post('https://tu-backend.com/api/reservas', reservaPayload)
-        .subscribe({
-          next: async (resp) => {
-            console.log('Reserva guardada en backend:', resp);
-            // Agregar la reserva al carrito (asegúrate de que el objeto cumple con la interfaz CartItem)
-            const itemReserva = {
-              id: 'reserva-' + Date.now(),
-              nombre: `Reserva: ${this.reserva.servicio}`,
-              imagen: '/assets/img/default-service.png',
-              precio: this.reservaPrecio,
-              detalles: {
-                servicio: this.reserva.servicio,
-                fecha: this.reserva.fecha,
-                hora: this.reserva.hora,
-                marca: this.reserva.marca,
-                modelo: this.reserva.modelo,
-                anio: this.reserva.anio,
-                nombre: this.reserva.nombre,
-                ubicacion: this.reserva.ubicacion,
-                notas: this.reserva.notas
-              }
-            };
-            const agregado = this.cartService.addItem(itemReserva);
-            console.log('Reserva agregada al carrito:', agregado, itemReserva, this.cartService['_cartItems']?.getValue?.());
-            // Muestra un mensaje de éxito y redirige al carrito
-            const toast = await this.toastController.create({
-              message: 'Reserva agregada al carrito. Puedes pagar desde el carrito.',
-              duration: 2000,
-              color: 'success',
-              position: 'bottom'
-            });
-            await toast.present();
-            this.router.navigate(['/carrito']);
-          },
-          error: (err) => {
-            console.error('Error al guardar reserva:', err);
-            // Aquí puedes mostrar un mensaje de error
-          }
-        });
+    if (!this.reservaValida()) {
+      const toast = await this.toastController.create({
+        message: 'Por favor, completa todos los campos requeridos.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom'
+      });
+      await toast.present();
+      return;
     }
+    // Obtiene la imagen seleccionada del localStorage, si existe
+    const imagenSeleccionada = localStorage.getItem('servicioImagenSeleccionada') || '/assets/img/default-service.png';
+    setTimeout(async () => {
+      const itemReserva = {
+        id: 'reserva-' + Date.now(),
+        nombre: `Reserva: ${this.reserva.servicio}`,
+        imagen: imagenSeleccionada,
+        precio: this.reservaPrecio,
+        detalles: {
+          servicio: this.reserva.servicio,
+          fecha: this.reserva.fecha,
+          hora: this.reserva.hora,
+          marca: this.reserva.marca,
+          modelo: this.reserva.modelo,
+          anio: this.reserva.anio,
+          nombre: this.reserva.nombre,
+          ubicacion: this.reserva.ubicacion,
+          notas: this.reserva.notas
+        }
+      };
+      this.cartService.addItem(itemReserva);
+      const toast = await this.toastController.create({
+        message: 'Reserva agregada al carrito. Puedes pagar desde el carrito.',
+        duration: 2000,
+        color: 'success',
+        position: 'bottom'
+      });
+      await toast.present();
+      this.router.navigate(['/carrito']);
+    }, 500);
   }
 }
+

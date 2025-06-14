@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router'; // IMPORTANTE: Asegúrate de que esta línea esté presente
+import { CartService } from '../../services/cart.service'; // importa el servicio
 
 // Define la interfaz para tus productos (ajusta según tu API)
 interface Producto {
@@ -34,7 +35,8 @@ export class ProductosPage implements OnInit {
   hasSearched: boolean = false;
 
   constructor(
-    private router: Router // IMPORTANTE: Inyecta el Router aquí en el constructor
+    private router: Router, // IMPORTANTE: Inyecta el Router aquí en el constructor
+    private cartService: CartService // <-- agrega esto
   ) { }
 
   ngOnInit() { }
@@ -98,6 +100,16 @@ export class ProductosPage implements OnInit {
       .catch(error => {
         console.error('Error durante la navegación:', error);
       });
+  }
+
+  agregarAlCarrito(producto: Producto, cantidad: number = 1) {
+    this.cartService.addItem({
+      productoId: producto.id, // <-- usa productoId, no id
+      nombre: producto.nombre,
+      imagen: producto.imagen,
+      precio: producto.precio || 0,
+      stock: 99 // o el stock real si lo tienes
+    }, cantidad);
   }
 
   trackByProductoId(index: number, producto: Producto): string {

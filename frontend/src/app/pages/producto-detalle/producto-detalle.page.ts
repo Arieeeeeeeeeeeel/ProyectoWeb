@@ -123,7 +123,7 @@ export class ProductoDetallePage implements OnInit {
   }
 
   // Modificación del método addToCart
-  async addToCart() { // Ya no necesita productId como argumento, lo toma de this.producto
+  async addToCart() {
     if (this.producto) {
       if (this.producto.stock <= 0) {
         await this.presentToast('Este producto no tiene stock disponible.', 'danger');
@@ -131,12 +131,12 @@ export class ProductoDetallePage implements OnInit {
       }
 
       const added = this.cartService.addItem({
-        id: this.producto.id,
+        productoId: this.producto.id, // <-- usa productoId, no id
         nombre: this.producto.nombre,
         imagen: this.producto.imagen,
         precio: this.producto.precio,
-        stock: this.producto.stock // Pasa el stock al servicio del carrito
-      }, 1); // Cantidad por defecto 1
+        stock: this.producto.stock
+      }, 1);
 
       if (added) {
         console.log('Producto añadido al carrito:', this.producto.id);

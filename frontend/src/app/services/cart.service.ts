@@ -35,8 +35,11 @@ export class CartService {
   addItem(item: CartItem, quantity: number = 1): boolean {
     const currentItems = this._cartItems.getValue();
 
+    // Si es producto (debe tener productoId y NO id)
     if (item.productoId) {
-      // Producto normal
+      // Elimina el campo id si existe para productos
+      const { id, ...itemSinId } = item;
+      // Busca si ya existe un producto con el mismo productoId
       const existingItemIndex = currentItems.findIndex(i => i.productoId === item.productoId);
       if (existingItemIndex > -1) {
         const existingItem = currentItems[existingItemIndex];
@@ -44,37 +47,43 @@ export class CartService {
           if (existingItem.quantity + quantity > existingItem.stock) {
             return false;
           }
-          existingItem.quantity += quantity;
         }
+        existingItem.quantity = (existingItem.quantity || 0) + quantity;
       } else {
-        if (item.stock !== undefined && quantity > item.stock) {
-          return false;
-        }
         currentItems.push({
-          ...item,
+          ...itemSinId,
           quantity: quantity,
         });
       }
-    } else if (item.id) {
-      // Reserva: solo agregarla, no agrupar
+    } else if (item.id && !item.productoId) {
+      // Es una reserva, no agrupar
       currentItems.push({
         ...item
       });
     } else {
+      // Si no tiene productoId ni id, o tiene ambos, no agregar
       return false;
     }
 
-    this._cartItems.next(currentItems);
+    this._cartItems.next([...currentItems]);
     this.saveCart();
     return true;
   }
 
   removeItem(id: string) {
-    const currentItems = this._cartItems.getValue().filter(item =>
-      (item.productoId && item.productoId !== id) ||
-      (item.id && item.id !== id)
-    );
-    this._cartItems.next(currentItems);
+    const currentItems = this._cartItems.getValue();
+    // Busca si es producto (por productoId)
+    const productIndex = currentItems.findIndex(item => item.productoId === id);
+    if (productIndex > -1) {
+      // Elimina todos los productos de ese tipo (sin importar la cantidad)
+      currentItems.splice(productIndex, 1);
+      this._cartItems.next([...currentItems]);
+      this.saveCart();
+      return;
+    }
+    // Si es reserva (por id), elimina solo esa reserva
+    const filteredItems = currentItems.filter(item => !(item.id && item.id === id));
+    this._cartItems.next(filteredItems);
     this.saveCart();
   }
 

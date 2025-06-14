@@ -43,9 +43,9 @@
       <div class="product-grid" *ngIf="productos.length > 0; else noProducts">
         <div *ngFor="let producto of productos; trackBy: trackByProductoId" class="product-card">
           <div class="product-image-placeholder">
-        <img [src]="producto.imagen || 'assets/placeholder.png'" alt="Imagen de producto">
-        <!-- El botón "Ver" navega al detalle del producto usando routerLink -->
-        <ion-button color="danger" class="view-button" [routerLink]="['/producto-detalle', producto.id]">Ver</ion-button>
+            <img [src]="producto.imagen || 'assets/placeholder.png'" alt="Imagen de producto">
+            <!-- El botón "Ver" navega al detalle del producto usando routerLink -->
+            <ion-button color="danger" class="view-button" [routerLink]="['/producto-detalle', producto.id]">Ver</ion-button>
           </div>
           <p class="product-name">{{ producto.nombre }}</p>
         </div>

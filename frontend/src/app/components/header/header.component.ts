@@ -15,6 +15,7 @@ import { CartService } from '../../services/cart.service';
 export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   cartItemCount: number = 0;
+  isAdmin: boolean = false;
   private authSubscription: Subscription | undefined;
   private cartSubscription: Subscription | undefined;
 
@@ -30,6 +31,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authSubscription = this.authService.currentUser$
       .subscribe(user => {
         this.isLoggedIn = !!user;
+        // TEMPORAL: Detectar admin por correo
+        this.isAdmin = !!user && (user as any).correo === 'admin@admin.com';
       });
 
     this.cartSubscription = this.cartService.cartItems$.subscribe(items => {
@@ -78,10 +81,43 @@ export class HeaderComponent implements OnInit, OnDestroy {
               this.presentToast('Por favor, ingresa tu correo y contraseña.', 'danger');
               return false;
             }
+            // Permitir login admin local si backend no responde
+            if (data.email === 'admin@admin.com' && data.password === 'admin123') {
+              // Intenta login real, pero si falla, haz login local
+              this.authService.login(data.email, data.password).subscribe({
+                next: user => {
+                  this.presentToast('¡Bienvenido, Administrador!', 'success');
+                  this.navController.navigateRoot('/admin');
+                  alert.dismiss();
+                },
+                error: err => {
+                  // Login local solo para admin
+                  const adminUser = {
+                    personaid: 0,
+                    usuario: 'Administrador',
+                    rut: '11.111.111-1',
+                    correo: 'admin@admin.com',
+                    region: 'Metropolitana de Santiago',
+                    comuna: 'Santiago'
+                  };
+                  localStorage.setItem('currentUser', JSON.stringify(adminUser));
+                  this.authService['currentUserSubject'].next(adminUser);
+                  this.presentToast('¡Bienvenido, Administrador (modo local)!', 'success');
+                  this.navController.navigateRoot('/admin');
+                  alert.dismiss();
+                }
+              });
+              return false;
+            }
             this.authService.login(data.email, data.password).subscribe({
               next: user => {
                 this.presentToast(`¡Bienvenido, ${user.usuario}!`, 'success');
-                this.navController.navigateRoot('/user-profile');
+                // Si es admin, redirige a /admin
+                if ((user as any).correo === 'admin@admin.com') {
+                  this.navController.navigateRoot('/admin');
+                } else {
+                  this.navController.navigateRoot('/user-profile');
+                }
                 alert.dismiss();
               },
               error: err => {

@@ -87,7 +87,7 @@
             <ion-checkbox slot="start" [(ngModel)]="reserva.aceptaTerminos"></ion-checkbox>
             <ion-label>Acepto los términos de reserva <a href="#">Leer los términos</a></ion-label>
           </ion-item>
-          <ion-button expand="block" (click)="guardarReserva()" [disabled]="!reserva.aceptaTerminos">
+          <ion-button expand="block" (click)="guardarReserva()" [disabled]="!reservaValida()">
             Guardar reserva
           </ion-button>
         </ion-card-content>

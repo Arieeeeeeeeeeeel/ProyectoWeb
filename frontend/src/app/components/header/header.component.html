@@ -56,7 +56,11 @@
                 </a>
               </li>
               <li>
-                
+                <a routerLink="/carrito" (click)="closeMenu()">
+                  <ion-icon name="cart-outline" class="icono-menu"></ion-icon>
+                  Carrito
+                  <ion-badge color="dark" *ngIf="cartItemCount > 0">{{ cartItemCount }}</ion-badge>
+                </a>
               </li>
               <li *ngIf="isLoggedIn">
                 <a (click)="goToUserPage(); closeMenu()">
@@ -70,13 +74,15 @@
                   Cerrar Sesión
                 </a>
               </li>
+              <li *ngIf="isAdmin">
+                <a routerLink="/admin" (click)="closeMenu()">
+                  <ion-icon name="settings-outline" class="icono-menu"></ion-icon>
+                  Admin
+                </a>
+              </li>
             </ul>
 
             <div class="auth-links">
-              <ion-button routerLink="/carrito" class="cart-button">
-                <ion-icon name="cart-outline"></ion-icon>
-                <ion-badge color="dark" *ngIf="cartItemCount > 0">{{ cartItemCount }}</ion-badge>
-              </ion-button>
               <ng-container *ngIf="!isLoggedIn">
                 <ion-button (click)="presentLoginAlert()">Ingresar</ion-button>
                 <span class="divider"></span>

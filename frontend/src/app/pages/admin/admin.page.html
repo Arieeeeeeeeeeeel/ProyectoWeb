@@ -1,0 +1,113 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Panel de Administración</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- Estadísticas rápidas -->
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card color="primary">
+          <ion-card-header>
+            <ion-card-title>Usuarios</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h2>{{ totalUsuarios }}</h2>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card color="success">
+          <ion-card-header>
+            <ion-card-title>Productos</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h2>{{ totalProductos }}</h2>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card color="warning">
+          <ion-card-header>
+            <ion-card-title>Ofertas</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h2>{{ totalOfertas }}</h2>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card color="tertiary">
+          <ion-card-header>
+            <ion-card-title>Horas</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h2>{{ totalHoras }}</h2>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Usuarios</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let usuario of usuarios">
+          <ion-label>
+            <b>{{usuario.nombre}}</b> ({{usuario.rol}})
+            <div>{{usuario.email}}</div>
+          </ion-label>
+          <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarUsuario(usuario)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Inventario de Productos</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let producto of inventario">
+          <ion-label>
+            <b>{{producto.nombre}}</b> - Stock: {{producto.stock}} - ${{producto.precio}}
+          </ion-label>
+          <ion-checkbox slot="end" [(ngModel)]="producto.enOferta" (ionChange)="toggleOferta(producto)">
+            Oferta
+          </ion-checkbox>
+          <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarProducto(producto)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Horas Agendadas (por prioridad)</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let hora of horas">
+          <ion-label>
+            <b>{{hora.cliente}}</b> - {{hora.fecha}}
+            <div>Prioridad: {{hora.prioridad}} | {{hora.detalle}}</div>
+          </ion-label>
+          <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarHora(hora)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

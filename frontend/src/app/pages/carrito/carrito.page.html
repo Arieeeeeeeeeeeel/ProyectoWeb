@@ -6,8 +6,32 @@
           <img [src]="item.imagen || 'assets/placeholder.png'" alt="Imagen del producto">
         </ion-thumbnail>
         <ion-label>
-          <h2>{{ item.nombre }}</h2>
-          <p>Precio: ${{ item.precio | number: '1.0-0' }}</p>
+          <h2>
+            {{ item.nombre }}
+            <ion-badge *ngIf="item.quantity && item.quantity > 1" color="primary" style="margin-left:8px;">
+              x{{ item.quantity }}
+            </ion-badge>
+          </h2>
+          <ng-container *ngIf="item.quantity !== undefined; else reservaInfo">
+            <p>Precio unitario: ${{ item.precio | number: '1.0-0' }}</p>
+            <p *ngIf="item.quantity && item.quantity > 1">
+              Total: ${{ (item.precio * item.quantity) | number: '1.0-0' }}
+            </p>
+          </ng-container>
+          <ng-template #reservaInfo>
+            <p>Precio: ${{ item.precio | number: '1.0-0' }}</p>
+          </ng-template>
+          <!-- Mostrar detalles de reserva si existen -->
+          <div *ngIf="item.detalles">
+            <ion-text color="medium">
+              <div><b>Servicio:</b> {{ item.detalles.servicio }}</div>
+              <div><b>Fecha:</b> {{ item.detalles.fecha }}</div>
+              <div><b>Hora:</b> {{ item.detalles.hora }}</div>
+              <div><b>Nombre:</b> {{ item.detalles.nombre }}</div>
+              <div><b>Ubicación:</b> {{ item.detalles.ubicacion }}</div>
+              <div *ngIf="item.detalles.notas"><b>Notas:</b> {{ item.detalles.notas }}</div>
+            </ion-text>
+          </div>
           <div class="quantity-controls" *ngIf="item.hasOwnProperty('quantity')">
             <ion-button size="small" fill="outline" (click)="updateQuantity(item, -1)">-</ion-button>
             <span>{{ item.quantity }}</span>
