@@ -98,19 +98,26 @@ export class CarritoPage implements OnInit, OnDestroy {
   }
 
   updateQuantity(item: CartItem, change: number) {
-    const newQuantity = item.quantity + change;
-    if (newQuantity > 0) {
-      const success = this.cartService.updateItemQuantity(item.productoId, newQuantity);
-      if (!success) {
-        this.presentToast('No hay suficiente stock disponible para esta cantidad.', 'warning');
+    if (item.hasOwnProperty('productoId') && typeof item.quantity === 'number') {
+      const newQuantity = item.quantity + change;
+      if (newQuantity > 0) {
+        if (item.productoId) {
+          const success = this.cartService.updateItemQuantity(item.productoId, newQuantity);
+          if (!success) {
+            this.presentToast('No hay suficiente stock disponible para esta cantidad.', 'warning');
+          }
+        }
+      } else {
+        if (item.productoId) {
+          this.removeItem(item.productoId);
+        }
       }
-    } else {
-      this.removeItem(item.productoId);
     }
   }
 
-  removeItem(productId: string) {
-    this.cartService.removeItem(productId);
+  removeItem(productIdOrId: string | undefined) {
+    if (!productIdOrId) return;
+    this.cartService.removeItem(productIdOrId);
     this.presentToast('Producto eliminado del carrito.', 'danger');
   }
 

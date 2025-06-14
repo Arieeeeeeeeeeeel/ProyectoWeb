@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { SeleccionServicioPageRoutingModule } from './seleccion-servicio-routing.module';
 
 import { SeleccionPage } from './seleccion-servicio.page';
+import { HttpClientModule } from '@angular/common/http'; // <-- Agregado
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    SeleccionServicioPageRoutingModule
+    SeleccionServicioPageRoutingModule,
+    HttpClientModule // <-- Agregado
   ],
   declarations: [SeleccionPage]
 })

@@ -3,12 +3,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface CartItem {
-  productoId: string;
+  productoId?: string; // Solo productos
+  id?: string;         // Solo reservas
   nombre: string;
   imagen?: string;
   precio: number;
-  quantity: number;
-  stock: number; // Para verificar el stock al añadir
+  quantity?: number;   // Solo productos
+  stock?: number;      // Solo productos
+  detalles?: any;      // Solo reservas
 }
 
 @Injectable({
@@ -30,56 +32,60 @@ export class CartService {
     localStorage.setItem('cart', JSON.stringify(this._cartItems.getValue()));
   }
 
-  addItem(item: { id: string, nombre: string, imagen?: string, precio: number, stock: number }, quantity: number = 1): boolean {
+  addItem(item: CartItem, quantity: number = 1): boolean {
     const currentItems = this._cartItems.getValue();
-    const existingItemIndex = currentItems.findIndex(i => i.productoId === item.id);
 
-    if (existingItemIndex > -1) {
-      const existingItem = currentItems[existingItemIndex];
-      // Verificar si hay suficiente stock para añadir más
-      if (existingItem.quantity + quantity > item.stock) {
-        return false; // No hay suficiente stock
+    if (item.productoId) {
+      // Producto normal
+      const existingItemIndex = currentItems.findIndex(i => i.productoId === item.productoId);
+      if (existingItemIndex > -1) {
+        const existingItem = currentItems[existingItemIndex];
+        if (existingItem.stock !== undefined && existingItem.quantity !== undefined) {
+          if (existingItem.quantity + quantity > existingItem.stock) {
+            return false;
+          }
+          existingItem.quantity += quantity;
+        }
+      } else {
+        if (item.stock !== undefined && quantity > item.stock) {
+          return false;
+        }
+        currentItems.push({
+          ...item,
+          quantity: quantity,
+        });
       }
-      existingItem.quantity += quantity;
-    } else {
-      // Verificar si hay suficiente stock para el nuevo ítem
-      if (quantity > item.stock) {
-        return false; // No hay suficiente stock
-      }
+    } else if (item.id) {
+      // Reserva: solo agregarla, no agrupar
       currentItems.push({
-        productoId: item.id,
-        nombre: item.nombre,
-        imagen: item.imagen,
-        precio: item.precio,
-        quantity: quantity,
-        stock: item.stock // Almacenar el stock original del producto
+        ...item
       });
+    } else {
+      return false;
     }
+
     this._cartItems.next(currentItems);
     this.saveCart();
-    return true; // Se añadió correctamente
+    return true;
   }
 
-  removeItem(productId: string): void {
-    const currentItems = this._cartItems.getValue().filter(item => item.productoId !== productId);
+  removeItem(id: string) {
+    const currentItems = this._cartItems.getValue().filter(item =>
+      (item.productoId && item.productoId !== id) ||
+      (item.id && item.id !== id)
+    );
     this._cartItems.next(currentItems);
     this.saveCart();
   }
 
   updateItemQuantity(productId: string, quantity: number): boolean {
     const currentItems = this._cartItems.getValue();
-    const itemIndex = currentItems.findIndex(item => item.productoId === productId);
+    const item = currentItems.find(i => i.productoId === productId);
 
-    if (itemIndex > -1) {
-      const item = currentItems[itemIndex];
-      if (quantity <= 0) {
-        this.removeItem(productId);
-        return true;
-      }
-      // Asegurarse de no exceder el stock
-      if (quantity > item.stock) {
-        return false; // No hay suficiente stock
-      }
+    if (item && item.stock !== undefined && quantity > item.stock) {
+      return false;
+    }
+    if (item && item.quantity !== undefined) {
       item.quantity = quantity;
       this._cartItems.next(currentItems);
       this.saveCart();
@@ -94,10 +100,22 @@ export class CartService {
   }
 
   getCartTotal(): number {
-    return this._cartItems.getValue().reduce((total, item) => total + (item.precio * item.quantity), 0);
+    return this._cartItems.getValue().reduce((total, item) => {
+      if (item.quantity !== undefined) {
+        return total + (item.precio * item.quantity);
+      } else {
+        return total + item.precio;
+      }
+    }, 0);
   }
 
   getCartItemCount(): number {
-    return this._cartItems.getValue().reduce((count, item) => count + item.quantity, 0);
+    return this._cartItems.getValue().reduce((count, item) => {
+      if (item.quantity !== undefined) {
+        return count + item.quantity;
+      } else {
+        return count + 1;
+      }
+    }, 0);
   }
 }

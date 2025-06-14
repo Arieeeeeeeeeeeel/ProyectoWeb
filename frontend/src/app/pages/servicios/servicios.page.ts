@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-servicios',
@@ -17,22 +18,39 @@ export class ServiciosPage {
     {
       src: '/assets/desabolladura.png',
       alt: 'Imagen promocional de auto 2',
-      link: '/home'
+      link: '/seleccion-servicio'
     },
     {
       src: '/assets/neumaticos.png',
       alt: 'Imagen promocional de auto 3',
-      link: '/home'
+      link: '/seleccion-servicio'
     },
     {
       src: '/assets/domicilio.png',
       alt: 'Imagen promocional de auto 4',
-      link: '/home'
+      link: '/seleccion-servicio'
     },
     {
       src: '/assets/mantenimiento.png',
       alt: 'Imagen promocional de auto 5',
-      link: '/home'
+      link: '/seleccion-servicio'
     }
   ];
+
+  constructor(private router: Router) {}
+
+  seleccionarServicio(servicio: string) {
+    this.router.navigate(['/seleccion-servicio'], { queryParams: { servicio } });
+  }
+
+  getServicioPorIndice(i: number): string {
+    const servicios = [
+      'Diagnóstico',
+      'Desabolladura y pintura',
+      'Cambio neumático',
+      'Mecánico a domicilio',
+      'Mantenimiento'
+    ];
+    return servicios[i] || '';
+  }
 }

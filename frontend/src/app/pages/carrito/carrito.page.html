@@ -8,11 +8,16 @@
         <ion-label>
           <h2>{{ item.nombre }}</h2>
           <p>Precio: ${{ item.precio | number: '1.0-0' }}</p>
-          <div class="quantity-controls">
+          <div class="quantity-controls" *ngIf="item.hasOwnProperty('quantity')">
             <ion-button size="small" fill="outline" (click)="updateQuantity(item, -1)">-</ion-button>
             <span>{{ item.quantity }}</span>
             <ion-button size="small" fill="outline" (click)="updateQuantity(item, 1)">+</ion-button>
-            <ion-button size="small" color="danger" (click)="removeItem(item.productoId)">
+            <ion-button size="small" color="danger" (click)="removeItem(item.productoId || '')">
+              <ion-icon name="trash"></ion-icon>
+            </ion-button>
+          </div>
+          <div *ngIf="!item.hasOwnProperty('quantity')">
+            <ion-button size="small" color="danger" (click)="removeItem(item.id || '')">
               <ion-icon name="trash"></ion-icon>
             </ion-button>
           </div>

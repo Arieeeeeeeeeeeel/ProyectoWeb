@@ -10,8 +10,7 @@ import { CartService } from '../../services/cart.service';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  standalone:false,
-  providers: [CartService],
+  standalone: false,
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
@@ -34,7 +33,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
 
     this.cartSubscription = this.cartService.cartItems$.subscribe(items => {
-      this.cartItemCount = items.reduce((count, item) => count + item.quantity, 0);
+      this.cartItemCount = items.reduce((count, item) => count + (item.quantity ?? 1), 0);
     });
   }
 
@@ -173,3 +172,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 }
+

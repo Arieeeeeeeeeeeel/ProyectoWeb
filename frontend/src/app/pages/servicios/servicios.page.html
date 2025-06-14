@@ -10,12 +10,58 @@
     </div>
       
     <ion-grid>
-      <ion-row class="row-gap">
-        <ion-col size="6" size-md="4" size-lg="3" *ngFor="let imagen of imagenes">
-          <a [routerLink]="imagen.link" aria-label="Ir al inicio">
+      <ion-row class="row-gap servicios-row">
+        <ion-col class="servicio-col" *ngFor="let imagen of imagenes; let i = index">
+          <a (click)="seleccionarServicio(getServicioPorIndice(i))" style="cursor:pointer;">
             <img [src]="imagen.src" class="imagen-servicio" [alt]="imagen.alt" />
           </a>
         </ion-col>
       </ion-row>
     </ion-grid>
-  </ion-content>  
+
+    <ion-list>
+      <ion-item button (click)="seleccionarServicio('Cambio neumático')">
+        Cambio neumático
+      </ion-item>
+      <ion-item button (click)="seleccionarServicio('Mecánico a domicilio')">
+        Mecánico a domicilio
+      </ion-item>
+      <ion-item button (click)="seleccionarServicio('Desabolladura y pintura')">
+        Desabolladura y pintura
+      </ion-item>
+      <ion-item button (click)="seleccionarServicio('Mantenimiento')">
+        Mantenimiento
+      </ion-item>
+      <ion-item button (click)="seleccionarServicio('Diagnóstico')">
+        Diagnóstico
+      </ion-item>
+    </ion-list>
+  </ion-content>
+  <style>
+/* ...existing styles... */
+.servicios-row {
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.servicio-col {
+  flex: 0 0 20%;
+  max-width: 20%;
+  display: flex;
+  justify-content: center;
+}
+@media (max-width: 900px) {
+  .servicios-row {
+    flex-wrap: wrap;
+  }
+  .servicio-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+@media (max-width: 600px) {
+  .servicio-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+</style>

@@ -1,7 +1,310 @@
 ion-card-title {
   font-weight: bold;
   font-size: 1.2rem;
+  color: #111 !important;
 }
 ion-button {
   margin-top: 1rem;
+}
+
+/* Layout principal */
+.cards-layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Card principal del formulario */
+.main-form-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(33, 150, 243, 0.08);
+  padding: 2rem 2.5rem 2.5rem 2.5rem;
+  min-width: 600px;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  border: 1px solid #e0e0e0;
+}
+
+/* Fila superior: servicio y valor */
+.servicio-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.servicio-select {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.servicio-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+  color: #111 !important; /* Fuerza letras negras */
+}
+
+.valor-atencion {
+  font-size: 1.1rem;
+  color: #222;
+  font-weight: 500;
+  text-align: right;
+  letter-spacing: 0.5px;
+  min-width: 160px;
+}
+.valor-atencion span {
+  color: #2196f3;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Fila inferior: datos y calendario */
+.datos-row {
+  display: flex;
+  flex-direction: row;
+  gap: 2.5rem;
+  align-items: flex-start;
+  justify-content: stretch;
+}
+
+/* Card datos vehículo */
+.vehiculo-card {
+  background: #f7f7f7;
+  border-radius: 14px;
+  padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+  min-width: 260px;
+  max-width: 320px;
+  flex: 1 1 0;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  border: 1px solid #e0e0e0;
+}
+
+.vehiculo-label {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+  color: #222;
+}
+
+/* Card calendario */
+.calendar-card {
+  background: #f7f7f7;
+  border-radius: 14px;
+  padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+  min-width: 320px;
+  max-width: 340px;
+  flex: 1 1 0;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  border: 1px solid #e0e0e0;
+}
+
+.calendar-label {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+  color: #222;
+}
+
+.hora-item {
+  width: 100%;
+  margin-top: 0.7rem;
+}
+
+/* Calendario visual */
+.custom-calendar {
+  --background: #fff;
+  --ion-color-primary: #ff2d2d;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(56,128,255,0.08);
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+ion-datetime.custom-calendar {
+  color: #111 !important;
+  --ion-text-color: #111;
+  --ion-text-color-rgb: 17,17,17;
+}
+
+ion-datetime.custom-calendar .calendar-day,
+ion-datetime.custom-calendar .calendar-day-label,
+ion-datetime.custom-calendar .calendar-month,
+ion-datetime.custom-calendar .calendar-year {
+  color: #111 !important;
+}
+
+ion-datetime.custom-calendar .calendar-day-active,
+ion-datetime.custom-calendar .calendar-day:focus,
+ion-datetime.custom-calendar .calendar-day:hover {
+  background: #ff2d2d !important;
+  color: #fff !important;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+ion-datetime.custom-calendar .calendar-day-today:not(.calendar-day-active) {
+  color: #111 !important;
+  font-weight: bold;
+}
+
+ion-datetime {
+  width: 100%;
+}
+
+ion-select {
+  margin-top: 0.5rem;
+}
+
+ion-select,
+ion-select::part(text),
+ion-select .select-text {
+  color: #111 !important; /* Letras negras en el select */
+}
+
+/* Card de la derecha */
+.right-card {
+  min-width: 340px;
+  max-width: 400px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 18px;
+  padding: 2.5rem 2rem 2rem 2rem;
+  box-sizing: border-box;
+  box-shadow: 0 4px 24px rgba(33, 150, 243, 0.08);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+}
+
+.right-card ion-card {
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+}
+
+/* Información de reserva: título y contenido en negro */
+.right-card ion-card-title,
+.right-card ion-card-header,
+.right-card ion-label,
+.right-card ion-input,
+.right-card ion-select,
+.right-card ion-textarea,
+.right-card ion-item,
+.right-card {
+  color: #111 !important;
+}
+
+/* Información de reserva: título y contenido en blanco */
+.right-card ion-card-title,
+.right-card ion-card-header {
+  color: #fff !important;
+}
+
+/* Información de reserva: campos en blanco */
+.right-card ion-label,
+.right-card ion-input,
+.right-card ion-select,
+.right-card ion-textarea,
+.right-card ion-checkbox,
+.right-card ion-item,
+.right-card ion-select::part(text),
+.right-card ion-select .select-text {
+  color: #fff !important;
+}
+
+/* Placeholder "Seleccionar hora" en blanco */
+.right-card ion-select::part(placeholder) {
+  color: #fff !important;
+}
+
+/* Fondo oscuro para que el texto blanco sea visible */
+.right-card {
+  background: #222;
+  border: 1px solid #333;
+}
+
+/* Ajusta el color del placeholder en inputs/selects/textareas */
+.right-card ion-input::part(native),
+.right-card ion-textarea::part(native),
+.right-card ion-select::part(placeholder) {
+  color: #ccc !important;
+}
+
+/* Botón sigue igual, pero puedes aclarar el borde si lo deseas */
+
+/* Responsive: apila en pantallas pequeñas */
+@media (max-width: 1100px) {
+  .cards-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+  .main-form-card,
+  .right-card {
+    min-width: 320px;
+    max-width: 100vw;
+    padding: 1.5rem 1rem 1rem 1rem;
+    height: auto;
+  }
+  .datos-row {
+    flex-direction: column;
+    gap: 2rem;
+    align-items: stretch;
+  }
+  .vehiculo-card,
+  .calendar-card {
+    min-width: 0;
+    max-width: 100vw;
+  }
+}
+
+
+/* Responsive: apila en pantallas pequeñas */
+@media (max-width: 1100px) {
+  .cards-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+  .left-cards,
+  .right-card {
+    min-width: 320px;
+    max-width: 100vw;
+    padding: 1.5rem 1rem 1rem 1rem;
+    height: auto;
+  }
+  .calendar-vehiculo-row {
+    flex-direction: column;
+    gap: 2rem;
+    align-items: stretch;
+  }
+  .calendar-vehiculo-row ion-card,
+  .calendar-vehiculo-row .card-servicio {
+    height: auto;
+    min-width: 0;
+    max-width: 100vw;
+  }
 }
