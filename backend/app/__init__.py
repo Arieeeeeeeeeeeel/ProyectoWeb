@@ -18,8 +18,8 @@ def create_app():
     ma.init_app(flask_app)
     mail.init_app(flask_app)
 
-    # Permitir CORS para todos los endpoints desde el puerto 8100
-    CORS(flask_app, resources={r"/*": {"origins": "http://localhost:8100"}})
+    # Permitir CORS para todos los orígenes
+    CORS(flask_app)
 
     from .routes import init_app 
     init_app(flask_app)

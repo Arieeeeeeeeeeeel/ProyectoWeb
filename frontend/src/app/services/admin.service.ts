@@ -40,14 +40,15 @@ export interface Stats {
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private API_URL = 'http://localhost:5000/admin';
+  private API_URL = 'https://3aeb-190-8-112-252.ngrok-free.app/admin';
 
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken');
     return new HttpHeaders({
-      'Authorization': token ? `Bearer ${token}` : ''
+      'Authorization': token ? `Bearer ${token}` : '',
+      'ngrok-skip-browser-warning': 'true'
     });
   }
 
