@@ -40,7 +40,7 @@ export interface Stats {
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private API_URL = 'https://3aeb-190-8-112-252.ngrok-free.app/admin';
+  private API_URL = 'https://3aeb-190-8-112-252.ngrok-free.app'; // Cambiado para usar la raíz de la API
 
   constructor(private http: HttpClient) {}
 
@@ -54,36 +54,36 @@ export class AdminService {
 
   // Usuarios
   getUsuarios(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(`${this.API_URL}/usuarios`, { headers: this.getAuthHeaders() });
+    return this.http.get<Usuario[]>(`${this.API_URL}/admin/usuarios`, { headers: this.getAuthHeaders() });
   }
   eliminarUsuario(id: number) {
-    return this.http.delete(`${this.API_URL}/usuarios/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete(`${this.API_URL}/admin/usuarios/${id}`, { headers: this.getAuthHeaders() });
   }
 
   // Productos
   getProductos(): Observable<Producto[]> {
-    return this.http.get<Producto[]>(`${this.API_URL}/productos`, { headers: this.getAuthHeaders() });
+    return this.http.get<Producto[]>(`${this.API_URL}/products`, { headers: this.getAuthHeaders() });
   }
   crearProducto(producto: Partial<Producto>) {
-    return this.http.post(`${this.API_URL}/productos`, producto, { headers: this.getAuthHeaders() });
+    return this.http.post(`${this.API_URL}/products`, producto, { headers: this.getAuthHeaders() });
   }
   editarProducto(id: number, producto: Partial<Producto>) {
-    return this.http.put(`${this.API_URL}/productos/${id}`, producto, { headers: this.getAuthHeaders() });
+    return this.http.put(`${this.API_URL}/products/${id}`, producto, { headers: this.getAuthHeaders() });
   }
   eliminarProducto(id: number) {
-    return this.http.delete(`${this.API_URL}/productos/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete(`${this.API_URL}/products/${id}`, { headers: this.getAuthHeaders() });
   }
 
   // Reservas
   getReservas(): Observable<Reserva[]> {
-    return this.http.get<Reserva[]>(`${this.API_URL}/reservas`, { headers: this.getAuthHeaders() });
+    return this.http.get<Reserva[]>(`${this.API_URL}/admin/reservas`, { headers: this.getAuthHeaders() });
   }
   eliminarReserva(id: number) {
-    return this.http.delete(`${this.API_URL}/reservas/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete(`${this.API_URL}/admin/reservas/${id}`, { headers: this.getAuthHeaders() });
   }
 
   // Estadísticas
   getStats(): Observable<Stats> {
-    return this.http.get<Stats>(`${this.API_URL}/stats`, { headers: this.getAuthHeaders() });
+    return this.http.get<Stats>(`${this.API_URL}/admin/stats`, { headers: this.getAuthHeaders() });
   }
 }

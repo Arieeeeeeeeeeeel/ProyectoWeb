@@ -67,7 +67,7 @@ def eliminar_producto(producto_id):
 def listar_usuarios():
     usuarios = Usuario.query.all()
     return jsonify([
-        {'id':u.personaid,'nombre':u.nombre,'email':u.correo}
+        {'id':u.personaid,'nombre':u.usuario,'email':u.correo}
         for u in usuarios
     ]),200
 

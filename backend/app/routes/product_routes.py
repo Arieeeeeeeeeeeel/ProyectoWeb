@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, request
 from ..models.producto import Producto
-
+from .. import db
+from app.utils import token_required
 
 bp = Blueprint('product', __name__)
 
-@bp.route('/products', methods=['GET'])
 @bp.route('', methods=['GET'])
+@bp.route('/', methods=['GET'])
 def get_products():
     prods = Producto.query.all()
     return jsonify([
@@ -26,7 +27,7 @@ def get_products():
         for p in prods
     ]), 200
 
-@bp.route('/product/<int:producto_id>', methods=['GET', 'OPTIONS'])
+@bp.route('/<int:producto_id>', methods=['GET', 'OPTIONS'])
 def get_product(producto_id):
     if request.method == 'OPTIONS':
         return '', 200
@@ -47,3 +48,73 @@ def get_product(producto_id):
         'en_oferta': getattr(p, 'en_oferta', False),
         'mostrar_en_inicio': getattr(p, 'mostrar_en_inicio', False)
     }), 200
+
+@bp.route('', methods=['POST'])
+@bp.route('/', methods=['POST'])
+@token_required
+def crear_producto():
+    data = request.get_json()
+    ano_compatible = data.get('ano_compatible')
+    if ano_compatible in (None, '', ' '):
+        ano_compatible = None
+    else:
+        try:
+            ano_compatible = int(ano_compatible)
+        except Exception:
+            ano_compatible = None
+    p = Producto(
+        nombre=data['nombre'],
+        descripcion=data.get('descripcion',''),
+        marca=data.get('marca',''),
+        modelo=data.get('modelo',''),
+        ano_compatible=ano_compatible,
+        stock=data.get('stock',0),
+        precio=data.get('precio',0),
+        rating=data.get('rating',0),
+        imagen_url=data.get('imagen_url',''),
+        en_oferta=data.get('en_oferta',False),
+        mostrar_en_inicio=data.get('mostrar_en_inicio',False)
+    )
+    db.session.add(p)
+    db.session.commit()
+    return jsonify({'message':'Producto creado','producto_id':p.producto_id}), 201
+
+@bp.route('/<int:producto_id>', methods=['PUT'])
+@token_required
+def editar_producto(producto_id):
+    p = Producto.query.get(producto_id)
+    if not p:
+        return jsonify({'error':'Producto no encontrado'}),404
+    data = request.get_json()
+    for k,v in data.items():
+        if hasattr(p,k):
+            setattr(p,k,v)
+    db.session.commit()
+    return jsonify({'message':'Producto actualizado'}),200
+
+@bp.route('/<int:producto_id>', methods=['DELETE'])
+@token_required
+def eliminar_producto(producto_id):
+    p = Producto.query.get(producto_id)
+    if not p:
+        return jsonify({'error':'Producto no encontrado'}),404
+    db.session.delete(p)
+    db.session.commit()
+    return jsonify({'message':'Producto eliminado'}),200
+
+@bp.route('/update_stock', methods=['POST'])
+def update_stock():
+    data = request.get_json()
+    items = data.get('items', [])
+
+    for item in items:
+        producto_id = item.get('producto_id')
+        cantidad = item.get('cantidad', 0)
+        producto = Producto.query.filter_by(producto_id=producto_id).first()
+        if producto and producto.stock >= cantidad:
+            producto.stock -= cantidad
+        else:
+            return jsonify({"error": f"Stock insuficiente para producto {producto_id}"}), 400
+
+    db.session.commit()
+    return jsonify({"message": "Stock actualizado correctamente"}), 200
