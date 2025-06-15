@@ -34,6 +34,6 @@ export class ProductosService {
   }
 
   getProducto(id: number): Observable<Producto> {
-    return this.http.get<Producto>(`${this.API_URL}/${id}`, { headers: this.getNgrokHeaders() });
+    return this.http.get<Producto>(`${this.API_URL}/product/${id}`, { headers: this.getNgrokHeaders() });
   }
 }
