@@ -9,6 +9,11 @@ import { AdminService, Producto } from '../../services/admin.service';
 })
 export class InventarioAdminPage implements OnInit {
   productos: Producto[] = [];
+  productosFiltrados: Producto[] = [];
+  filtroBusqueda: string = '';
+  filtroMarca: string = '';
+  filtroOferta: boolean = false;
+  marcasUnicas: string[] = [];
   editandoId: number | null = null;
   nuevoProducto: Partial<Producto> = {
     nombre: '',
@@ -25,7 +30,23 @@ export class InventarioAdminPage implements OnInit {
   }
 
   cargarProductos() {
-    this.adminService.getProductos().subscribe(p => this.productos = p);
+    this.adminService.getProductos().subscribe(p => {
+      this.productos = p;
+      this.marcasUnicas = Array.from(new Set(p.map(prod => prod.marca).filter((m): m is string => !!m)));
+      this.aplicarFiltro();
+    });
+  }
+
+  aplicarFiltro() {
+    this.productosFiltrados = this.productos.filter(prod => {
+      const texto = (this.filtroBusqueda || '').toLowerCase();
+      const coincideBusqueda =
+        prod.nombre.toLowerCase().includes(texto) ||
+        (prod.modelo && prod.modelo.toLowerCase().includes(texto));
+      const coincideMarca = !this.filtroMarca || prod.marca === this.filtroMarca;
+      const coincideOferta = !this.filtroOferta || prod.en_oferta;
+      return coincideBusqueda && coincideMarca && coincideOferta;
+    });
   }
 
   editarProducto(id: number) {

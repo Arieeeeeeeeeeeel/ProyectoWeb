@@ -64,12 +64,17 @@
       <ion-card-title>Lista de Productos</ion-card-title>
     </ion-card-header>
     <ion-card-content>
+      <ion-item lines="none">
+        <ion-input placeholder="Buscar por nombre o modelo" [(ngModel)]="filtroBusqueda" (ionInput)="aplicarFiltro()"></ion-input>
+        <ion-select placeholder="Filtrar por marca" [(ngModel)]="filtroMarca" (ionChange)="aplicarFiltro()" interface="popover" style="margin-left:8px; min-width:120px;">
+          <ion-select-option *ngFor="let marca of marcasUnicas" [value]="marca">{{marca}}</ion-select-option>
+        </ion-select>
+        <ion-checkbox [(ngModel)]="filtroOferta" (ionChange)="aplicarFiltro()" style="margin-left:8px;">Solo ofertas</ion-checkbox>
+      </ion-item>
       <ion-list>
-        <ion-item *ngFor="let producto of productos">
+        <ion-item *ngFor="let producto of productosFiltrados">
           <div *ngIf="editandoId !== producto.producto_id" style="width:100%;">
             <b>{{producto.nombre}}</b> - ${{producto.precio}}
-            <ion-checkbox slot="end" [(ngModel)]="producto.en_oferta" (ionChange)="toggleOferta(producto)">Oferta</ion-checkbox>
-            <ion-checkbox slot="end" [(ngModel)]="producto.mostrar_en_inicio" (ionChange)="toggleMostrarEnInicio(producto)" style="margin-left:8px;">Mostrar en inicio</ion-checkbox>
             <ion-button fill="clear" color="primary" size="small" slot="end" (click)="editarProducto(producto.producto_id)">
               <ion-icon name="create-outline"></ion-icon>
             </ion-button>
@@ -80,17 +85,44 @@
           <div *ngIf="editandoId === producto.producto_id" style="width:100%;">
             <ion-item>
               <ion-label position="floating">Nombre</ion-label>
-              <ion-input [(ngModel)]="producto.nombre"></ion-input>
+              <ion-input [(ngModel)]="producto.nombre" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Descripción</ion-label>
+              <ion-input [(ngModel)]="producto.descripcion"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Marca</ion-label>
+              <ion-input [(ngModel)]="producto.marca" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Modelo</ion-label>
+              <ion-input [(ngModel)]="producto.modelo"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Año</ion-label>
+              <ion-input type="number" [(ngModel)]="producto.ano_compatible"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Stock</ion-label>
+              <ion-input type="number" [(ngModel)]="producto.stock" required min="0"></ion-input>
             </ion-item>
             <ion-item>
               <ion-label position="floating">Precio</ion-label>
-              <ion-input type="number" [(ngModel)]="producto.precio"></ion-input>
+              <ion-input type="number" [(ngModel)]="producto.precio" required min="0"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">URL de imagen</ion-label>
+              <ion-input [(ngModel)]="producto.imagen_url"></ion-input>
             </ion-item>
             <ion-item lines="none">
               <ion-checkbox [(ngModel)]="producto.en_oferta">Oferta</ion-checkbox>
               <ion-checkbox [(ngModel)]="producto.mostrar_en_inicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
             </ion-item>
-            <ion-button color="success" size="small" (click)="guardarEdicion(producto)">Guardar</ion-button>
+            <ion-button color="success" size="small" (click)="guardarEdicion(producto)"
+              [disabled]="!producto.nombre || !producto.marca || producto.stock === undefined || producto.stock < 0 || producto.precio === undefined || producto.precio < 0">
+              Guardar
+            </ion-button>
             <ion-button color="medium" size="small" (click)="cancelarEdicion()">Cancelar</ion-button>
           </div>
         </ion-item>

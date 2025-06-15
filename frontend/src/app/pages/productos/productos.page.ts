@@ -18,6 +18,7 @@ export class ProductosPage implements OnInit {
   };
 
   productos: Producto[] = [];
+  productosOriginal: Producto[] = [];
   currentSort: string = 'nuevo';
   hasSearched: boolean = false;
 
@@ -33,6 +34,7 @@ export class ProductosPage implements OnInit {
 
   cargarProductos() {
     this.productosService.getProductos().subscribe(productos => {
+      this.productosOriginal = productos;
       this.productos = productos;
       this.sortProducts();
     });
@@ -40,7 +42,14 @@ export class ProductosPage implements OnInit {
 
   buscarProductos() {
     this.hasSearched = true;
-    this.cargarProductos();
+    this.productos = this.productosOriginal.filter(producto => {
+      const marcaOk = !this.searchFilters.marca || (producto.marca || '').toLowerCase().includes(this.searchFilters.marca.toLowerCase());
+      const modeloOk = !this.searchFilters.modelo || (producto.modelo || '').toLowerCase().includes(this.searchFilters.modelo.toLowerCase());
+      const anioOk = !this.searchFilters.anio || producto.ano_compatible === this.searchFilters.anio;
+      const repuestoOk = !this.searchFilters.repuesto || (producto.descripcion || '').toLowerCase().includes(this.searchFilters.repuesto.toLowerCase());
+      return marcaOk && modeloOk && anioOk && repuestoOk;
+    });
+    this.sortProducts();
   }
 
   aplicarFiltro(tipoFiltro: string) {

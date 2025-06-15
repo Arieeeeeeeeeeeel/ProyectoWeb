@@ -82,16 +82,21 @@
     </ion-card-header>
     <ion-card-content>
       <ion-list>
-        <ion-item *ngFor="let producto of inventario">
-          <ion-label>
-            <b>{{producto.nombre}}</b> - Stock: {{producto.stock}} - ${{producto.precio}}
-          </ion-label>
-          <ion-checkbox slot="end" [(ngModel)]="producto.en_oferta" (ionChange)="toggleOferta(producto)">
-            Oferta
-          </ion-checkbox>
-          <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarProducto(producto)">
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
+        <ng-container *ngFor="let producto of inventario | slice:0:3">
+          <ion-item>
+            <ion-label>
+              <b>{{producto.nombre}}</b> - Stock: {{producto.stock}} - ${{producto.precio}}
+            </ion-label>
+            <ion-checkbox slot="end" [(ngModel)]="producto.en_oferta" (ionChange)="toggleOferta(producto)">
+              Oferta
+            </ion-checkbox>
+            <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarProducto(producto)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ng-container>
+        <ion-item *ngIf="inventario.length > 3" lines="none" style="justify-content:center; color:#888; font-size:1.5em;">
+          ...
         </ion-item>
       </ion-list>
     </ion-card-content>
