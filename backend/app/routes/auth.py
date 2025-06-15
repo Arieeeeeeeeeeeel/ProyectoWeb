@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-
 from marshmallow import ValidationError
 from ..models.usuario import Usuario
 from ..schemas.login_schema import LoginSchema
@@ -9,13 +8,11 @@ import jwt
 import datetime
 from app.config.config import Config
 from app.utils import token_required
-from flask_cors import cross_origin
 from .. import db
 
 bp = Blueprint('auth', __name__)
 
 @bp.route('/signup', methods=['POST'])
-@cross_origin(origin="http://localhost:8100")
 def signup():
     data = request.get_json()
 
@@ -52,7 +49,6 @@ def signup():
     }), 201
 
 @bp.route('/login', methods=['POST'])
-@cross_origin(origin="http://localhost:8100")
 def login():
     login_schema = LoginSchema()
 
@@ -82,7 +78,6 @@ def login():
     }), 200
 
 @bp.route('/<personaid>/signout', methods=['POST'])
-@cross_origin(origin="http://localhost:8100")
 @token_required
 def signout(personaid):
     return jsonify({'message':f'Usuario {personaid} ha cerrado sesión'}), 200

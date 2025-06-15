@@ -6,13 +6,11 @@ from ..schemas.usuario_schema import StartRecoverySchema, CompleteRecoverySchema
 from werkzeug.security import generate_password_hash
 import jwt
 import datetime
-from flask_cors import cross_origin
 
 bp = Blueprint('recovery', __name__)
 
 # 1) Enviar email de recuperación
 @bp.route('/recovery', methods=['POST'])
-@cross_origin(origin="http://localhost:8100")
 def start_recovery():
     data = request.get_json()
     schema = StartRecoverySchema()
@@ -58,7 +56,6 @@ def start_recovery():
 
 # 2) Completar recuperación y cambiar contraseña
 @bp.route('/<int:personaid>/recovery', methods=['PUT'])
-@cross_origin(origin="http://localhost:8100")
 def complete_recovery(personaid):
     # Obtener token de query string o body
     token = request.args.get('token') or request.json.get('token')

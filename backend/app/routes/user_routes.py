@@ -4,12 +4,10 @@ from ..models.usuario import Usuario
 from ..schemas.update_profile_schema import UpdateProfileSchema
 from app.utils import token_required
 from .. import db
-from flask_cors import cross_origin
 
 bp = Blueprint('profile', __name__)
 
 @bp.route('/<personaid>/update_profile', methods=['PUT'])
-@cross_origin(origin="http://localhost:8100")
 @token_required
 def update_profile(personaid):
     user = Usuario.query.get(personaid)
