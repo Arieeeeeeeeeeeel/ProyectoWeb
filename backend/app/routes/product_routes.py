@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from ..models.producto import Producto
 
 
@@ -26,11 +26,13 @@ def get_products():
         for p in prods
     ]), 200
 
-@bp.route('/products/<int:producto_id>', methods=['GET'])
+@bp.route('/product/<int:producto_id>', methods=['GET', 'OPTIONS'])
 def get_product(producto_id):
+    if request.method == 'OPTIONS':
+        return '', 200
     p = Producto.query.get(producto_id)
     if not p:
-        return jsonify({'error':'Producto no encontrado'}), 404
+        return jsonify({'error': 'Producto no encontrado'}), 404
     return jsonify({
         'producto_id': p.producto_id,
         'nombre': p.nombre,
@@ -40,6 +42,8 @@ def get_product(producto_id):
         'ano_compatible': p.ano_compatible,
         'stock': p.stock,
         'precio': float(p.precio),
-        'rating': float(p.rating),
-        'imagen_url': p.imagen_url
+        'rating': float(p.rating) if p.rating is not None else 0,
+        'imagen_url': p.imagen_url,
+        'en_oferta': getattr(p, 'en_oferta', False),
+        'mostrar_en_inicio': getattr(p, 'mostrar_en_inicio', False)
     }), 200
