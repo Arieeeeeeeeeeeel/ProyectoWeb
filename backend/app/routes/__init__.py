@@ -6,6 +6,7 @@ from .product_routes import bp as product_routes
 from .vehicle_routes import bp as vehicle_routes
 from .service_routes import bp as service_routes
 from .admin_routes import bp as admin_routes
+from .reserva_routes import bp as reserva_routes
 
 def init_app(app):
     app.register_blueprint(auth_routes, url_prefix='/auth')
@@ -16,3 +17,4 @@ def init_app(app):
     app.register_blueprint(vehicle_routes, url_prefix='/vehicles')
     app.register_blueprint(service_routes, url_prefix='/services')
     app.register_blueprint(admin_routes, url_prefix='/admin')
+    app.register_blueprint(reserva_routes, url_prefix='/reservas')
