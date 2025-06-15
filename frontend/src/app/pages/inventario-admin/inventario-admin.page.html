@@ -18,18 +18,44 @@
     <ion-card-content>
       <ion-item>
         <ion-label position="floating">Nombre</ion-label>
-        <ion-input [(ngModel)]="nuevoProducto.nombre"></ion-input>
+        <ion-input [(ngModel)]="nuevoProducto.nombre" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Descripción</ion-label>
+        <ion-input [(ngModel)]="nuevoProducto.descripcion"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Marca</ion-label>
+        <ion-input [(ngModel)]="nuevoProducto.marca" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Modelo</ion-label>
+        <ion-input [(ngModel)]="nuevoProducto.modelo"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Año</ion-label>
+        <ion-input type="number" [(ngModel)]="nuevoProducto.ano_compatible"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Stock</ion-label>
+        <ion-input type="number" [(ngModel)]="nuevoProducto.stock" required min="0"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="floating">Precio</ion-label>
-        <ion-input type="number" [(ngModel)]="nuevoProducto.precio"></ion-input>
+        <ion-input type="number" [(ngModel)]="nuevoProducto.precio" required min="0"></ion-input>
       </ion-item>
-      <!-- Eliminar campo etiquetas, ya que no existe en el modelo -->
+      <ion-item>
+        <ion-label position="floating">URL de imagen</ion-label>
+        <ion-input [(ngModel)]="nuevoProducto.imagen_url"></ion-input>
+      </ion-item>
       <ion-item lines="none">
         <ion-checkbox [(ngModel)]="nuevoProducto.en_oferta">Oferta</ion-checkbox>
         <ion-checkbox [(ngModel)]="nuevoProducto.mostrar_en_inicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
       </ion-item>
-      <ion-button expand="block" color="primary" (click)="agregarProducto()">Agregar</ion-button>
+      <ion-button expand="block" color="primary" (click)="agregarProducto()"
+        [disabled]="!nuevoProducto.nombre || !nuevoProducto.marca || nuevoProducto.stock === undefined || nuevoProducto.stock < 0 || nuevoProducto.precio === undefined || nuevoProducto.precio < 0">
+        Agregar
+      </ion-button>
     </ion-card-content>
   </ion-card>
 
