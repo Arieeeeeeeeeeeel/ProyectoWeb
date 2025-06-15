@@ -1,13 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
-  etiquetas: string[];
-  enOferta: boolean;
-  mostrarEnInicio: boolean;
-}
+import { AdminService, Producto } from '../../services/admin.service';
 
 @Component({
   selector: 'app-inventario-admin',
@@ -16,41 +8,24 @@ interface Producto {
   standalone:false,
 })
 export class InventarioAdminPage implements OnInit {
-
   productos: Producto[] = [];
   editandoId: number | null = null;
   nuevoProducto: Partial<Producto> = {
     nombre: '',
     precio: 0,
-    etiquetas: [],
-    enOferta: false,
-    mostrarEnInicio: false
+    en_oferta: false,
+    mostrar_en_inicio: false
   };
   nuevaEtiqueta: string = '';
 
-  constructor() { }
+  constructor(private adminService: AdminService) { }
 
   ngOnInit() {
     this.cargarProductos();
   }
 
   cargarProductos() {
-    // Simula obtener productos del backend/localStorage
-    const guardados = localStorage.getItem('inventario_admin_productos');
-    if (guardados) {
-      this.productos = JSON.parse(guardados);
-    } else {
-      // Mock inicial
-      this.productos = [
-        { id: 1, nombre: 'Aceite 20W-50', precio: 4500, etiquetas: ['aceite', 'motor', 'toyota'], enOferta: false, mostrarEnInicio: true },
-        { id: 2, nombre: 'Filtro de Aire', precio: 12000, etiquetas: ['filtro', 'aire', 'hilux'], enOferta: true, mostrarEnInicio: false },
-      ];
-      this.guardarProductos();
-    }
-  }
-
-  guardarProductos() {
-    localStorage.setItem('inventario_admin_productos', JSON.stringify(this.productos));
+    this.adminService.getProductos().subscribe(p => this.productos = p);
   }
 
   editarProducto(id: number) {
@@ -58,8 +33,10 @@ export class InventarioAdminPage implements OnInit {
   }
 
   guardarEdicion(producto: Producto) {
-    this.editandoId = null;
-    this.guardarProductos();
+    this.adminService.editarProducto(producto.producto_id, producto).subscribe(() => {
+      this.editandoId = null;
+      this.cargarProductos();
+    });
   }
 
   cancelarEdicion() {
@@ -68,45 +45,22 @@ export class InventarioAdminPage implements OnInit {
   }
 
   eliminarProducto(id: number) {
-    this.productos = this.productos.filter(p => p.id !== id);
-    this.guardarProductos();
-  }
-
-  agregarEtiqueta(producto: Producto, etiqueta: string) {
-    if (etiqueta && !producto.etiquetas.includes(etiqueta)) {
-      producto.etiquetas.push(etiqueta);
-      this.guardarProductos();
-    }
-  }
-
-  eliminarEtiqueta(producto: Producto, etiqueta: string) {
-    producto.etiquetas = producto.etiquetas.filter(e => e !== etiqueta);
-    this.guardarProductos();
+    this.adminService.eliminarProducto(id).subscribe(() => this.cargarProductos());
   }
 
   agregarProducto() {
     if (!this.nuevoProducto.nombre || this.nuevoProducto.precio === undefined) return;
-    const nuevo: Producto = {
-      id: Date.now(),
-      nombre: this.nuevoProducto.nombre!,
-      precio: this.nuevoProducto.precio!,
-      etiquetas: this.nuevoProducto.etiquetas || [],
-      enOferta: !!this.nuevoProducto.enOferta,
-      mostrarEnInicio: !!this.nuevoProducto.mostrarEnInicio
-    };
-    this.productos.push(nuevo);
-    this.guardarProductos();
-    this.nuevoProducto = { nombre: '', precio: 0, etiquetas: [], enOferta: false, mostrarEnInicio: false };
+    this.adminService.crearProducto(this.nuevoProducto).subscribe(() => {
+      this.cargarProductos();
+      this.nuevoProducto = { nombre: '', precio: 0, en_oferta: false, mostrar_en_inicio: false };
+    });
   }
 
-  // Cambios de checks
   toggleOferta(producto: Producto) {
-    producto.enOferta = !producto.enOferta;
-    this.guardarProductos();
+    this.adminService.editarProducto(producto.producto_id, { en_oferta: !producto.en_oferta }).subscribe(() => this.cargarProductos());
   }
 
   toggleMostrarEnInicio(producto: Producto) {
-    producto.mostrarEnInicio = !producto.mostrarEnInicio;
-    this.guardarProductos();
+    this.adminService.editarProducto(producto.producto_id, { mostrar_en_inicio: !producto.mostrar_en_inicio }).subscribe(() => this.cargarProductos());
   }
 }

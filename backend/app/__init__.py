@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_mail import Mail
+from flask_cors import CORS  # <-- Agregar CORS
 from .config.config import Config
 
 
@@ -16,6 +17,9 @@ def create_app():
     db.init_app(flask_app)
     ma.init_app(flask_app)
     mail.init_app(flask_app)
+
+    # Permitir CORS para todos los endpoints desde el puerto 8100
+    CORS(flask_app, resources={r"/*": {"origins": "http://localhost:8100"}})
 
     from .routes import init_app 
     init_app(flask_app)

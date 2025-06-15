@@ -11,7 +11,6 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-
   <ion-card>
     <ion-card-header>
       <ion-card-title>Agregar Producto</ion-card-title>
@@ -25,13 +24,10 @@
         <ion-label position="floating">Precio</ion-label>
         <ion-input type="number" [(ngModel)]="nuevoProducto.precio"></ion-input>
       </ion-item>
-      <ion-item>
-        <ion-label position="floating">Etiquetas (separadas por coma)</ion-label>
-        <ion-input [(ngModel)]="nuevoProducto.etiquetas"></ion-input>
-      </ion-item>
+      <!-- Eliminar campo etiquetas, ya que no existe en el modelo -->
       <ion-item lines="none">
-        <ion-checkbox [(ngModel)]="nuevoProducto.enOferta">Oferta</ion-checkbox>
-        <ion-checkbox [(ngModel)]="nuevoProducto.mostrarEnInicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
+        <ion-checkbox [(ngModel)]="nuevoProducto.en_oferta">Oferta</ion-checkbox>
+        <ion-checkbox [(ngModel)]="nuevoProducto.mostrar_en_inicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
       </ion-item>
       <ion-button expand="block" color="primary" (click)="agregarProducto()">Agregar</ion-button>
     </ion-card-content>
@@ -44,26 +40,18 @@
     <ion-card-content>
       <ion-list>
         <ion-item *ngFor="let producto of productos">
-          <div *ngIf="editandoId !== producto.id" style="width:100%;">
+          <div *ngIf="editandoId !== producto.producto_id" style="width:100%;">
             <b>{{producto.nombre}}</b> - ${{producto.precio}}
-            <div>
-              <span *ngFor="let et of producto.etiquetas" class="ion-padding-end">
-                <ion-chip color="secondary" style="margin-right:4px;">
-                  {{et}}
-                  <ion-icon name="close-circle" (click)="eliminarEtiqueta(producto, et)" style="cursor:pointer;"></ion-icon>
-                </ion-chip>
-              </span>
-            </div>
-            <ion-checkbox slot="end" [(ngModel)]="producto.enOferta" (ionChange)="toggleOferta(producto)">Oferta</ion-checkbox>
-            <ion-checkbox slot="end" [(ngModel)]="producto.mostrarEnInicio" (ionChange)="toggleMostrarEnInicio(producto)" style="margin-left:8px;">Mostrar en inicio</ion-checkbox>
-            <ion-button fill="clear" color="primary" size="small" slot="end" (click)="editarProducto(producto.id)">
+            <ion-checkbox slot="end" [(ngModel)]="producto.en_oferta" (ionChange)="toggleOferta(producto)">Oferta</ion-checkbox>
+            <ion-checkbox slot="end" [(ngModel)]="producto.mostrar_en_inicio" (ionChange)="toggleMostrarEnInicio(producto)" style="margin-left:8px;">Mostrar en inicio</ion-checkbox>
+            <ion-button fill="clear" color="primary" size="small" slot="end" (click)="editarProducto(producto.producto_id)">
               <ion-icon name="create-outline"></ion-icon>
             </ion-button>
-            <ion-button fill="clear" color="danger" size="small" slot="end" (click)="eliminarProducto(producto.id)">
+            <ion-button fill="clear" color="danger" size="small" slot="end" (click)="eliminarProducto(producto.producto_id)">
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
           </div>
-          <div *ngIf="editandoId === producto.id" style="width:100%;">
+          <div *ngIf="editandoId === producto.producto_id" style="width:100%;">
             <ion-item>
               <ion-label position="floating">Nombre</ion-label>
               <ion-input [(ngModel)]="producto.nombre"></ion-input>
@@ -72,22 +60,9 @@
               <ion-label position="floating">Precio</ion-label>
               <ion-input type="number" [(ngModel)]="producto.precio"></ion-input>
             </ion-item>
-            <ion-item>
-              <ion-label position="floating">Nueva etiqueta</ion-label>
-              <ion-input [(ngModel)]="nuevaEtiqueta"></ion-input>
-              <ion-button size="small" (click)="agregarEtiqueta(producto, nuevaEtiqueta); nuevaEtiqueta=''">Agregar</ion-button>
-            </ion-item>
-            <div>
-              <span *ngFor="let et of producto.etiquetas" class="ion-padding-end">
-                <ion-chip color="secondary" style="margin-right:4px;">
-                  {{et}}
-                  <ion-icon name="close-circle" (click)="eliminarEtiqueta(producto, et)" style="cursor:pointer;"></ion-icon>
-                </ion-chip>
-              </span>
-            </div>
             <ion-item lines="none">
-              <ion-checkbox [(ngModel)]="producto.enOferta">Oferta</ion-checkbox>
-              <ion-checkbox [(ngModel)]="producto.mostrarEnInicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
+              <ion-checkbox [(ngModel)]="producto.en_oferta">Oferta</ion-checkbox>
+              <ion-checkbox [(ngModel)]="producto.mostrar_en_inicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
             </ion-item>
             <ion-button color="success" size="small" (click)="guardarEdicion(producto)">Guardar</ion-button>
             <ion-button color="medium" size="small" (click)="cancelarEdicion()">Cancelar</ion-button>

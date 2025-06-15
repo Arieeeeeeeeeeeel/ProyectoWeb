@@ -12,4 +12,6 @@ class Producto(db.Model):
     precio         = db.Column(db.Numeric(10,2), nullable=False)
     rating         = db.Column(db.Numeric(3,2))
     imagen_url     = db.Column(db.String(255))
+    en_oferta      = db.Column(db.Boolean, default=False)  # Nuevo campo
+    mostrar_en_inicio = db.Column(db.Boolean, default=False)  # Nuevo campo
     ofertas        = db.relationship('Oferta', backref='producto', lazy=True)
