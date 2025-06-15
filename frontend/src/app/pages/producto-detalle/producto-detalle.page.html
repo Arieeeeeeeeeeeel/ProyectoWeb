@@ -1,24 +1,37 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/pages/productos"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Detalle del Producto</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
+  <div class="breadcrumb" style="margin: 16px 0 0 24px; color: #888; font-size: 0.95em;">
+    <a routerLink="/home" style="color: #888; text-decoration: underline;">Inicio</a> &rarr;
+    <a routerLink="/productos" style="color: #888; text-decoration: underline;">Productos</a> &rarr;
+    <span style="color: #222;">{{ producto?.nombre || 'Detalle' }}</span>
+  </div>
   <div class="product-detail-container" *ngIf="producto; else loadingOrError">
     <div class="image-section">
-      <img [src]="producto.imagen || 'assets/placeholder-detail.png'" alt="Imagen del producto">
-      <div class="new-badge" *ngIf="producto.esNuevo">NUEVO</div>
+      <img [src]="producto.imagen_url || 'assets/placeholder.jpg'" alt="Imagen del producto">
+      <div class="new-badge" *ngIf="producto.en_oferta">OFERTA</div>
     </div>
 
     <div class="info-section">
       <h1 class="product-title">{{ producto.nombre }}</h1>
-      <p><strong>Marca:</strong> {{ producto.marca }}</p>
-      <p><strong>Modelo:</strong> {{ producto.modelo }}</p>
-      <p><strong>Año:</strong> {{ producto.anio }}</p>
+      <p>
+        <strong>Año:</strong>
+        <span *ngIf="producto.ano_compatible; else noAnio"> {{ producto.ano_compatible }}</span>
+        <ng-template #noAnio><span style="color: #888;"> No disponible</span></ng-template>
+      </p>
+      <p>
+        <strong>Descripción:</strong>
+        <span *ngIf="producto.descripcion; else noDesc"> {{ producto.descripcion }}</span>
+        <ng-template #noDesc><span style="color: #888;"> No disponible</span></ng-template>
+      </p>
+      <p>
+        <strong>Marca:</strong>
+        <span *ngIf="producto.marca; else noMarca"> {{ producto.marca }}</span>
+        <ng-template #noMarca><span style="color: #888;"> No disponible</span></ng-template>
+      </p>
+      <p>
+        <strong>Modelo:</strong>
+        <span *ngIf="producto.modelo; else noModelo"> {{ producto.modelo }}</span>
+        <ng-template #noModelo><span style="color: #888;"> No disponible</span></ng-template>
+      </p>
 
       <div class="compatibility-section">
         <p>
