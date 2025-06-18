@@ -18,8 +18,8 @@ def create_app():
     ma.init_app(flask_app)
     mail.init_app(flask_app)
 
-    # Permitir CORS para todos los orígenes
-    CORS(flask_app)
+    # Permitir CORS para todos los orígenes y métodos
+    CORS(flask_app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
     from .routes import init_app 
     init_app(flask_app)

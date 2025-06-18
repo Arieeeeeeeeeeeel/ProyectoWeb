@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
 from ..models.vehiculo import Vehiculo
 from ..models.usuario import Usuario
 from .. import db
@@ -25,9 +25,18 @@ def vehicle_data(car_id):
         'usuario_rut': v.usuario_rut
     }), 200
 
-@bp.route('/<personaid>/new_car', methods=['POST'])
-@token_required
+@bp.route('/<int:personaid>/new_car', methods=['POST', 'OPTIONS'])
 def new_car(personaid):
+    if request.method == 'OPTIONS':
+        response = make_response('', 200)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
+    return _new_car_impl(personaid)
+
+@token_required
+def _new_car_impl(personaid):
     user = Usuario.query.get(personaid)
     if not user:
         return jsonify({'error':'Usuario no encontrado'}), 404

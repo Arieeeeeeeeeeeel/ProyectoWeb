@@ -1,7 +1,7 @@
 // src/app/services/auth.service.ts
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { NavController } from '@ionic/angular';
@@ -19,9 +19,9 @@ export interface UserProfile {
   providedIn: 'root',
 })
 export class AuthService {
-  private API_URL = 'https://3aeb-190-8-112-252.ngrok-free.app/auth'; // URL base para autenticación
-  private USER_URL = 'https://3aeb-190-8-112-252.ngrok-free.app/profile'; // URL base para perfiles de usuario
-  private RECOVERY_URL = 'https://3aeb-190-8-112-252.ngrok-free.app/recovery'; // URL base para recuperación de contraseña
+  private API_URL = 'http://localhost:5000/auth'; // URL base para autenticación
+  private USER_URL = 'http://localhost:5000/profile'; // URL base para perfiles de usuario
+  private RECOVERY_URL = 'http://localhost:5000/recovery'; // URL base para recuperación de contraseña
 
   private currentUserSubject = new BehaviorSubject<UserProfile | null>(null);
   currentUser$: Observable<UserProfile | null> = this.currentUserSubject.asObservable();
@@ -35,12 +35,6 @@ export class AuthService {
     if (saved) {
       this.currentUserSubject.next(JSON.parse(saved));
     }
-  }
-
-  private getNgrokHeaders(token?: string): HttpHeaders {
-    const headers: any = { 'ngrok-skip-browser-warning': 'true' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    return new HttpHeaders(headers);
   }
 
   /**
@@ -57,7 +51,7 @@ export class AuthService {
     contrasena: string;
   }): Observable<UserProfile> {
     return this.http.post<{ token: string; user: UserProfile }>(
-      `${this.API_URL}/signup`, data, { headers: this.getNgrokHeaders() }
+      `${this.API_URL}/signup`, data
     ).pipe(
       tap(res => {
         // Guarda el usuario actual en el BehaviorSubject y en localStorage
@@ -77,7 +71,7 @@ export class AuthService {
    */
   login(correo: string, contrasena: string): Observable<UserProfile> {
     return this.http.post<{ token: string; user: UserProfile }>(
-      `${this.API_URL}/login`, { correo, contrasena }, { headers: this.getNgrokHeaders() }
+      `${this.API_URL}/login`, { correo, contrasena }
     ).pipe(
       tap(res => {
         // Almacena el token y el perfil del usuario en localStorage
@@ -98,7 +92,7 @@ export class AuthService {
    * @returns Un Observable que se completa si la solicitud es exitosa.
    */
   requestPasswordReset(correo: string): Observable<any> {
-    return this.http.post<any>(`${this.RECOVERY_URL}/recovery`, { correo }, { headers: this.getNgrokHeaders() });
+    return this.http.post<any>(`${this.RECOVERY_URL}/recovery`, { correo });
   }
 
   confirmPasswordReset(
@@ -106,8 +100,8 @@ export class AuthService {
     token: string,
     nuevaContrasena: string
   ): Observable<any> {
-    const url = `${this.RECOVERY_URL}/${personaid}/recovery?token=${token}`;
-    return this.http.put<any>(url, { token, nueva_contrasena: nuevaContrasena }, { headers: this.getNgrokHeaders() });
+    const url = `${this.RECOVERY_URL}/reset`;
+    return this.http.put<any>(url, { token, nueva_contrasena: nuevaContrasena });
   }
 
   /**
@@ -140,12 +134,10 @@ export class AuthService {
   updateUserProfile(personaid: number,
     changes: { usuario: string; correo: string; region: string; comuna: string; }): Observable<UserProfile> {
     const token = localStorage.getItem('authToken') || '';
-    const headers = this.getNgrokHeaders(token);
     return this.http
       .put<UserProfile>(
         `${this.USER_URL}/${personaid}/update_profile`,
-        changes,
-        { headers }
+        changes
       )
       .pipe(
         tap(user => {

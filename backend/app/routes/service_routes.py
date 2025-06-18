@@ -46,6 +46,14 @@ def get_all_visual_services():
         for s in servicios
     ]), 200
 
+@bp.route('/servicios', methods=['GET'])
+def get_all_services():
+    servicios = Servicio.query.all()
+    return jsonify([
+        {'servicio_id': s.servicio_id, 'nombre': s.nombre, 'precio': float(s.precio)}
+        for s in servicios
+    ]), 200
+
 @bp.route('/<int:car_id>/mechanic_services', methods=['POST'])
 @token_required
 def create_mechanic_service(car_id):

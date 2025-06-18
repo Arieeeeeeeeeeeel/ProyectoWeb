@@ -49,11 +49,11 @@ export class ServiciosPage {
 
   getServicioPorIndice(i: number): string {
     const servicios = [
-      'Diagnóstico',
-      'Desabolladura y pintura',
-      'Cambio neumático',
-      'Mecánico a domicilio',
-      'Mantenimiento'
+      'SERVICIO DE DIAGNOSTICO',
+      'DESABOLLADURA Y PINTURA',
+      'CAMBIO DE NEUMATICOS',
+      'MECANICO A DOMICILIO',
+      'SERVICIO DE MANTENIMIENTO'
     ];
     return servicios[i] || '';
   }
@@ -61,11 +61,11 @@ export class ServiciosPage {
   // Nuevo método para obtener el índice por nombre de servicio
   getServicioPorIndiceNombre(servicio: string): number {
     const servicios = [
-      'Diagnóstico',
-      'Desabolladura y pintura',
-      'Cambio neumático',
-      'Mecánico a domicilio',
-      'Mantenimiento'
+      'SERVICIO DE DIAGNOSTICO',
+      'DESABOLLADURA Y PINTURA',
+      'CAMBIO DE NEUMATICOS',
+      'MECANICO A DOMICILIO',
+      'SERVICIO DE MANTENIMIENTO'
     ];
     return servicios.findIndex(s => s === servicio);
   }
