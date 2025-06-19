@@ -83,6 +83,10 @@
             <ion-label position="floating">Notas para el mecánico</ion-label>
             <ion-textarea [(ngModel)]="reserva.notas"></ion-textarea>
           </ion-item>
+          <ion-item *ngIf="reserva.servicio === 'MECANICO A DOMICILIO'">
+            <ion-label position="floating">Domicilio para el servicio</ion-label>
+            <ion-input [(ngModel)]="domicilio" placeholder="Dirección completa"></ion-input>
+          </ion-item>
           <ion-item lines="none">
             <ion-checkbox slot="start" [(ngModel)]="reserva.aceptaTerminos"></ion-checkbox>
             <ion-label>Acepto los términos de reserva <a href="#">Leer los términos</a></ion-label>

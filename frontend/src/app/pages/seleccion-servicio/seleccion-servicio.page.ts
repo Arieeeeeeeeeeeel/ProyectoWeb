@@ -26,6 +26,7 @@ export class SeleccionPage {
   minDate: string;
   horasDisponibles: string[] = [];
   reservaPrecio: number = 50000;
+  domicilio: string = '';
 
   reserva = {
     servicio: '',
@@ -92,6 +93,16 @@ export class SeleccionPage {
   }
 
   async guardarReserva() {
+    if (this.reserva.servicio === 'MECANICO A DOMICILIO' && !this.domicilio) {
+      const toast = await this.toastController.create({
+        message: 'Debes ingresar el domicilio para el servicio a domicilio.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom'
+      });
+      await toast.present();
+      return;
+    }
     if (!this.reservaValida()) {
       const toast = await this.toastController.create({
         message: 'Por favor, completa todos los campos requeridos.',
@@ -102,7 +113,6 @@ export class SeleccionPage {
       await toast.present();
       return;
     }
-    const imagenSeleccionada = localStorage.getItem('servicioImagenSeleccionada') || '/assets/img/default-service.png';
     const user = this.authService.getCurrentUser();
     if (!user) {
       const toast = await this.toastController.create({
@@ -114,9 +124,7 @@ export class SeleccionPage {
       await toast.present();
       return;
     }
-    // Obtener el servicio_id según el nombre seleccionado
     this.servicioService.getServicios().subscribe(servicios => {
-      console.log('Valor de this.reserva.servicio:', this.reserva.servicio); // <-- Debug
       const servicio = servicios.find(s => s.nombre === this.reserva.servicio);
       if (!servicio) {
         this.toastController.create({
@@ -127,7 +135,6 @@ export class SeleccionPage {
         }).then(t => t.present());
         return;
       }
-      // Crear vehículo en backend (siempre, para obtener vehiculo_id)
       const vehiculoPayload = {
         marca: this.reserva.marca,
         modelo: this.reserva.modelo,
@@ -145,32 +152,22 @@ export class SeleccionPage {
             usuario_rut: user.rut,
             vehiculo_id: vehiculoRes.vehiculo_id,
             servicio_id: servicio.servicio_id,
-            fecha_reserva: `${this.reserva.fecha.split('T')[0]}T${this.reserva.hora}:00`, // <-- Siempre formato correcto
-            ubicacion: this.reserva.ubicacion,
+            fecha_reserva: `${this.reserva.fecha.split('T')[0]}T${this.reserva.hora}:00`,
+            ubicacion: this.reserva.servicio === 'MECANICO A DOMICILIO' ? this.domicilio : this.reserva.ubicacion,
             notas: this.reserva.notas,
             estado: 'pendiente'
           };
           this.reservaService.crearReserva(reservaPayload).subscribe({
             next: async (response) => {
-              const itemReserva = {
-                id: 'reserva-' + Date.now(),
-                nombre: `Reserva: ${this.reserva.servicio}`,
-                imagen: imagenSeleccionada,
-                precio: this.reservaPrecio,
-                detalles: {
-                  ...reservaPayload,
-                  nombre: this.reserva.nombre
-                }
-              };
-              this.cartService.addItem(itemReserva);
               const toast = await this.toastController.create({
-                message: 'Reserva creada y agregada al carrito. Puedes pagar desde el carrito.',
+                message: 'Reserva creada exitosamente.',
                 duration: 2000,
                 color: 'success',
                 position: 'bottom'
               });
               await toast.present();
-              this.router.navigate(['/carrito']);
+              // Limpiar formulario si quieres
+              // this.router.navigate(['/alguna-pagina']);
             },
             error: async (err) => {
               const toast = await this.toastController.create({
