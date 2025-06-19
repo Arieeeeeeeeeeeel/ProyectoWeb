@@ -25,7 +25,7 @@
           </ion-item>
           <ion-item>
             <ion-label position="floating">Modelo</ion-label>
-            <ion-select [(ngModel)]="modeloSeleccionado" placeholder="Selecciona un modelo" [disabled]="!modelos.length">
+            <ion-select [(ngModel)]="modeloSeleccionado" (ionChange)="onModeloChange()" placeholder="Selecciona un modelo" [disabled]="!modelos.length">
               <ion-select-option *ngFor="let modelo of modelos" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
             </ion-select>
           </ion-item>

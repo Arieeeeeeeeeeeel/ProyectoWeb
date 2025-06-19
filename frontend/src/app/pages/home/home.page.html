@@ -12,20 +12,23 @@
     </div>
   </div>
 
-    <div class="ofertas-container">
-      <h2>Ofertas</h2>
-      <div class="ofertas-grid">
-        <div class="oferta-card" *ngFor="let oferta of ofertas">
-          <div class="oferta-imagen">
-            <img [src]="oferta.imagen || 'assets/placeholder-detail.png'" alt="{{oferta.nombre}}" style="width:100%;height:100%;object-fit:cover;">
-          </div>
-          <div class="nuevo-etiqueta" *ngIf="oferta.esNuevo">NUEVO</div>
-          <div class="oferta-info" style="padding: 12px;">
-            <div style="font-weight:bold;">{{oferta.nombre}}</div>
-            <div style="color:#e10600;font-size:18px;">${{oferta.precio | number:'1.0-0'}}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+  <div class="destacados" *ngIf="productosDestacados.length">
+    <h2 style="margin-top:32px;">Productos destacados</h2>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="4" *ngFor="let producto of productosDestacados">
+          <ion-card>
+            <img *ngIf="producto.imagen_url" [src]="producto.imagen_url" [alt]="producto.nombre" style="max-height:180px;object-fit:cover;"/>
+            <ion-card-header>
+              <ion-card-title>{{producto.nombre}}</ion-card-title>
+              <ion-card-subtitle>${{producto.precio}}</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content>
+              <p>{{producto.descripcion}}</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 </ion-content>

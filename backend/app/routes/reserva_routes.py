@@ -34,7 +34,8 @@ def crear_reserva():
             notas=notas,
             usuario_rut=usuario_rut,
             vehiculo_id=vehiculo_id,
-            servicio_id=servicio_id
+            servicio_id=servicio_id,
+            nombre_completo=data['nombre_completo']
         )
         db.session.add(reserva)
         db.session.commit()
@@ -43,3 +44,13 @@ def crear_reserva():
         db.session.rollback()
         print('DEBUG: Error al crear reserva:', str(e), file=sys.stderr)
         return jsonify({'error': str(e)}), 400
+
+@bp.route('/nombre_completo/<usuario_rut>', methods=['GET'])
+@token_required
+def obtener_nombre_completo(usuario_rut):
+    # Busca la última reserva del usuario y retorna el nombre completo si existe
+    reserva = Reserva.query.filter_by(usuario_rut=usuario_rut).order_by(Reserva.reserva_id.desc()).first()
+    if reserva:
+        return jsonify({'nombre_completo': reserva.nombre_completo})
+    else:
+        return jsonify({'nombre_completo': ''})

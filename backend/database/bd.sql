@@ -143,18 +143,16 @@ CREATE TABLE DETALLE_COMPRA (
 ) ENGINE=InnoDB;
 
 CREATE TABLE RESERVA (
-  reserva_id    INT         NOT NULL AUTO_INCREMENT,
-  fecha_reserva DATETIME    NOT NULL,
-  estado        VARCHAR(50) NOT NULL,
-  ubicacion     VARCHAR(255) NOT NULL,
-  notas         TEXT,
-  usuario_rut   VARCHAR(20) NOT NULL,
-  vehiculo_id   INT         NOT NULL,
-  servicio_id   INT         NOT NULL,
+  reserva_id      INT           NOT NULL AUTO_INCREMENT,
+  fecha_reserva   DATETIME      NOT NULL,
+  estado          VARCHAR(50)   NOT NULL,
+  ubicacion       VARCHAR(255)  NOT NULL,
+  notas           TEXT,
+  usuario_rut     VARCHAR(20)   NOT NULL,
+  vehiculo_id     INT           NOT NULL,
+  servicio_id     INT           NOT NULL,
+  nombre_completo VARCHAR(255)  NOT NULL,
   PRIMARY KEY (reserva_id),
-  INDEX idx_reserva_usuario (usuario_rut),
-  INDEX idx_reserva_vehiculo (vehiculo_id),
-  INDEX idx_reserva_servicio (servicio_id),
   CONSTRAINT fk_reserva_usuario FOREIGN KEY (usuario_rut)
     REFERENCES USUARIO(rut)
     ON DELETE RESTRICT

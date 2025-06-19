@@ -77,6 +77,13 @@ def eliminar_usuario(usuario_id):
     u = Usuario.query.get(usuario_id)
     if not u:
         return jsonify({'error':'Usuario no encontrado'}),404
+    # Verificar si tiene reservas asociadas
+    reservas = Reserva.query.filter_by(usuario_rut=u.rut).all()
+    if reservas:
+        return jsonify({'error':'No se puede eliminar el usuario porque tiene reservas asociadas.'}), 400
+    # Eliminar vehículos asociados
+    from ..models.vehiculo import Vehiculo
+    Vehiculo.query.filter_by(usuario_rut=u.rut).delete()
     db.session.delete(u)
     db.session.commit()
     return jsonify({'message':'Usuario eliminado'}),200

@@ -15,6 +15,8 @@ export class AdminPage implements OnInit {
   totalProductos = 0;
   totalOfertas = 0;
   totalHoras = 0;
+  editandoId: number | null = null;
+  productoEditBackup: Producto | null = null;
 
   constructor(private adminService: AdminService) { }
 
@@ -48,5 +50,31 @@ export class AdminPage implements OnInit {
 
   eliminarHora(hora: Reserva) {
     this.adminService.eliminarReserva(hora.id).subscribe(() => this.cargarDatos());
+  }
+
+  toggleMostrarEnInicio(producto: Producto) {
+    this.adminService.editarProducto(producto.producto_id, { mostrar_en_inicio: !producto.mostrar_en_inicio }).subscribe(() => this.cargarDatos());
+  }
+
+  editarProducto(producto: Producto) {
+    this.editandoId = producto.producto_id;
+    // Hacemos una copia para poder cancelar
+    this.productoEditBackup = { ...producto };
+  }
+
+  guardarEdicion(producto: Producto) {
+    this.adminService.editarProducto(producto.producto_id, producto).subscribe(() => {
+      this.editandoId = null;
+      this.productoEditBackup = null;
+      this.cargarDatos();
+    });
+  }
+
+  cancelarEdicion(producto: Producto) {
+    if (this.productoEditBackup) {
+      Object.assign(producto, this.productoEditBackup);
+    }
+    this.editandoId = null;
+    this.productoEditBackup = null;
   }
 }

@@ -14,8 +14,10 @@
         <ion-col class="servicio-col" *ngFor="let imagen of imagenes; let i = index">
           <div (mouseenter)="mostrarPrecio(getServicioPorIndice(i))" (mouseleave)="ocultarPrecio()" (click)="seleccionarServicio(getServicioPorIndice(i))" style="cursor:pointer;">
             <img [src]="imagen.src" class="imagen-servicio" [alt]="imagen.alt" />
-            <div *ngIf="servicioSeleccionado === getServicioPorIndice(i) && precioSeleccionado !== null" class="precio-servicio">
-              <ion-badge color="primary">${{ precioSeleccionado | number:'1.0-0' }}</ion-badge>
+            <div style="min-height: 32px; display: flex; align-items: center; justify-content: center;">
+              <div *ngIf="servicioSeleccionado === getServicioPorIndice(i) && precioSeleccionado !== null" class="precio-servicio">
+                <ion-badge color="primary">${{ precioSeleccionado | number:'1.0-0' }}</ion-badge>
+              </div>
             </div>
           </div>
         </ion-col>

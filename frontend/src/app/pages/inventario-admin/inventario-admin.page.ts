@@ -22,6 +22,8 @@ export class InventarioAdminPage implements OnInit {
     mostrar_en_inicio: false
   };
   nuevaEtiqueta: string = '';
+  loadingOferta: number | null = null;
+  loadingInicio: number | null = null;
 
   constructor(private adminService: AdminService) { }
 
@@ -78,10 +80,28 @@ export class InventarioAdminPage implements OnInit {
   }
 
   toggleOferta(producto: Producto) {
-    this.adminService.editarProducto(producto.producto_id, { en_oferta: !producto.en_oferta }).subscribe(() => this.cargarProductos());
+    this.loadingOferta = producto.producto_id;
+    this.adminService.editarProducto(producto.producto_id, { en_oferta: !producto.en_oferta }).subscribe({
+      next: () => {
+        this.cargarProductos();
+        this.loadingOferta = null;
+      },
+      error: () => {
+        this.loadingOferta = null;
+      }
+    });
   }
 
   toggleMostrarEnInicio(producto: Producto) {
-    this.adminService.editarProducto(producto.producto_id, { mostrar_en_inicio: !producto.mostrar_en_inicio }).subscribe(() => this.cargarProductos());
+    this.loadingInicio = producto.producto_id;
+    this.adminService.editarProducto(producto.producto_id, { mostrar_en_inicio: !producto.mostrar_en_inicio }).subscribe({
+      next: () => {
+        this.cargarProductos();
+        this.loadingInicio = null;
+      },
+      error: () => {
+        this.loadingInicio = null;
+      }
+    });
   }
 }

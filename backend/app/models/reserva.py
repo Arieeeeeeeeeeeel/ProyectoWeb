@@ -10,3 +10,4 @@ class Reserva(db.Model):
     usuario_rut   = db.Column(db.String(20), db.ForeignKey('USUARIO.rut'), nullable=False)
     vehiculo_id   = db.Column(db.Integer, db.ForeignKey('VEHICULO.vehiculo_id'), nullable=False)
     servicio_id   = db.Column(db.Integer, db.ForeignKey('SERVICIO.servicio_id'), nullable=False)
+    nombre_completo = db.Column(db.String(255), nullable=False)

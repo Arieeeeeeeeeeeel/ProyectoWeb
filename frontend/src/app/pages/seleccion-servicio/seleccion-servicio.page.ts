@@ -71,6 +71,15 @@ export class SeleccionPage implements OnInit {
 
   ngOnInit() {
     this.getMarcas();
+    // Autocompletar nombre solo si está vacío
+    const user = this.authService.getCurrentUser();
+    if (user && !this.reserva.nombre) {
+      this.reservaService.obtenerNombreCompleto(user.rut).subscribe(res => {
+        if (res && res.nombre_completo) {
+          this.reserva.nombre = res.nombre_completo;
+        }
+      });
+    }
   }
 
   getToday(): string {
@@ -113,11 +122,16 @@ export class SeleccionPage implements OnInit {
   onMarcaChange() {
     this.modelos = [];
     this.modeloSeleccionado = '';
+    this.reserva.marca = this.marcaSeleccionada; // Sincroniza
     if (!this.marcaSeleccionada) return;
     this.http.get<any>(`https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${this.marcaSeleccionada}?format=json`)
       .subscribe(res => {
         this.modelos = res.Results;
       });
+  }
+
+  onModeloChange() {
+    this.reserva.modelo = this.modeloSeleccionado; // Sincroniza
   }
 
   onServicioChange() {
@@ -211,7 +225,8 @@ export class SeleccionPage implements OnInit {
             fecha_reserva: `${this.reserva.fecha.split('T')[0]}T${this.reserva.hora}:00`,
             ubicacion: this.reserva.servicio === 'MECANICO A DOMICILIO' ? this.domicilio : this.reserva.ubicacion,
             notas: this.reserva.notas,
-            estado: 'pendiente'
+            estado: 'pendiente',
+            nombre_completo: this.reserva.nombre
           };
           this.reservaService.crearReserva(reservaPayload).subscribe({
             next: async (response) => {

@@ -62,7 +62,7 @@
             <b>{{usuario.nombre}}</b>
             <div>{{usuario.email}}</div>
           </ion-label>
-          <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarUsuario(usuario)">
+          <ion-button *ngIf="usuario.nombre !== 'Administrador'" color="danger" fill="clear" size="small" slot="end" (click)="eliminarUsuario(usuario)">
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
         </ion-item>
@@ -72,33 +72,106 @@
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title style="display: flex; align-items: center; justify-content: space-between;">
-        <span>Inventario de Productos</span>
-        <ion-button [routerLink]="['/inventario-admin']" size="small" color="primary" fill="outline">
-          Ver listado
-          <ion-icon name="list-outline" slot="end"></ion-icon>
-        </ion-button>
-      </ion-card-title>
+      <ion-card-title>Inventario de Productos</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-list>
-        <ng-container *ngFor="let producto of inventario | slice:0:3">
-          <ion-item>
+        <ng-container *ngFor="let producto of inventario">
+          <ion-item *ngIf="editandoId !== producto.producto_id">
             <ion-label>
               <b>{{producto.nombre}}</b> - Stock: {{producto.stock}} - ${{producto.precio}}
             </ion-label>
-            <ion-checkbox slot="end" [(ngModel)]="producto.en_oferta" (ionChange)="toggleOferta(producto)">
-              Oferta
-            </ion-checkbox>
+            <ion-checkbox slot="end" [checked]="producto.en_oferta" (ionChange)="toggleOferta(producto)">Oferta</ion-checkbox>
+            <ion-checkbox slot="end" style="margin-left:8px;" [checked]="producto.mostrar_en_inicio" (ionChange)="toggleMostrarEnInicio(producto)">Mostrar en inicio</ion-checkbox>
+            <ion-button color="primary" fill="clear" size="small" slot="end" (click)="editarProducto(producto)">
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
             <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarProducto(producto)">
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
           </ion-item>
+          <ion-item *ngIf="editandoId === producto.producto_id" class="edit-item">
+            <ion-grid style="width:100%;">
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Nombre</ion-label>
+                    <ion-input [(ngModel)]="producto.nombre" placeholder="Nombre"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Marca</ion-label>
+                    <ion-input [(ngModel)]="producto.marca" placeholder="Marca"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Modelo</ion-label>
+                    <ion-input [(ngModel)]="producto.modelo" placeholder="Modelo"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Año</ion-label>
+                    <ion-input type="number" [(ngModel)]="producto.ano_compatible" placeholder="Año"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Stock</ion-label>
+                    <ion-input type="number" [(ngModel)]="producto.stock" placeholder="Stock"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Precio</ion-label>
+                    <ion-input type="number" [(ngModel)]="producto.precio" placeholder="Precio"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">URL Imagen</ion-label>
+                    <ion-input [(ngModel)]="producto.imagen_url" placeholder="URL Imagen"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Descripción</ion-label>
+                    <ion-input [(ngModel)]="producto.descripcion" placeholder="Descripción"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row class="edit-actions" style="align-items:center;">
+                <ion-col size="12" size-md="6">
+                  <ion-checkbox [(ngModel)]="producto.en_oferta">Oferta</ion-checkbox>
+                  <ion-checkbox [(ngModel)]="producto.mostrar_en_inicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
+                </ion-col>
+                <ion-col size="12" size-md="6" style="text-align:right;">
+                  <ion-button color="primary" fill="solid" size="small" (click)="guardarEdicion(producto)">
+                    Guardar
+                  </ion-button>
+                  <ion-button color="medium" fill="solid" size="small" (click)="cancelarEdicion(producto)">
+                    Cancelar
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
         </ng-container>
-        <ion-item *ngIf="inventario.length > 3" lines="none" style="justify-content:center; color:#888; font-size:1.5em;">
-          ...
+        <ion-item *ngIf="inventario.length === 0">
+          <ion-label>No hay productos para mostrar.</ion-label>
         </ion-item>
       </ion-list>
+      <ion-button expand="block" color="primary" [routerLink]="['/inventario-admin']">
+        Agregar producto
+      </ion-button>
     </ion-card-content>
   </ion-card>
 
