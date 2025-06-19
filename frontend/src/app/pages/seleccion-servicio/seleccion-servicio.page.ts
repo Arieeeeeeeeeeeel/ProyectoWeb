@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CartService } from '../../services/cart.service';
@@ -22,11 +22,16 @@ export interface CartItem {
   styleUrls: ['./seleccion-servicio.page.scss'],
   standalone: false,
 })
-export class SeleccionPage {
+export class SeleccionPage implements OnInit {
   minDate: string;
   horasDisponibles: string[] = [];
   reservaPrecio: number = 50000;
   domicilio: string = '';
+
+  marcas: any[] = [];
+  modelos: any[] = [];
+  marcaSeleccionada: string = '';
+  modeloSeleccionado: string = '';
 
   reserva = {
     servicio: '',
@@ -35,11 +40,14 @@ export class SeleccionPage {
     marca: '',
     modelo: '',
     anio: null as number | null,
+    patente: '',
     nombre: '',
     ubicacion: '',
     aceptaTerminos: false,
     notas: ''
   };
+
+  servicioPrecio: number|null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,10 +62,15 @@ export class SeleccionPage {
     this.route.queryParams.subscribe(params => {
       if (params['servicio']) {
         this.reserva.servicio = params['servicio'];
+        this.onServicioChange(); // Mostrar precio automáticamente si viene por query
       }
     });
     this.minDate = this.getToday();
     this.horasDisponibles = this.generarHorasDisponibles();
+  }
+
+  ngOnInit() {
+    this.getMarcas();
   }
 
   getToday(): string {
@@ -73,6 +86,49 @@ export class SeleccionPage {
       horas.push(horaStr);
     }
     return horas;
+  }
+
+  getMarcas() {
+    this.http.get<any>('https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json')
+      .subscribe(res => {
+        // Lista de marcas conocidas y relevantes (puedes ampliarla)
+        const marcasConocidas = [
+          'TOYOTA', 'HONDA', 'NISSAN', 'CHEVROLET', 'FORD', 'MAZDA', 'KIA', 'HYUNDAI', 'SUZUKI',
+          'VOLKSWAGEN', 'PEUGEOT', 'RENAULT', 'MITSUBISHI', 'JEEP', 'BMW', 'MERCEDES-BENZ',
+          'AUDI', 'FIAT', 'CHERY', 'CITROEN', 'JAC', 'SSANGYONG', 'SUBARU', 'OPEL', 'BYD',
+          'GEELY', 'GREAT WALL', 'HAVAL', 'MG', 'SEAT', 'VOLVO', 'LEXUS', 'MINI', 'RAM',
+          'DODGE', 'LAND ROVER', 'PORSCHE', 'CHANGAN', 'DFSK', 'FOTON', 'ZOTYE', 'BAIC',
+          'LIFAN', 'MAHINDRA', 'MAXUS', 'FAW', 'JMC', 'JETOUR',
+          'ALFA ROMEO', 'ACURA', 'ISUZU', 'INFINITI', 'LINCOLN', 'BUICK', 'CADILLAC', 'CHRYSLER',
+          'SCION', 'SMART', 'TESLA', 'GENESIS', 'DAEWOO', 'DATSUN', 'SAAB', 'SKODA', 'TATA',
+          'PROTON', 'ROVER', 'SATURN', 'SAMSUNG', 'SING', 'TALBOT', 'DAIHATSU', 'PERODUA',
+          'PEUGEOT'
+        ];
+        this.marcas = res.Results.filter((m: any) => marcasConocidas.includes(m.Make_Name.toUpperCase()));
+        // Ordenar alfabéticamente
+        this.marcas.sort((a, b) => a.Make_Name.localeCompare(b.Make_Name));
+      });
+  }
+
+  onMarcaChange() {
+    this.modelos = [];
+    this.modeloSeleccionado = '';
+    if (!this.marcaSeleccionada) return;
+    this.http.get<any>(`https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${this.marcaSeleccionada}?format=json`)
+      .subscribe(res => {
+        this.modelos = res.Results;
+      });
+  }
+
+  onServicioChange() {
+    if (!this.reserva.servicio) {
+      this.servicioPrecio = null;
+      return;
+    }
+    this.servicioService.getServicios().subscribe(servicios => {
+      const servicio = servicios.find(s => s.nombre === this.reserva.servicio);
+      this.servicioPrecio = servicio ? servicio.precio : null;
+    });
   }
 
   // Validación de campos requeridos (excepto notas)

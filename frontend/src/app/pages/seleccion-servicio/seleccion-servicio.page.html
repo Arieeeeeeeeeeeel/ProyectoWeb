@@ -4,7 +4,7 @@
       <div class="servicio-row">
         <div class="servicio-select">
           <ion-label class="servicio-label">Servicio que necesito:</ion-label>
-          <ion-select placeholder="Seleccionar servicio" [(ngModel)]="reserva.servicio">
+          <ion-select placeholder="Seleccionar servicio" [(ngModel)]="reserva.servicio" (ionChange)="onServicioChange()">
             <ion-select-option value="SERVICIO DE DIAGNOSTICO">SERVICIO DE DIAGNOSTICO</ion-select-option>
             <ion-select-option value="DESABOLLADURA Y PINTURA">DESABOLLADURA Y PINTURA</ion-select-option>
             <ion-select-option value="CAMBIO DE NEUMATICOS">CAMBIO DE NEUMATICOS</ion-select-option>
@@ -12,18 +12,22 @@
             <ion-select-option value="SERVICIO DE MANTENIMIENTO">SERVICIO DE MANTENIMIENTO</ion-select-option>
           </ion-select>
         </div>
-        <div class="valor-atencion">Valor atención: <span>$50.000</span></div>
+        <div class="valor-atencion">Valor atención: <span *ngIf="servicioPrecio !== null">${{ servicioPrecio | number:'1.0-0' }}</span><span *ngIf="servicioPrecio === null">Seleccione un servicio</span></div>
       </div>
       <div class="datos-row">
         <div class="vehiculo-card">
           <ion-label class="vehiculo-label">Datos del vehículo :</ion-label>
           <ion-item>
             <ion-label position="floating">Marca</ion-label>
-            <ion-input [(ngModel)]="reserva.marca" placeholder="Toyota"></ion-input>
+            <ion-select [(ngModel)]="marcaSeleccionada" (ionChange)="onMarcaChange()" placeholder="Selecciona una marca">
+              <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>
+            </ion-select>
           </ion-item>
           <ion-item>
             <ion-label position="floating">Modelo</ion-label>
-            <ion-input [(ngModel)]="reserva.modelo" placeholder="Hilux"></ion-input>
+            <ion-select [(ngModel)]="modeloSeleccionado" placeholder="Selecciona un modelo" [disabled]="!modelos.length">
+              <ion-select-option *ngFor="let modelo of modelos" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
+            </ion-select>
           </ion-item>
           <ion-item>
             <ion-label position="floating">Año</ion-label>
@@ -40,6 +44,10 @@
             <ion-text color="danger" *ngIf="reserva.anio && (reserva.anio < 1900 || reserva.anio > 2099)">
               <p>Año debe estar entre 1900 y 2099.</p>
             </ion-text>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Patente</ion-label>
+            <ion-input [(ngModel)]="reserva.patente" placeholder="Ej: ABCD12"></ion-input>
           </ion-item>
         </div>
         <div class="calendar-card">

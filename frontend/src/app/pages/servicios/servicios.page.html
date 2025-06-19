@@ -12,9 +12,12 @@
     <ion-grid>
       <ion-row class="row-gap servicios-row">
         <ion-col class="servicio-col" *ngFor="let imagen of imagenes; let i = index">
-          <a (click)="seleccionarServicio(getServicioPorIndice(i))" style="cursor:pointer;">
+          <div (mouseenter)="mostrarPrecio(getServicioPorIndice(i))" (mouseleave)="ocultarPrecio()" (click)="seleccionarServicio(getServicioPorIndice(i))" style="cursor:pointer;">
             <img [src]="imagen.src" class="imagen-servicio" [alt]="imagen.alt" />
-          </a>
+            <div *ngIf="servicioSeleccionado === getServicioPorIndice(i) && precioSeleccionado !== null" class="precio-servicio">
+              <ion-badge color="primary">${{ precioSeleccionado | number:'1.0-0' }}</ion-badge>
+            </div>
+          </div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -45,5 +48,10 @@
     flex: 0 0 100%;
     max-width: 100%;
   }
+}
+.precio-servicio {
+  margin-top: 8px;
+  font-size: 1.1em;
+  text-align: center;
 }
 </style>
