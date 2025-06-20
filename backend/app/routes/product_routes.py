@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from ..models.producto import Producto
+from ..models.valoracion_producto import ValoracionProducto
 from .. import db
 from app.utils import token_required
 
@@ -118,3 +119,30 @@ def update_stock():
 
     db.session.commit()
     return jsonify({"message": "Stock actualizado correctamente"}), 200
+
+@bp.route('/<int:producto_id>/valorar', methods=['POST'])
+def valorar_producto(producto_id):
+    data = request.get_json()
+    nuevo_rating = data.get('rating')
+    if nuevo_rating is None:
+        return jsonify({'error': 'Se requiere un valor de rating'}), 400
+    try:
+        nuevo_rating = float(nuevo_rating)
+        if not (0 <= nuevo_rating <= 5):
+            return jsonify({'error': 'El rating debe estar entre 0 y 5'}), 400
+    except Exception:
+        return jsonify({'error': 'Rating inválido'}), 400
+    p = Producto.query.get(producto_id)
+    if not p:
+        return jsonify({'error': 'Producto no encontrado'}), 404
+    # Guardar la valoración individual
+    valoracion = ValoracionProducto(producto_id=producto_id, rating=nuevo_rating)
+    db.session.add(valoracion)
+    db.session.commit()
+    # Calcular el promedio
+    valoraciones = ValoracionProducto.query.filter_by(producto_id=producto_id).all()
+    if valoraciones:
+        promedio = sum([float(v.rating) for v in valoraciones]) / len(valoraciones)
+        p.rating = promedio
+        db.session.commit()
+    return jsonify({'message': 'Valoración registrada', 'rating': float(p.rating)}), 200

@@ -161,4 +161,91 @@
       }
     }
   }
+
+  .destacados {
+    ion-card {
+      background: #fff;
+      border: 2px solid #d32f2f;
+      color: #222;
+
+      &.hovered {
+        transform: scale(1.06) rotate(-1deg);
+        box-shadow: 0 8px 32px #d32f2fcc, 0 0 0 4px #1a1a1a;
+        z-index: 2;
+      }
+
+      .card-glow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 12px;
+        box-shadow: 0 0 32px 8px #d32f2f99, 0 0 0 4px #1a1a1a99;
+        pointer-events: none;
+        animation: glowPulse 1.2s infinite alternate;
+        z-index: 2;
+      }
+
+      .shine-effect {
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent 60%, #fff 90%, transparent 100%);
+        transform: skewX(-20deg);
+        animation: shineMove 0.8s linear;
+        z-index: 3;
+        pointer-events: none;
+        opacity: 0.18;
+      }
+    }
+
+    ion-card-title {
+      color: #d32f2f !important;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    ion-card-subtitle {
+      color: #fff !important;
+      background: #d32f2f;
+      border-radius: 8px;
+      padding: 2px 12px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    ion-card-content p {
+      color: #444;
+    }
+  }
+}
+
+@keyframes glowPulse {
+  from {
+    box-shadow: 0 0 32px 8px #d32f2f99, 0 0 0 4px #1a1a1a99;
+  }
+
+  to {
+    box-shadow: 0 0 48px 16px #d32f2fcc, 0 0 0 8px #1a1a1a99;
+  }
+}
+
+@keyframes shineMove {
+  from {
+    left: -75%;
+    opacity: 0.18;
+  }
+
+  60% {
+    left: 100%;
+    opacity: 0.4;
+  }
+
+  to {
+    left: 120%;
+    opacity: 0;
+  }
 }

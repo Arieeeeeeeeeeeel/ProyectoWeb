@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService, Usuario, Producto, Reserva, Stats } from '../../services/admin.service';
+import { VehiculoApiService } from '../../services/vehiculo-api.service';
 
 @Component({
   selector: 'app-admin',
@@ -17,10 +18,15 @@ export class AdminPage implements OnInit {
   totalHoras = 0;
   editandoId: number | null = null;
   productoEditBackup: Producto | null = null;
+  marcas: any[] = [];
+  modelos: any[] = [];
+  cargandoMarcas: boolean = false;
+  cargandoModelos: boolean = false;
 
-  constructor(private adminService: AdminService) { }
+  constructor(private adminService: AdminService, private vehiculoApi: VehiculoApiService) { }
 
   ngOnInit() {
+    this.getMarcas();
     this.cargarDatos();
   }
 
@@ -34,6 +40,35 @@ export class AdminPage implements OnInit {
       this.totalOfertas = s.total_ofertas;
       this.totalHoras = s.total_reservas;
     });
+  }
+
+  getMarcas() {
+    this.cargandoMarcas = true;
+    this.vehiculoApi.getMarcas().subscribe({
+      next: (marcas) => {
+        this.marcas = marcas;
+        this.cargandoMarcas = false;
+      },
+      error: () => {
+        this.cargandoMarcas = false;
+      }
+    });
+  }
+
+  onEditMarcaChange(producto: any) {
+    this.modelos = [];
+    producto.modelo = '';
+    this.cargandoModelos = true;
+    this.vehiculoApi.getModelos(producto.marca).subscribe(res => {
+      this.modelos = res;
+      this.cargandoModelos = false;
+    }, () => {
+      this.cargandoModelos = false;
+    });
+  }
+
+  onEditModeloChange(producto: any) {
+    // El modelo ya se actualiza por ngModel
   }
 
   toggleOferta(producto: Producto) {

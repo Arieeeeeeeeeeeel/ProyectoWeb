@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { ProductosService, Producto } from '../../services/productos.service';
+import { VehiculoApiService } from '../../services/vehiculo-api.service';
 
 @Component({
   selector: 'app-productos',
@@ -17,6 +18,13 @@ export class ProductosPage implements OnInit {
     repuesto: ''
   };
 
+  marcas: any[] = [];
+  modelos: any[] = [];
+  marcaSeleccionada: string = '';
+  modeloSeleccionado: string = '';
+  cargandoMarcas: boolean = false;
+  cargandoProductos: boolean = false;
+
   productos: Producto[] = [];
   productosOriginal: Producto[] = [];
   currentSort: string = 'nuevo';
@@ -25,18 +33,51 @@ export class ProductosPage implements OnInit {
   constructor(
     private router: Router,
     private cartService: CartService,
-    private productosService: ProductosService
+    private productosService: ProductosService,
+    private vehiculoApi: VehiculoApiService
   ) { }
 
   ngOnInit() {
+    this.getMarcas();
     this.cargarProductos();
   }
 
+  getMarcas() {
+    this.cargandoMarcas = true;
+    this.vehiculoApi.getMarcas().subscribe({
+      next: (marcas) => {
+        this.marcas = marcas;
+        this.cargandoMarcas = false;
+      },
+      error: () => {
+        this.cargandoMarcas = false;
+      }
+    });
+  }
+
+  onMarcaChange() {
+    this.modelos = [];
+    this.modeloSeleccionado = '';
+    this.searchFilters.marca = this.marcaSeleccionada;
+    if (!this.marcaSeleccionada) return;
+    this.vehiculoApi.getModelos(this.marcaSeleccionada).subscribe(res => {
+      this.modelos = res;
+    });
+  }
+
+  onModeloChange() {
+    this.searchFilters.modelo = this.modeloSeleccionado;
+  }
+
   cargarProductos() {
+    this.cargandoProductos = true;
     this.productosService.getProductos().subscribe(productos => {
       this.productosOriginal = productos;
       this.productos = productos;
       this.sortProducts();
+      this.cargandoProductos = false;
+    }, () => {
+      this.cargandoProductos = false;
     });
   }
 

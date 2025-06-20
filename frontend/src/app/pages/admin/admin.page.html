@@ -102,7 +102,9 @@
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Marca</ion-label>
-                    <ion-input [(ngModel)]="producto.marca" placeholder="Marca"></ion-input>
+                    <ion-select [(ngModel)]="producto.marca" (ionChange)="onEditMarcaChange(producto)" placeholder="Marca">
+                      <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>
+                    </ion-select>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -110,7 +112,9 @@
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Modelo</ion-label>
-                    <ion-input [(ngModel)]="producto.modelo" placeholder="Modelo"></ion-input>
+                    <ion-select [(ngModel)]="producto.modelo" (ionChange)="onEditModeloChange(producto)" placeholder="Modelo" [disabled]="!modelos.length">
+                      <ion-select-option *ngFor="let modelo of modelos" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
+                    </ion-select>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
@@ -154,6 +158,8 @@
                   <ion-checkbox [(ngModel)]="producto.mostrar_en_inicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
                 </ion-col>
                 <ion-col size="12" size-md="6" style="text-align:right;">
+                  <ion-spinner *ngIf="cargandoMarcas || cargandoModelos" name="crescent" style="display:block;margin:10px auto;"></ion-spinner>
+                  <div *ngIf="cargandoMarcas || cargandoModelos" style="text-align:center;">Cargando autos...</div>
                   <ion-button color="primary" fill="solid" size="small" (click)="guardarEdicion(producto)">
                     Guardar
                   </ion-button>

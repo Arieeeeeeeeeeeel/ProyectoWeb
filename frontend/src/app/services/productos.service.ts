@@ -30,4 +30,8 @@ export class ProductosService {
   getProducto(id: number): Observable<Producto> {
     return this.http.get<Producto>(`${this.API_URL}/${id}`);
   }
+
+  valorarProducto(id: number, rating: number): Observable<any> {
+    return this.http.post(`${this.API_URL}/${id}/valorar`, { rating });
+  }
 }

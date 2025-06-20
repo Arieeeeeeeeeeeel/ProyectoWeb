@@ -167,6 +167,17 @@ CREATE TABLE RESERVA (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE VALORACION_PRODUCTO (
+  id INT NOT NULL AUTO_INCREMENT,
+  producto_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  rating DECIMAL(3,2) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_producto_usuario (producto_id, usuario_id),
+  CONSTRAINT fk_valoracion_producto FOREIGN KEY (producto_id) REFERENCES PRODUCTO(producto_id) ON DELETE CASCADE,
+  CONSTRAINT fk_valoracion_usuario FOREIGN KEY (usuario_id) REFERENCES USUARIO(personaid) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- Usuario administrador por defecto
 INSERT INTO USUARIO (rut, usuario, correo, contrasena, region, comuna, fecha_registro)
 VALUES ('1-9', 'Administrador', 'admin@admin.com',

@@ -17,7 +17,11 @@
       <div class="datos-row">
         <div class="vehiculo-card">
           <ion-label class="vehiculo-label">Datos del vehículo :</ion-label>
-          <ion-item>
+          <ion-item *ngIf="cargandoMarcas" lines="none" class="ion-justify-content-center">
+            <ion-spinner name="crescent"></ion-spinner>
+            <ion-label style="margin-left:10px;">Cargando autos...</ion-label>
+          </ion-item>
+          <ion-item *ngIf="!cargandoMarcas">
             <ion-label position="floating">Marca</ion-label>
             <ion-select [(ngModel)]="marcaSeleccionada" (ionChange)="onMarcaChange()" placeholder="Selecciona una marca">
               <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>

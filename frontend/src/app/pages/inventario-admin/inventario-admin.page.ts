@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService, Producto } from '../../services/admin.service';
+import { VehiculoApiService } from '../../services/vehiculo-api.service';
+
+interface ProductoEditable extends Producto {
+  _modelos?: any[];
+  _cargandoModelos?: boolean;
+}
 
 @Component({
   selector: 'app-inventario-admin',
@@ -9,7 +15,7 @@ import { AdminService, Producto } from '../../services/admin.service';
 })
 export class InventarioAdminPage implements OnInit {
   productos: Producto[] = [];
-  productosFiltrados: Producto[] = [];
+  productosFiltrados: ProductoEditable[] = [];
   filtroBusqueda: string = '';
   filtroMarca: string = '';
   filtroOferta: boolean = false;
@@ -25,10 +31,47 @@ export class InventarioAdminPage implements OnInit {
   loadingOferta: number | null = null;
   loadingInicio: number | null = null;
 
-  constructor(private adminService: AdminService) { }
+  marcas: any[] = [];
+  modelos: any[] = [];
+  marcaSeleccionada: string = '';
+  modeloSeleccionado: string = '';
+  cargandoMarcas: boolean = false;
+  cargandoModelos: boolean = false;
+
+  constructor(private adminService: AdminService, private vehiculoApi: VehiculoApiService) { }
 
   ngOnInit() {
+    this.getMarcas();
     this.cargarProductos();
+  }
+
+  getMarcas() {
+    this.cargandoMarcas = true;
+    this.vehiculoApi.getMarcas().subscribe({
+      next: (marcas) => {
+        this.marcas = marcas;
+        this.cargandoMarcas = false;
+      },
+      error: () => {
+        this.cargandoMarcas = false;
+      }
+    });
+  }
+
+  onMarcaChange() {
+    this.modelos = [];
+    this.modeloSeleccionado = '';
+    this.nuevoProducto.marca = this.marcaSeleccionada;
+    if (!this.marcaSeleccionada) return;
+    this.cargandoModelos = true;
+    this.vehiculoApi.getModelos(this.marcaSeleccionada).subscribe(res => {
+      this.modelos = res;
+      this.cargandoModelos = false;
+    });
+  }
+
+  onModeloChange() {
+    this.nuevoProducto.modelo = this.modeloSeleccionado;
   }
 
   cargarProductos() {
@@ -53,6 +96,20 @@ export class InventarioAdminPage implements OnInit {
 
   editarProducto(id: number) {
     this.editandoId = id;
+    const producto = this.productosFiltrados.find(p => p.producto_id === id);
+    if (producto) {
+      producto._modelos = [];
+      producto._cargandoModelos = false;
+      if (producto.marca) {
+        producto._cargandoModelos = true;
+        this.vehiculoApi.getModelos(producto.marca).subscribe(res => {
+          producto._modelos = res;
+          producto._cargandoModelos = false;
+        }, () => {
+          producto._cargandoModelos = false;
+        });
+      }
+    }
   }
 
   guardarEdicion(producto: Producto) {
@@ -103,5 +160,21 @@ export class InventarioAdminPage implements OnInit {
         this.loadingInicio = null;
       }
     });
+  }
+
+  onEditMarcaChange(producto: ProductoEditable) {
+    producto._modelos = [];
+    producto.modelo = '';
+    producto._cargandoModelos = true;
+    this.vehiculoApi.getModelos(producto.marca!).subscribe(res => {
+      producto._modelos = res;
+      producto._cargandoModelos = false;
+    }, () => {
+      producto._cargandoModelos = false;
+    });
+  }
+
+  onEditModeloChange(producto: ProductoEditable) {
+    // El modelo ya se actualiza por ngModel
   }
 }

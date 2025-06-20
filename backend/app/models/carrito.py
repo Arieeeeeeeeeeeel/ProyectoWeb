@@ -1,5 +1,5 @@
 import datetime
-from app import db  
+from .. import db  
 
 class Carrito(db.Model):
     __tablename__ = 'CARRITO'

@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { CartService } from '../../services/cart.service';
 import { ProductosService, Producto } from '../../services/productos.service';
+import { AuthService } from '../../services/auth.service';
 
 // Interfaz para un auto del usuario (ejemplo, ajusta según tu modelo de datos)
 interface UserCar {
@@ -30,11 +31,16 @@ export class ProductoDetallePage implements OnInit {
   isCompatible: boolean = false;
   compatibleCarModel: string = '';
 
+  userRating: number = 0;
+  ratingSubmitting: boolean = false;
+  ratingError: string = '';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private cartService: CartService,
     private productosService: ProductosService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -64,11 +70,14 @@ export class ProductoDetallePage implements OnInit {
   }
 
   checkUserStatus() {
-    this.isLoggedIn = true;
-    this.hasCars = true;
-    if (this.isLoggedIn && this.hasCars && this.producto) {
-      this.checkCompatibility();
-    }
+    // Usa AuthService para verificar si el usuario está autenticado
+    this.authService.currentUser$.subscribe(user => {
+      this.isLoggedIn = !!user;
+      this.hasCars = true; // Mantén tu lógica actual para autos
+      if (this.isLoggedIn && this.hasCars && this.producto) {
+        this.checkCompatibility();
+      }
+    });
   }
 
   checkCompatibility() {
@@ -114,6 +123,27 @@ export class ProductoDetallePage implements OnInit {
         await this.presentToast('No se pudo añadir el producto. Stock insuficiente o ya en carrito.', 'warning');
       }
     }
+  }
+
+  setRating(rating: number) {
+    this.userRating = rating;
+  }
+
+  enviarValoracion() {
+    if (!this.producto || !this.userRating) return;
+    this.ratingSubmitting = true;
+    this.ratingError = '';
+    this.productosService.valorarProducto(this.producto.producto_id, this.userRating).subscribe({
+      next: (res) => {
+        this.producto!.rating = this.userRating;
+        this.ratingSubmitting = false;
+        this.presentToast('¡Gracias por tu valoración!', 'success');
+      },
+      error: (err) => {
+        this.ratingError = 'Error al enviar valoración';
+        this.ratingSubmitting = false;
+      }
+    });
   }
 
   async presentToast(message: string, color: string) {

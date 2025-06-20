@@ -6,6 +6,7 @@ import { ToastController } from '@ionic/angular';
 import { ReservaService } from '../../services/reserva.service';
 import { AuthService } from '../../services/auth.service';
 import { ServicioService } from '../../services/servicio.service';
+import { VehiculoApiService } from '../../services/vehiculo-api.service';
 
 export interface CartItem {
   id: string;
@@ -32,6 +33,7 @@ export class SeleccionPage implements OnInit {
   modelos: any[] = [];
   marcaSeleccionada: string = '';
   modeloSeleccionado: string = '';
+  cargandoMarcas: boolean = false;
 
   reserva = {
     servicio: '',
@@ -57,7 +59,8 @@ export class SeleccionPage implements OnInit {
     private toastController: ToastController,
     private reservaService: ReservaService,
     private authService: AuthService,
-    private servicioService: ServicioService
+    private servicioService: ServicioService,
+    private vehiculoApi: VehiculoApiService
   ) {
     this.route.queryParams.subscribe(params => {
       if (params['servicio']) {
@@ -98,25 +101,16 @@ export class SeleccionPage implements OnInit {
   }
 
   getMarcas() {
-    this.http.get<any>('https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json')
-      .subscribe(res => {
-        // Lista de marcas conocidas y relevantes (puedes ampliarla)
-        const marcasConocidas = [
-          'TOYOTA', 'HONDA', 'NISSAN', 'CHEVROLET', 'FORD', 'MAZDA', 'KIA', 'HYUNDAI', 'SUZUKI',
-          'VOLKSWAGEN', 'PEUGEOT', 'RENAULT', 'MITSUBISHI', 'JEEP', 'BMW', 'MERCEDES-BENZ',
-          'AUDI', 'FIAT', 'CHERY', 'CITROEN', 'JAC', 'SSANGYONG', 'SUBARU', 'OPEL', 'BYD',
-          'GEELY', 'GREAT WALL', 'HAVAL', 'MG', 'SEAT', 'VOLVO', 'LEXUS', 'MINI', 'RAM',
-          'DODGE', 'LAND ROVER', 'PORSCHE', 'CHANGAN', 'DFSK', 'FOTON', 'ZOTYE', 'BAIC',
-          'LIFAN', 'MAHINDRA', 'MAXUS', 'FAW', 'JMC', 'JETOUR',
-          'ALFA ROMEO', 'ACURA', 'ISUZU', 'INFINITI', 'LINCOLN', 'BUICK', 'CADILLAC', 'CHRYSLER',
-          'SCION', 'SMART', 'TESLA', 'GENESIS', 'DAEWOO', 'DATSUN', 'SAAB', 'SKODA', 'TATA',
-          'PROTON', 'ROVER', 'SATURN', 'SAMSUNG', 'SING', 'TALBOT', 'DAIHATSU', 'PERODUA',
-          'PEUGEOT'
-        ];
-        this.marcas = res.Results.filter((m: any) => marcasConocidas.includes(m.Make_Name.toUpperCase()));
-        // Ordenar alfabéticamente
-        this.marcas.sort((a, b) => a.Make_Name.localeCompare(b.Make_Name));
-      });
+    this.cargandoMarcas = true;
+    this.vehiculoApi.getMarcas().subscribe({
+      next: (marcas) => {
+        this.marcas = marcas;
+        this.cargandoMarcas = false;
+      },
+      error: () => {
+        this.cargandoMarcas = false;
+      }
+    });
   }
 
   onMarcaChange() {
