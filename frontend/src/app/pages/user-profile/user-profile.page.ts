@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService, UserProfile } from '../../services/auth.service'; // Importa UserProfile
 import { NavController, ToastController } from '@ionic/angular';
 import { Subscription } from 'rxjs'; // Para manejar la suscripción
+import { VehiculoService, Vehiculo } from '../../services/vehiculo.service';
+import { VehiculoApiService } from '../../services/vehiculo-api.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -12,11 +14,29 @@ import { Subscription } from 'rxjs'; // Para manejar la suscripción
 export class UserProfilePage implements OnInit, OnDestroy {
   currentUser: UserProfile | null = null; // Para almacenar los datos del usuario
   private userSubscription: Subscription | undefined;
+  autos: Vehiculo[] = [];
+  marcas: any[] = [];
+  modelos: any[] = [];
+  marcaSeleccionada: string = '';
+  modeloSeleccionado: string = '';
+  cargandoMarcas: boolean = false;
+  showAddAutoForm: boolean = false;
+  nuevoAuto: any = {
+    marca: '',
+    modelo: '',
+    ano: null,
+    patente: '',
+    tipo_combustible: '',
+    color: '',
+    apodo: ''
+  };
 
   constructor(
     private authService: AuthService,
     private navController: NavController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private vehiculoService: VehiculoService,
+    private vehiculoApi: VehiculoApiService
   ) {}
 
   ngOnInit() {
@@ -28,6 +48,8 @@ export class UserProfilePage implements OnInit, OnDestroy {
         this.navController.navigateRoot('/home');
       }
     });
+    this.cargarAutosUsuario();
+    this.getMarcas();
   }
 
   ngOnDestroy() {
@@ -55,5 +77,101 @@ export class UserProfilePage implements OnInit, OnDestroy {
       position: 'bottom',
     });
     toast.present();
+  }
+
+  cargarAutosUsuario() {
+    if (!this.currentUser) return;
+    this.vehiculoService.getVehiculosUsuario(this.currentUser.personaid).subscribe({
+      next: autos => this.autos = autos,
+      error: () => this.autos = []
+    });
+  }
+
+  getMarcas() {
+    this.cargandoMarcas = true;
+    this.vehiculoApi.getMarcas().subscribe({
+      next: (marcas) => {
+        this.marcas = marcas;
+        this.cargandoMarcas = false;
+      },
+      error: () => {
+        this.cargandoMarcas = false;
+      }
+    });
+  }
+
+  onMarcaChange() {
+    this.modelos = [];
+    this.modeloSeleccionado = '';
+    if (!this.marcaSeleccionada) return;
+    this.vehiculoApi.getModelos(this.marcaSeleccionada).subscribe({
+      next: (modelos) => this.modelos = modelos,
+      error: () => this.modelos = []
+    });
+  }
+
+  onModeloChange() {
+    // No-op, pero puedes usar para lógica extra si quieres
+  }
+
+  mostrarFormularioAuto() {
+    this.showAddAutoForm = true;
+    this.nuevoAuto = {
+      marca: '', modelo: '', ano: null, patente: '', tipo_combustible: '', color: '', apodo: ''
+    };
+    this.marcaSeleccionada = '';
+    this.modeloSeleccionado = '';
+    this.modelos = [];
+  }
+
+  cancelarAgregarAuto() {
+    this.showAddAutoForm = false;
+  }
+
+  onMarcaChangeForm() {
+    this.modeloSeleccionado = '';
+    this.nuevoAuto.modelo = '';
+    if (!this.marcaSeleccionada) {
+      this.modelos = [];
+      return;
+    }
+    this.vehiculoApi.getModelos(this.marcaSeleccionada).subscribe({
+      next: (modelos) => this.modelos = modelos,
+      error: () => this.modelos = []
+    });
+  }
+
+  agregarAutoForm() {
+    if (!this.marcaSeleccionada || !this.modeloSeleccionado || !this.nuevoAuto.ano || !this.nuevoAuto.patente || !this.nuevoAuto.tipo_combustible || !this.nuevoAuto.color) {
+      this.presentToast('Completa todos los campos obligatorios', 'danger');
+      return;
+    }
+    const data = {
+      marca: this.marcaSeleccionada,
+      modelo: this.modeloSeleccionado,
+      ano: this.nuevoAuto.ano,
+      patente: this.nuevoAuto.patente,
+      tipo_combustible: this.nuevoAuto.tipo_combustible,
+      color: this.nuevoAuto.color,
+      apodo: this.nuevoAuto.apodo
+    };
+    this.vehiculoService.crearVehiculo(this.currentUser!.personaid, data).subscribe({
+      next: () => {
+        this.presentToast('Auto guardado', 'success');
+        this.cargarAutosUsuario();
+        this.showAddAutoForm = false;
+      },
+      error: () => this.presentToast('Error al guardar auto', 'danger')
+    });
+  }
+
+  eliminarAuto(vehiculo_id: number) {
+    this.vehiculoService.eliminarVehiculo(vehiculo_id).subscribe({
+      next: () => {
+        this.presentToast('Auto eliminado', 'warning');
+        this.cargarAutosUsuario();
+      },
+      error: () => this.presentToast('Error al eliminar auto', 'danger')
+    });
   }
 }

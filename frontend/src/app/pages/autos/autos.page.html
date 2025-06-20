@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Mis Autos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="agregarAuto()">
+        <ion-icon name="add-circle"></ion-icon> Agregar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="autos.length > 0; else noAutos">
+    <ion-item *ngFor="let auto of autos">
+      <ion-label>
+        <h2>{{ auto.marca }} {{ auto.modelo }}</h2>
+        <p>Año: {{ auto.ano }}</p>
+      </ion-label>
+      <ion-button color="danger" fill="clear" slot="end" (click)="eliminarAuto(auto.id)">
+        <ion-icon name="trash"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <ng-template #noAutos>
+    <div class="ion-text-center ion-padding">
+      <p>No tienes autos registrados.</p>
+      <ion-button (click)="agregarAuto()">Agregar auto</ion-button>
+    </div>
+  </ng-template>
+</ion-content>

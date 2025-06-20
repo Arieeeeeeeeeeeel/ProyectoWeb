@@ -7,6 +7,7 @@ import { ReservaService } from '../../services/reserva.service';
 import { AuthService } from '../../services/auth.service';
 import { ServicioService } from '../../services/servicio.service';
 import { VehiculoApiService } from '../../services/vehiculo-api.service';
+import { VehiculoService, Vehiculo } from '../../services/vehiculo.service';
 
 export interface CartItem {
   id: string;
@@ -51,6 +52,10 @@ export class SeleccionPage implements OnInit {
 
   servicioPrecio: number|null = null;
 
+  autosUsuario: Vehiculo[] = [];
+  autoSeleccionado: number | null = null;
+  mostrarAutoManual: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -60,7 +65,8 @@ export class SeleccionPage implements OnInit {
     private reservaService: ReservaService,
     private authService: AuthService,
     private servicioService: ServicioService,
-    private vehiculoApi: VehiculoApiService
+    private vehiculoApi: VehiculoApiService,
+    private vehiculoService: VehiculoService
   ) {
     this.route.queryParams.subscribe(params => {
       if (params['servicio']) {
@@ -74,6 +80,7 @@ export class SeleccionPage implements OnInit {
 
   ngOnInit() {
     this.getMarcas();
+    this.cargarAutosUsuario();
     // Autocompletar nombre solo si está vacío
     const user = this.authService.getCurrentUser();
     if (user && !this.reserva.nombre) {
@@ -139,6 +146,38 @@ export class SeleccionPage implements OnInit {
     });
   }
 
+  cargarAutosUsuario() {
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+    this.vehiculoService.getVehiculosUsuario(user.personaid).subscribe({
+      next: autos => this.autosUsuario = autos,
+      error: () => this.autosUsuario = []
+    });
+  }
+
+  onAutoSeleccionadoChange() {
+    if (this.autoSeleccionado && this.autoSeleccionado !== -1) {
+      const auto = this.autosUsuario.find(a => a.vehiculo_id === this.autoSeleccionado);
+      if (auto) {
+        this.reserva.marca = auto.marca;
+        this.reserva.modelo = auto.modelo;
+        this.reserva.anio = auto.ano;
+        this.reserva.patente = auto.patente;
+        this.marcaSeleccionada = auto.marca;
+        this.modeloSeleccionado = auto.modelo;
+        this.mostrarAutoManual = false;
+      }
+    } else {
+      this.reserva.marca = '';
+      this.reserva.modelo = '';
+      this.reserva.anio = null;
+      this.reserva.patente = '';
+      this.marcaSeleccionada = '';
+      this.modeloSeleccionado = '';
+      this.mostrarAutoManual = true;
+    }
+  }
+
   // Validación de campos requeridos (excepto notas)
   reservaValida(): boolean {
     return (
@@ -167,6 +206,18 @@ export class SeleccionPage implements OnInit {
       await toast.present();
       return;
     }
+    // Validar que el año sea un número válido
+    if (!this.reserva.anio || isNaN(Number(this.reserva.anio))) {
+      const toast = await this.toastController.create({
+        message: 'El año del vehículo debe ser un número válido.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom'
+      });
+      await toast.present();
+      return;
+    }
+    this.reserva.anio = Number(this.reserva.anio); // Forzar a número
     if (!this.reservaValida()) {
       const toast = await this.toastController.create({
         message: 'Por favor, completa todos los campos requeridos.',
@@ -188,73 +239,180 @@ export class SeleccionPage implements OnInit {
       await toast.present();
       return;
     }
+    // Si el usuario eligió un auto guardado, usar ese vehiculo_id directamente
+    if (this.autoSeleccionado && this.autoSeleccionado !== -1) {
+      const auto = this.autosUsuario.find(a => a.vehiculo_id === this.autoSeleccionado);
+      if (!auto) return;
+      this.servicioService.getServicios().subscribe(servicios => {
+        const servicio = servicios.find(s => s.nombre === this.reserva.servicio);
+        if (!servicio) return;
+        const reservaPayload = {
+          usuario_rut: user.rut,
+          vehiculo_id: auto.vehiculo_id,
+          servicio_id: servicio.servicio_id,
+          fecha_reserva: `${this.reserva.fecha.split('T')[0]}T${this.reserva.hora}:00`,
+          ubicacion: this.reserva.servicio === 'MECANICO A DOMICILIO' ? this.domicilio : this.reserva.ubicacion,
+          notas: this.reserva.notas,
+          estado: 'pendiente',
+          nombre_completo: this.reserva.nombre
+        };
+        this.reservaService.crearReserva(reservaPayload).subscribe({
+          next: async (response) => {
+            const toast = await this.toastController.create({
+              message: 'Reserva creada exitosamente.',
+              duration: 2000,
+              color: 'success',
+              position: 'bottom'
+            });
+            await toast.present();
+          },
+          error: async (err) => {
+            const toast = await this.toastController.create({
+              message: 'Error al crear la reserva. Intenta nuevamente.',
+              duration: 2000,
+              color: 'danger',
+              position: 'bottom'
+            });
+            await toast.present();
+          }
+        });
+      });
+      return;
+    }
+    // Antes de crear el auto, verificar si ya existe uno igual
+    const yaExiste = this.autosUsuario.some(a =>
+      a.marca === this.reserva.marca &&
+      a.modelo === this.reserva.modelo &&
+      a.ano === this.reserva.anio &&
+      a.patente === this.reserva.patente
+    );
+    if (!yaExiste) {
+      const alert = document.createElement('ion-alert');
+      alert.header = '¿Guardar auto?';
+      alert.message = '¿Deseas guardar este auto en tu perfil para futuras reservas?';
+      alert.buttons = [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => this.guardarReservaManual(false)
+        },
+        {
+          text: 'Sí',
+          handler: () => this.guardarReservaManual(true)
+        }
+      ];
+      document.body.appendChild(alert);
+      await alert.present();
+      await alert.onDidDismiss();
+      return;
+    }
+    // Si ya existe, solo guardar la reserva
+    this.guardarReservaManual(false);
+  }
+
+  guardarReservaManual(guardarAuto: boolean) {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      this.toastController.create({
+        message: 'Debes iniciar sesión para reservar.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom'
+      }).then(toast => toast.present());
+      return;
+    }
+    // Validar que el año sea un número válido
+    if (!this.reserva.anio || isNaN(Number(this.reserva.anio))) {
+      this.toastController.create({
+        message: 'El año del vehículo debe ser un número válido.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom'
+      }).then(toast => toast.present());
+      return;
+    }
+    this.reserva.anio = Number(this.reserva.anio); // Forzar a número
     this.servicioService.getServicios().subscribe(servicios => {
       const servicio = servicios.find(s => s.nombre === this.reserva.servicio);
-      if (!servicio) {
-        this.toastController.create({
-          message: 'Servicio no encontrado.',
-          duration: 2000,
-          color: 'danger',
-          position: 'bottom'
-        }).then(t => t.present());
-        return;
-      }
-      const vehiculoPayload = {
-        marca: this.reserva.marca,
-        modelo: this.reserva.modelo,
-        ano: this.reserva.anio,
-        patente: 'TEMP-' + Date.now(),
-        tipo_combustible: 'Desconocido',
-        color: 'Desconocido',
-        apodo: ''
+      if (!servicio) return;
+      const crearReserva = (vehiculo_id: number) => {
+        const reservaPayload = {
+          usuario_rut: user.rut,
+          vehiculo_id,
+          servicio_id: servicio.servicio_id,
+          fecha_reserva: `${this.reserva.fecha.split('T')[0]}T${this.reserva.hora}:00`,
+          ubicacion: this.reserva.servicio === 'MECANICO A DOMICILIO' ? this.domicilio : this.reserva.ubicacion,
+          notas: this.reserva.notas,
+          estado: 'pendiente',
+          nombre_completo: this.reserva.nombre
+        };
+        this.reservaService.crearReserva(reservaPayload).subscribe({
+          next: async (response) => {
+            const toast = await this.toastController.create({
+              message: 'Reserva creada exitosamente.',
+              duration: 2000,
+              color: 'success',
+              position: 'bottom'
+            });
+            await toast.present();
+          },
+          error: async (err) => {
+            const toast = await this.toastController.create({
+              message: 'Error al crear la reserva. Intenta nuevamente.',
+              duration: 2000,
+              color: 'danger',
+              position: 'bottom'
+            });
+            await toast.present();
+          }
+        });
       };
-      this.http.post<any>(`http://localhost:5000/vehicles/${user.personaid}/new_car`, vehiculoPayload, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
-      }).subscribe({
-        next: (vehiculoRes) => {
-          const reservaPayload = {
-            usuario_rut: user.rut,
-            vehiculo_id: vehiculoRes.vehiculo_id,
-            servicio_id: servicio.servicio_id,
-            fecha_reserva: `${this.reserva.fecha.split('T')[0]}T${this.reserva.hora}:00`,
-            ubicacion: this.reserva.servicio === 'MECANICO A DOMICILIO' ? this.domicilio : this.reserva.ubicacion,
-            notas: this.reserva.notas,
-            estado: 'pendiente',
-            nombre_completo: this.reserva.nombre
-          };
-          this.reservaService.crearReserva(reservaPayload).subscribe({
-            next: async (response) => {
-              const toast = await this.toastController.create({
-                message: 'Reserva creada exitosamente.',
-                duration: 2000,
-                color: 'success',
-                position: 'bottom'
-              });
-              await toast.present();
-              // Limpiar formulario si quieres
-              // this.router.navigate(['/alguna-pagina']);
-            },
-            error: async (err) => {
-              const toast = await this.toastController.create({
-                message: 'Error al crear la reserva. Intenta nuevamente.',
-                duration: 2000,
-                color: 'danger',
-                position: 'bottom'
-              });
-              await toast.present();
-            }
-          });
-        },
-        error: async (err) => {
-          const toast = await this.toastController.create({
-            message: 'Error al crear el vehículo. Intenta nuevamente.',
-            duration: 2000,
-            color: 'danger',
-            position: 'bottom'
-          });
-          await toast.present();
-        }
-      });
+      if (guardarAuto) {
+        const vehiculoPayload = {
+          marca: this.reserva.marca,
+          modelo: this.reserva.modelo,
+          ano: typeof this.reserva.anio === 'number' ? this.reserva.anio : undefined,
+          patente: this.reserva.patente,
+          tipo_combustible: 'Desconocido',
+          color: 'Desconocido',
+          apodo: ''
+        };
+        this.vehiculoService.crearVehiculo(user.personaid, vehiculoPayload).subscribe({
+          next: (vehiculoRes) => crearReserva(vehiculoRes.vehiculo_id),
+          error: async () => {
+            const toast = await this.toastController.create({
+              message: 'Error al guardar el auto.',
+              duration: 2000,
+              color: 'danger',
+              position: 'bottom'
+            });
+            await toast.present();
+          }
+        });
+      } else {
+        // Crear auto temporal solo para la reserva
+        const vehiculoPayload = {
+          marca: this.reserva.marca,
+          modelo: this.reserva.modelo,
+          ano: typeof this.reserva.anio === 'number' ? this.reserva.anio : undefined,
+          patente: this.reserva.patente,
+          tipo_combustible: 'Desconocido',
+          color: 'Desconocido',
+          apodo: ''
+        };
+        this.vehiculoService.crearVehiculo(user.personaid, vehiculoPayload).subscribe({
+          next: (vehiculoRes) => crearReserva(vehiculoRes.vehiculo_id),
+          error: async () => {
+            const toast = await this.toastController.create({
+              message: 'Error al crear el vehículo.',
+              duration: 2000,
+              color: 'danger',
+              position: 'bottom'
+            });
+            await toast.present();
+          }
+        });
+      }
     });
   }
 }

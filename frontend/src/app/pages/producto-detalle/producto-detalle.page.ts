@@ -28,6 +28,7 @@ export class ProductoDetallePage implements OnInit {
 
   isLoggedIn: boolean = false;
   hasCars: boolean = false;
+  userCars: UserCar[] = [];
   isCompatible: boolean = false;
   compatibleCarModel: string = '';
 
@@ -55,6 +56,12 @@ export class ProductoDetallePage implements OnInit {
     this.checkUserStatus();
   }
 
+  cargarAutosUsuario() {
+    const autosGuardados = localStorage.getItem('autosUsuario');
+    this.userCars = autosGuardados ? JSON.parse(autosGuardados) : [];
+    this.hasCars = this.userCars.length > 0;
+  }
+
   loadProductDetails(id: number) {
     this.loadError = false;
     this.productosService.getProducto(id).subscribe({
@@ -79,7 +86,7 @@ export class ProductoDetallePage implements OnInit {
     // Usa AuthService para verificar si el usuario está autenticado
     this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
-      this.hasCars = true; // Mantén tu lógica actual para autos
+      this.cargarAutosUsuario();
       if (this.isLoggedIn && this.hasCars && this.producto) {
         this.checkCompatibility();
       }
@@ -92,11 +99,7 @@ export class ProductoDetallePage implements OnInit {
       this.compatibleCarModel = '';
       return;
     }
-    const userCars: UserCar[] = [
-      { id: 'car1', make: 'Toyota', model: 'Hilux', year: 2024 },
-      { id: 'car2', make: 'Nissan', model: 'Versa', year: 2020 },
-    ];
-    const compatibleCar = userCars.find(car =>
+    const compatibleCar = this.userCars.find(car =>
       (this.producto?.marca || '').toLowerCase().includes(car.make.toLowerCase()) &&
       (this.producto?.modelo || '').toLowerCase().includes(car.model.toLowerCase())
     );
