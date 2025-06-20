@@ -91,7 +91,7 @@
               <ng-container *ngIf="isLoggedIn">
                 <ion-button (click)="goToUserPage()" style="cursor: pointer;">
                   <ion-icon name="person-circle-outline"></ion-icon>
-                  Usuario
+                  {{ userName || 'Usuario' }}
                 </ion-button>
                 <span class="divider">|</span>
                 <ion-button (click)="logout()" style="cursor: pointer;">

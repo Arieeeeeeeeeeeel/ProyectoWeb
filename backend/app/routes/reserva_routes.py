@@ -54,3 +54,23 @@ def obtener_nombre_completo(usuario_rut):
         return jsonify({'nombre_completo': reserva.nombre_completo})
     else:
         return jsonify({'nombre_completo': ''})
+
+@bp.route('/fecha/<fecha>', methods=['GET'])
+def reservas_por_fecha(fecha):
+    from ..models.reserva import Reserva
+    from ..models.vehiculo import Vehiculo
+    from datetime import datetime
+    try:
+        fecha_dt = datetime.strptime(fecha, '%Y-%m-%d')
+    except ValueError:
+        return {'error': 'Formato de fecha inválido. Use YYYY-MM-DD.'}, 400
+    reservas = Reserva.query.filter(Reserva.fecha_reserva.between(f'{fecha} 00:00:00', f'{fecha} 23:59:59')).all()
+    return [
+        {
+            'hora': r.fecha_reserva.strftime('%H:%M'),
+            'servicio': r.servicio_id,
+            'usuario': r.usuario_rut,
+            'vehiculo_id': r.vehiculo_id
+        }
+        for r in reservas
+    ], 200

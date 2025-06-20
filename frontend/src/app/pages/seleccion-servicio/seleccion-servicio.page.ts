@@ -27,6 +27,7 @@ export interface CartItem {
 export class SeleccionPage implements OnInit {
   minDate: string;
   horasDisponibles: string[] = [];
+  horasOcupadas: string[] = [];
   reservaPrecio: number = 50000;
   domicilio: string = '';
 
@@ -90,6 +91,38 @@ export class SeleccionPage implements OnInit {
         }
       });
     }
+    // Cargar horas ocupadas para la fecha actual
+    this.onFechaChange();
+  }
+
+  onFechaChange() {
+    if (!this.reserva.fecha || !this.reserva.servicio) {
+      this.horasOcupadas = [];
+      return;
+    }
+    const fecha = this.reserva.fecha.split('T')[0];
+    // Obtener el servicio_id correspondiente al nombre seleccionado
+    this.servicioService.getServicios().subscribe(servicios => {
+      const servicio = servicios.find(s => s.nombre === this.reserva.servicio);
+      if (!servicio) {
+        this.horasOcupadas = [];
+        return;
+      }
+      const servicioId = servicio.servicio_id;
+      this.reservaService.getReservasPorFecha(fecha).subscribe({
+        next: (reservas) => {
+          this.horasOcupadas = reservas
+            .filter(r => r.servicio == servicioId)
+            .map(r => r.hora);
+          if (this.reserva.hora && this.horasOcupadas.includes(this.reserva.hora)) {
+            this.reserva.hora = '';
+          }
+        },
+        error: () => {
+          this.horasOcupadas = [];
+        }
+      });
+    });
   }
 
   getToday(): string {
@@ -136,6 +169,9 @@ export class SeleccionPage implements OnInit {
   }
 
   onServicioChange() {
+    this.reserva.fecha = '';
+    this.reserva.hora = '';
+    this.horasOcupadas = [];
     if (!this.reserva.servicio) {
       this.servicioPrecio = null;
       return;
@@ -210,6 +246,17 @@ export class SeleccionPage implements OnInit {
     if (!this.reserva.anio || isNaN(Number(this.reserva.anio))) {
       const toast = await this.toastController.create({
         message: 'El año del vehículo debe ser un número válido.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom'
+      });
+      await toast.present();
+      return;
+    }
+    // Validar que la hora no esté ocupada
+    if (this.horasOcupadas.includes(this.reserva.hora)) {
+      const toast = await this.toastController.create({
+        message: 'La hora seleccionada ya está ocupada. Elige otra.',
         duration: 2000,
         color: 'danger',
         position: 'bottom'
@@ -325,6 +372,16 @@ export class SeleccionPage implements OnInit {
     if (!this.reserva.anio || isNaN(Number(this.reserva.anio))) {
       this.toastController.create({
         message: 'El año del vehículo debe ser un número válido.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom'
+      }).then(toast => toast.present());
+      return;
+    }
+    // Validar que la hora no esté ocupada
+    if (this.horasOcupadas.includes(this.reserva.hora)) {
+      this.toastController.create({
+        message: 'La hora seleccionada ya está ocupada. Elige otra.',
         duration: 2000,
         color: 'danger',
         position: 'bottom'

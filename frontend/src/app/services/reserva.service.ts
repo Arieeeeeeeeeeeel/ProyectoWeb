@@ -23,4 +23,12 @@ export class ReservaService {
     });
     return this.http.get<any>(`${this.API_URL}/nombre_completo/${usuario_rut}`, { headers });
   }
+
+  getReservasPorFecha(fecha: string): Observable<any[]> {
+    const token = localStorage.getItem('authToken') || '';
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+    return this.http.get<any[]>(`${this.API_URL}/fecha/${fecha}`, { headers });
+  }
 }
