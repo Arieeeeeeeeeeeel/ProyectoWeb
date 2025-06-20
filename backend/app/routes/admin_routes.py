@@ -94,9 +94,21 @@ def eliminar_usuario(usuario_id):
 def listar_reservas():
     reservas = Reserva.query.all()
     return jsonify([
-        {'id':r.reserva_id,'cliente':r.usuario_rut,'fecha':r.fecha_reserva.isoformat(),'estado':r.estado,'detalle':r.notas}
+        {
+            'id': r.reserva_id,
+            'cliente': r.usuario_rut,
+            'fecha': r.fecha_reserva.isoformat(),
+            'estado': r.estado,
+            'detalle': r.notas,
+            'vehiculo': {
+                'marca': r.vehiculo.marca if r.vehiculo else None,
+                'modelo': r.vehiculo.modelo if r.vehiculo else None,
+                'patente': r.vehiculo.patente if r.vehiculo else None,
+                'ano': r.vehiculo.ano if r.vehiculo else None
+            } if hasattr(r, 'vehiculo') and r.vehiculo else None
+        }
         for r in reservas
-    ]),200
+    ]), 200
 
 @bp.route('/reservas/<int:reserva_id>', methods=['DELETE'])
 @token_required

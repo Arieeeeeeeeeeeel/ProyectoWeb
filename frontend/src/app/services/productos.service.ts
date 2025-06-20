@@ -39,4 +39,8 @@ export class ProductosService {
     const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
     return this.http.post(`${this.API_URL}/${id}/valorar`, { rating }, { headers });
   }
+
+  updateStock(items: { producto_id: number, cantidad: number }[]): Observable<any> {
+    return this.http.post('http://localhost:5000/products/update_stock', { items });
+  }
 }

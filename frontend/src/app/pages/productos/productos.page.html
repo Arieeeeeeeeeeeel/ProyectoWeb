@@ -57,6 +57,9 @@
             <ion-button color="danger" class="view-button" [routerLink]="['/producto-detalle', producto.producto_id]">Ver</ion-button>
           </div>
           <p class="product-name">{{ producto.nombre }}</p>
+          <p class="product-price" style="font-size:1.2em; color:#d32f2f; font-weight:bold; margin:0 0 8px 0;">
+            ${{ producto.precio | number:'1.0-0' }}
+          </p>
         </div>
       </div>
 

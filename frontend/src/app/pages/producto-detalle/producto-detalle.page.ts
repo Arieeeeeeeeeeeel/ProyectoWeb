@@ -6,6 +6,7 @@ import { IonicModule, ToastController } from '@ionic/angular';
 import { CartService } from '../../services/cart.service';
 import { ProductosService, Producto } from '../../services/productos.service';
 import { AuthService } from '../../services/auth.service';
+import { VehiculoService, Vehiculo } from '../../services/vehiculo.service';
 
 // Interfaz para un auto del usuario (ejemplo, ajusta según tu modelo de datos)
 interface UserCar {
@@ -28,7 +29,7 @@ export class ProductoDetallePage implements OnInit {
 
   isLoggedIn: boolean = false;
   hasCars: boolean = false;
-  userCars: UserCar[] = [];
+  userCars: Vehiculo[] = [];
   isCompatible: boolean = false;
   compatibleCarModel: string = '';
 
@@ -41,7 +42,8 @@ export class ProductoDetallePage implements OnInit {
     private cartService: CartService,
     private productosService: ProductosService,
     private toastController: ToastController,
-    private authService: AuthService
+    private authService: AuthService,
+    private vehiculoService: VehiculoService
   ) { }
 
   ngOnInit() {
@@ -57,9 +59,25 @@ export class ProductoDetallePage implements OnInit {
   }
 
   cargarAutosUsuario() {
-    const autosGuardados = localStorage.getItem('autosUsuario');
-    this.userCars = autosGuardados ? JSON.parse(autosGuardados) : [];
-    this.hasCars = this.userCars.length > 0;
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.vehiculoService.getVehiculosUsuario(user.personaid).subscribe({
+        next: autos => {
+          this.userCars = autos;
+          this.hasCars = autos.length > 0;
+          this.checkCompatibility();
+        },
+        error: () => {
+          this.userCars = [];
+          this.hasCars = false;
+          this.checkCompatibility();
+        }
+      });
+    } else {
+      this.userCars = [];
+      this.hasCars = false;
+      this.checkCompatibility();
+    }
   }
 
   loadProductDetails(id: number) {
@@ -87,9 +105,6 @@ export class ProductoDetallePage implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
       this.cargarAutosUsuario();
-      if (this.isLoggedIn && this.hasCars && this.producto) {
-        this.checkCompatibility();
-      }
     });
   }
 
@@ -100,12 +115,14 @@ export class ProductoDetallePage implements OnInit {
       return;
     }
     const compatibleCar = this.userCars.find(car =>
-      (this.producto?.marca || '').toLowerCase().includes(car.make.toLowerCase()) &&
-      (this.producto?.modelo || '').toLowerCase().includes(car.model.toLowerCase())
+      !!car &&
+      (this.producto!.marca || '').toLowerCase() === car.marca.toLowerCase() &&
+      (this.producto!.modelo || '').toLowerCase() === car.modelo.toLowerCase() &&
+      (!this.producto!.ano_compatible || (typeof car.ano === 'number' && this.producto!.ano_compatible === car.ano))
     );
     if (compatibleCar) {
       this.isCompatible = true;
-      this.compatibleCarModel = compatibleCar.model;
+      this.compatibleCarModel = `${compatibleCar.marca} ${compatibleCar.modelo} (${compatibleCar.patente})`;
     } else {
       this.isCompatible = false;
       this.compatibleCarModel = '';

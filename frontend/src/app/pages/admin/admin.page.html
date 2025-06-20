@@ -189,8 +189,13 @@
       <ion-list>
         <ion-item *ngFor="let hora of horas">
           <ion-label>
-            <b>{{hora.cliente}}</b> - {{hora.fecha}}
+            <b>{{hora.cliente}}</b> - {{hora.fecha | date:'dd/MM/yyyy HH:mm'}}
             <div>{{hora.detalle}}</div>
+            <div *ngIf="hora.vehiculo">
+              <small>
+                <b>Vehículo:</b> {{hora.vehiculo.marca}} {{hora.vehiculo.modelo}} ({{hora.vehiculo.patente}}, {{hora.vehiculo.ano}})
+              </small>
+            </div>
           </ion-label>
           <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarHora(hora)">
             <ion-icon name="trash-outline"></ion-icon>

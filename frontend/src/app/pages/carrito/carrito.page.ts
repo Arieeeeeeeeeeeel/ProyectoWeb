@@ -4,6 +4,7 @@ import { IonicModule, ToastController, AlertController, NavController } from '@i
 import { FormsModule } from '@angular/forms'; // <--- Make sure FormsModule is imported here
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { ProductosService } from '../../services/productos.service';
 import { Subscription, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -57,7 +58,8 @@ export class CarritoPage implements OnInit, OnDestroy {
     private userService: UserService,
     private toastController: ToastController,
     private alertController: AlertController,
-    private navController: NavController
+    private navController: NavController,
+    private productosService: ProductosService
   ) { }
 
   ngOnInit() {
@@ -212,6 +214,19 @@ export class CarritoPage implements OnInit, OnDestroy {
       await this.presentToast('No se pudo actualizar las horas agendadas.', 'warning');
     }
     // === FIN AGREGAR RESERVAS A HORAS AGENDADAS ADMIN ===
+
+    // Actualizar stock en backend
+    try {
+      const itemsToUpdate = this.cartItems.map(item => ({
+        producto_id: Number(item.productoId),
+        cantidad: item.quantity || 1
+      }));
+      if (itemsToUpdate.length > 0) {
+        await this.productosService.updateStock(itemsToUpdate).toPromise();
+      }
+    } catch (e) {
+      await this.presentToast('No se pudo actualizar el stock en el servidor.', 'warning');
+    }
 
     await this.presentAlertOrderSuccess();
     this.cartService.clearCart();

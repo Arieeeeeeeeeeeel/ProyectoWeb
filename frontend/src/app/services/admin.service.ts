@@ -29,6 +29,12 @@ export interface Reserva {
   fecha: string;
   estado: string;
   detalle: string;
+  vehiculo?: {
+    marca: string;
+    modelo: string;
+    patente: string;
+    ano: number;
+  };
 }
 
 export interface Stats {
