@@ -32,7 +32,7 @@
               <div *ngIf="item.detalles.notas"><b>Notas:</b> {{ item.detalles.notas }}</div>
             </ion-text>
           </div>
-          <div class="quantity-controls" *ngIf="item.hasOwnProperty('quantity')">
+          <div class="quantity-controls" *ngIf="item.hasOwnProperty('quantity')" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <ion-button size="small" fill="outline" (click)="updateQuantity(item, -1)">-</ion-button>
             <span>{{ item.quantity }}</span>
             <ion-button size="small" fill="outline" (click)="updateQuantity(item, 1)">+</ion-button>
@@ -40,7 +40,7 @@
               <ion-icon name="trash"></ion-icon>
             </ion-button>
           </div>
-          <div *ngIf="!item.hasOwnProperty('quantity')">
+          <div *ngIf="!item.hasOwnProperty('quantity')" style="margin-top:8px;">
             <ion-button size="small" color="danger" (click)="removeItem(item.id || '')">
               <ion-icon name="trash"></ion-icon>
             </ion-button>

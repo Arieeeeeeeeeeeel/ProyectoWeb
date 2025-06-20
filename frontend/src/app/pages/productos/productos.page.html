@@ -54,10 +54,10 @@
         <div *ngFor="let producto of productos; trackBy: trackByProductoId" class="product-card">
           <div class="product-image-placeholder">
             <img [src]="producto.imagen_url || 'assets/placeholder.png'" alt="Imagen de producto">
-            <ion-button color="danger" class="view-button" [routerLink]="['/producto-detalle', producto.producto_id]">Ver</ion-button>
+            <ion-button color="danger" class="view-button" [routerLink]="['/producto-detalle', producto.producto_id]" style="margin-bottom:8px;">Ver</ion-button>
           </div>
-          <p class="product-name">{{ producto.nombre }}</p>
-          <p class="product-price" style="font-size:1.2em; color:#d32f2f; font-weight:bold; margin:0 0 8px 0;">
+          <p class="product-name" style="margin-bottom:4px;">{{ producto.nombre }}</p>
+          <p class="product-price" style="font-size:1.2em; color:#d32f2f; font-weight:bold; margin:0 0 12px 0;">
             ${{ producto.precio | number:'1.0-0' }}
           </p>
         </div>

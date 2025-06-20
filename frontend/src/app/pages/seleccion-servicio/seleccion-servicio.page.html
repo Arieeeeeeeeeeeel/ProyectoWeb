@@ -20,7 +20,7 @@
 
           <!-- Dropdown para autos guardados -->
           <ion-item *ngIf="autosUsuario.length > 0">
-            <ion-label position="floating">Selecciona un auto guardado</ion-label>
+            <span style="font-size:0.95em;font-weight:500;margin-bottom:2px;display:block;">Selecciona un auto guardado</span>
             <ion-select [(ngModel)]="autoSeleccionado" (ionChange)="onAutoSeleccionadoChange()">
               <ion-select-option [value]="-1">Agregar nuevo vehículo</ion-select-option>
               <ion-select-option *ngFor="let auto of autosUsuario" [value]="auto.vehiculo_id">
@@ -75,7 +75,7 @@
             mode="ios"
             class="custom-calendar"
           ></ion-datetime>
-          <ion-item class="hora-item">
+          <ion-item class="hora-item" style="margin-top:12px;">
             <ion-label position="floating">Hora</ion-label>
             <ion-select [(ngModel)]="reserva.hora" interface="popover" placeholder="Seleccionar hora">
               <ion-select-option *ngFor="let hora of horasDisponibles" [value]="hora" [disabled]="horasOcupadas.includes(hora)" [style.color]="horasOcupadas.includes(hora) ? '#aaa' : 'inherit'">
@@ -116,7 +116,7 @@
             <ion-checkbox slot="start" [(ngModel)]="reserva.aceptaTerminos"></ion-checkbox>
             <ion-label>Acepto los términos de reserva <a href="#">Leer los términos</a></ion-label>
           </ion-item>
-          <ion-button expand="block" (click)="guardarReserva()" [disabled]="!reservaValida()">
+          <ion-button expand="block" (click)="guardarReserva()" [disabled]="!reservaValida()" color="danger" style="margin-top:18px;font-weight:bold;">
             Guardar reserva
           </ion-button>
         </ion-card-content>
