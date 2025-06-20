@@ -29,6 +29,7 @@ export interface Reserva {
   fecha: string;
   estado: string;
   detalle: string;
+  servicio_nombre?: string;
   vehiculo?: {
     marca: string;
     modelo: string;

@@ -190,6 +190,7 @@
         <ion-item *ngFor="let hora of horas">
           <ion-label>
             <b>{{hora.cliente}}</b> - {{hora.fecha | date:'dd/MM/yyyy HH:mm'}}
+            <div><b>Servicio:</b> {{hora.servicio_nombre || 'Sin información'}}</div>
             <div>{{hora.detalle}}</div>
             <div *ngIf="hora.vehiculo">
               <small>

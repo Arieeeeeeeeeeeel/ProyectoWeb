@@ -92,6 +92,7 @@ def eliminar_usuario(usuario_id):
 @bp.route('/reservas', methods=['GET'])
 @token_required
 def listar_reservas():
+    from ..models.servicio import Servicio
     reservas = Reserva.query.all()
     return jsonify([
         {
@@ -100,6 +101,7 @@ def listar_reservas():
             'fecha': r.fecha_reserva.isoformat(),
             'estado': r.estado,
             'detalle': r.notas,
+            'servicio_nombre': r.servicio.nombre if hasattr(r, 'servicio') and r.servicio else None,
             'vehiculo': {
                 'marca': r.vehiculo.marca if r.vehiculo else None,
                 'modelo': r.vehiculo.modelo if r.vehiculo else None,
