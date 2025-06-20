@@ -35,6 +35,24 @@ def get_product(producto_id):
     p = Producto.query.get(producto_id)
     if not p:
         return jsonify({'error': 'Producto no encontrado'}), 404
+    # Obtener valoración del usuario autenticado si hay token
+    user_valoracion = None
+    auth = request.headers.get('Authorization', None)
+    if auth and auth.lower().startswith('bearer '):
+        from app.utils import token_required
+        try:
+            token = auth.split()[1]
+            import jwt
+            from flask import current_app as app
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            from ..models.usuario import Usuario
+            usuario = Usuario.query.get(data['personaid'])
+            if usuario:
+                valoracion = ValoracionProducto.query.filter_by(producto_id=producto_id, usuario_id=usuario.personaid).first()
+                if valoracion:
+                    user_valoracion = float(valoracion.rating)
+        except Exception:
+            pass
     return jsonify({
         'producto_id': p.producto_id,
         'nombre': p.nombre,
@@ -47,7 +65,8 @@ def get_product(producto_id):
         'rating': float(p.rating) if p.rating is not None else 0,
         'imagen_url': p.imagen_url,
         'en_oferta': getattr(p, 'en_oferta', False),
-        'mostrar_en_inicio': getattr(p, 'mostrar_en_inicio', False)
+        'mostrar_en_inicio': getattr(p, 'mostrar_en_inicio', False),
+        'user_valoracion': user_valoracion
     }), 200
 
 @bp.route('', methods=['POST'])
@@ -121,6 +140,7 @@ def update_stock():
     return jsonify({"message": "Stock actualizado correctamente"}), 200
 
 @bp.route('/<int:producto_id>/valorar', methods=['POST'])
+@token_required
 def valorar_producto(producto_id):
     data = request.get_json()
     nuevo_rating = data.get('rating')
@@ -135,9 +155,16 @@ def valorar_producto(producto_id):
     p = Producto.query.get(producto_id)
     if not p:
         return jsonify({'error': 'Producto no encontrado'}), 404
-    # Guardar la valoración individual
-    valoracion = ValoracionProducto(producto_id=producto_id, rating=nuevo_rating)
-    db.session.add(valoracion)
+    usuario = getattr(request, 'user', None)
+    if not usuario:
+        return jsonify({'error': 'Usuario no autenticado'}), 401
+    # Buscar si ya existe una valoración de este usuario para este producto
+    valoracion = ValoracionProducto.query.filter_by(producto_id=producto_id, usuario_id=usuario.personaid).first()
+    if valoracion:
+        valoracion.rating = nuevo_rating
+    else:
+        valoracion = ValoracionProducto(producto_id=producto_id, usuario_id=usuario.personaid, rating=nuevo_rating)
+        db.session.add(valoracion)
     db.session.commit()
     # Calcular el promedio
     valoraciones = ValoracionProducto.query.filter_by(producto_id=producto_id).all()
@@ -145,4 +172,5 @@ def valorar_producto(producto_id):
         promedio = sum([float(v.rating) for v in valoraciones]) / len(valoraciones)
         p.rating = promedio
         db.session.commit()
-    return jsonify({'message': 'Valoración registrada', 'rating': float(p.rating)}), 200
+    # Devolver también el user_valoracion
+    return jsonify({'message': 'Valoración registrada', 'rating': float(p.rating), 'user_valoracion': nuevo_rating}), 200

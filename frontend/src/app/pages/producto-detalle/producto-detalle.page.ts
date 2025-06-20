@@ -58,8 +58,14 @@ export class ProductoDetallePage implements OnInit {
   loadProductDetails(id: number) {
     this.loadError = false;
     this.productosService.getProducto(id).subscribe({
-      next: (producto) => {
+      next: (producto: any) => {
         this.producto = producto;
+        // Si el backend devuelve user_valoracion, lo usamos
+        if (producto.user_valoracion !== undefined && producto.user_valoracion !== null) {
+          this.userRating = producto.user_valoracion;
+        } else {
+          this.userRating = 0;
+        }
         this.checkCompatibility();
       },
       error: (err) => {
@@ -135,7 +141,9 @@ export class ProductoDetallePage implements OnInit {
     this.ratingError = '';
     this.productosService.valorarProducto(this.producto.producto_id, this.userRating).subscribe({
       next: (res) => {
-        this.producto!.rating = this.userRating;
+        this.producto!.rating = res.rating;
+        this.producto!.user_valoracion = res.user_valoracion; // Actualiza el campo user_valoracion
+        this.userRating = res.user_valoracion; // Refleja inmediatamente la valoración
         this.ratingSubmitting = false;
         this.presentToast('¡Gracias por tu valoración!', 'success');
       },

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Producto {
@@ -15,6 +15,7 @@ export interface Producto {
   imagen_url?: string;
   en_oferta?: boolean;
   mostrar_en_inicio?: boolean;
+  user_valoracion?: number; // <-- Añadido para soporte de valoración de usuario
 }
 
 @Injectable({ providedIn: 'root' })
@@ -28,10 +29,14 @@ export class ProductosService {
   }
 
   getProducto(id: number): Observable<Producto> {
-    return this.http.get<Producto>(`${this.API_URL}/${id}`);
+    const token = localStorage.getItem('authToken');
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    return this.http.get<Producto>(`${this.API_URL}/${id}`, { headers });
   }
 
   valorarProducto(id: number, rating: number): Observable<any> {
-    return this.http.post(`${this.API_URL}/${id}/valorar`, { rating });
+    const token = localStorage.getItem('authToken');
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    return this.http.post(`${this.API_URL}/${id}/valorar`, { rating }, { headers });
   }
 }
