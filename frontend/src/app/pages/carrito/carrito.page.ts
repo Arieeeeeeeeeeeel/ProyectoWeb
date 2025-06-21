@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms'; // <--- Make sure FormsModule is i
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { ProductosService } from '../../services/productos.service';
+import { FlowService } from '../../services/flow.service';
 import { Subscription, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -59,7 +60,8 @@ export class CarritoPage implements OnInit, OnDestroy {
     private toastController: ToastController,
     private alertController: AlertController,
     private navController: NavController,
-    private productosService: ProductosService
+    private productosService: ProductosService,
+    private flowService: FlowService // <--- Agregar FlowService
   ) { }
 
   ngOnInit() {
@@ -226,6 +228,45 @@ export class CarritoPage implements OnInit, OnDestroy {
       }
     } catch (e) {
       await this.presentToast('No se pudo actualizar el stock en el servidor.', 'warning');
+    }
+
+    // === INTEGRACIÓN FLOW ===
+    try {
+      const user = this.authService.getCurrentUser();
+      if (!user) {
+        await this.presentToast('Debes iniciar sesión para pagar.', 'danger');
+        return;
+      }
+      // Construir subject y email
+      const subject = `Compra de productos en LYL - ${user.usuario}`;
+      const email = user.correo;
+      // Monto total
+      const amount = this.cartTotal;
+      // Redirecciones (ajusta las URLs a tu entorno)
+      const urlReturn = 'http://localhost:5000/api/flow/retorno';
+      const urlConfirmation = window.location.origin + '/api/flow/confirmacion';
+      // Crear pago en Flow
+      const commerceOrder = Date.now().toString(); // identificador único simple
+      const resp = await this.flowService.createPayment({
+        subject,
+        currency: 'CLP',
+        amount,
+        email,
+        urlReturn,
+        urlConfirmation,
+        commerceOrder // <--- nuevo campo
+      }).toPromise();
+      if (resp && resp.token && resp.url) {
+        // Redirigir a Flow
+        window.location.href = `${resp.url}?token=${resp.token}`;
+        return;
+      } else {
+        await this.presentToast('No se pudo iniciar el pago con Flow.', 'danger');
+        return;
+      }
+    } catch (e) {
+      await this.presentToast('Error al conectar con Flow.', 'danger');
+      return;
     }
 
     await this.presentAlertOrderSuccess();
