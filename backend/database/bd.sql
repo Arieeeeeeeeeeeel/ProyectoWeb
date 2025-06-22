@@ -12,6 +12,7 @@ CREATE TABLE USUARIO (
   region          VARCHAR(100)   NOT NULL,
   comuna          VARCHAR(100)   NOT NULL,
   telefono        VARCHAR(20)    NULL, -- <--- NUEVO CAMPO
+  ultimo_token_recuperacion VARCHAR(512) NULL,
   fecha_registro  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (personaid)
 ) ENGINE=InnoDB;

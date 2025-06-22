@@ -188,6 +188,9 @@ def update_stock(current_user):
 @bp.route('/<int:producto_id>/valorar', methods=['POST'])
 @token_required
 def valorar_producto(current_user, producto_id):
+    print('==== [DEBUG] valoracion: current_user:', current_user, flush=True)
+    print('==== [DEBUG] valoracion: headers:', dict(request.headers), flush=True)
+    print('==== [DEBUG] valoracion: json:', request.get_json(), flush=True)
     data = request.get_json()
     nuevo_rating = data.get('rating')
     if nuevo_rating is None:
@@ -201,7 +204,8 @@ def valorar_producto(current_user, producto_id):
     p = Producto.query.get(producto_id)
     if not p:
         return jsonify({'error': 'Producto no encontrado'}), 404
-    usuario = getattr(request, 'user', None)
+    usuario = current_user  # Usar el usuario autenticado pasado por el decorador
+    print('==== [DEBUG] valoracion: usuario:', usuario, flush=True)
     if not usuario:
         return jsonify({'error': 'Usuario no autenticado'}), 401
     # Buscar si ya existe una valoración de este usuario para este producto

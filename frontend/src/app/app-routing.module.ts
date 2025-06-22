@@ -77,6 +77,10 @@ const routes: Routes = [
   {
     path: 'pago-exitoso',
     loadChildren: () => import('./pages/pago-exitoso/pago-exitoso.module').then(m => m.PagoExitosoPageModule)
+  },
+  {
+    path: 'user-purchases',
+    loadChildren: () => import('./pages/user-purchases/user-purchases.module').then(m => m.UserPurchasesPageModule)
   }
 
 

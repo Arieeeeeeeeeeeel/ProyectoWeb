@@ -238,4 +238,8 @@ export class UserProfilePage implements OnInit, OnDestroy {
   guardarUbicacionesUsuario() {
     // Ya no se usa localStorage
   }
+
+  goToPurchases() {
+    this.navController.navigateForward('/user-purchases');
+  }
 }

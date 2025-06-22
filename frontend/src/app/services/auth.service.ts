@@ -101,7 +101,7 @@ export class AuthService {
     token: string,
     nuevaContrasena: string
   ): Observable<any> {
-    const url = `${this.RECOVERY_URL}/reset`;
+    const url = `${this.RECOVERY_URL}/${personaid}/recovery`;
     return this.http.put<any>(url, { token, nueva_contrasena: nuevaContrasena });
   }
 

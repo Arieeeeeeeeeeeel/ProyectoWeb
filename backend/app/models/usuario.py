@@ -14,6 +14,7 @@ class Usuario(db.Model):
     comuna         = db.Column(db.String(100), nullable=False)
     telefono       = db.Column(db.String(20), nullable=True)  # <--- NUEVO CAMPO
     fecha_registro = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    ultimo_token_recuperacion = db.Column(db.String(512), nullable=True)  # <--- NUEVO CAMPO
     vehiculos      = db.relationship('Vehiculo', backref='usuario', lazy=True)
     compras        = db.relationship('Compra', backref='usuario', lazy=True)
     reservas       = db.relationship('Reserva', backref='usuario', lazy=True)

@@ -61,7 +61,7 @@ export class ResetPasswordPage implements OnInit {
             color: 'success'
           });
           await toast.present();
-          this.router.navigateByUrl('/login', { replaceUrl: true });
+          this.router.navigateByUrl('/home', { replaceUrl: true });
         },
         error: async err => {
           const alert = await this.alertController.create({
