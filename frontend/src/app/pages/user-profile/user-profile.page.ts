@@ -4,6 +4,7 @@ import { NavController, ToastController } from '@ionic/angular';
 import { Subscription } from 'rxjs'; // Para manejar la suscripción
 import { VehiculoService, Vehiculo } from '../../services/vehiculo.service';
 import { VehiculoApiService } from '../../services/vehiculo-api.service';
+import { UbicacionesService, DireccionUsuario } from '../../services/ubicaciones.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -30,13 +31,17 @@ export class UserProfilePage implements OnInit, OnDestroy {
     color: '',
     apodo: ''
   };
+  ubicaciones: DireccionUsuario[] = [];
+  showAddUbicacionForm: boolean = false;
+  nuevaUbicacion: any = { calle: '', ciudad: '', codigoPostal: '', esPrincipal: false };
 
   constructor(
     private authService: AuthService,
     private navController: NavController,
     private toastController: ToastController,
     private vehiculoService: VehiculoService,
-    private vehiculoApi: VehiculoApiService
+    private vehiculoApi: VehiculoApiService,
+    private ubicacionesService: UbicacionesService // <--- INYECTAR SERVICIO
   ) {}
 
   ngOnInit() {
@@ -50,6 +55,7 @@ export class UserProfilePage implements OnInit, OnDestroy {
     });
     this.cargarAutosUsuario();
     this.getMarcas();
+    this.cargarUbicacionesUsuario();
   }
 
   ngOnDestroy() {
@@ -173,5 +179,63 @@ export class UserProfilePage implements OnInit, OnDestroy {
       },
       error: () => this.presentToast('Error al eliminar auto', 'danger')
     });
+  }
+
+  cargarUbicacionesUsuario() {
+    this.ubicacionesService.getUserAddresses().subscribe({
+      next: (direcciones) => {
+        this.ubicaciones = direcciones;
+      },
+      error: () => {
+        this.ubicaciones = [];
+      }
+    });
+  }
+
+  mostrarFormularioUbicacion() {
+    this.showAddUbicacionForm = true;
+    this.nuevaUbicacion = { calle: '', ciudad: '', codigoPostal: '', esPrincipal: false };
+  }
+
+  cancelarAgregarUbicacion() {
+    this.showAddUbicacionForm = false;
+  }
+
+  agregarUbicacionForm() {
+    if (!this.nuevaUbicacion.calle || !this.nuevaUbicacion.ciudad || !this.nuevaUbicacion.codigoPostal) {
+      this.presentToast('Completa todos los campos de la dirección', 'danger');
+      return;
+    }
+    this.ubicacionesService.addUserAddress({
+      calle: this.nuevaUbicacion.calle,
+      ciudad: this.nuevaUbicacion.ciudad,
+      codigoPostal: this.nuevaUbicacion.codigoPostal,
+      esPrincipal: this.nuevaUbicacion.esPrincipal
+    }).subscribe({
+      next: () => {
+        this.presentToast('Dirección guardada', 'success');
+        this.cargarUbicacionesUsuario();
+        this.showAddUbicacionForm = false;
+      },
+      error: () => {
+        this.presentToast('Error al guardar dirección', 'danger');
+      }
+    });
+  }
+
+  eliminarUbicacion(idx: number) {
+    const direccion = this.ubicaciones[idx];
+    if (!direccion || !direccion.id) return;
+    this.ubicacionesService.deleteUserAddress(direccion.id).subscribe({
+      next: () => {
+        this.presentToast('Dirección eliminada', 'warning');
+        this.cargarUbicacionesUsuario();
+      },
+      error: () => this.presentToast('Error al eliminar dirección', 'danger')
+    });
+  }
+
+  guardarUbicacionesUsuario() {
+    // Ya no se usa localStorage
   }
 }

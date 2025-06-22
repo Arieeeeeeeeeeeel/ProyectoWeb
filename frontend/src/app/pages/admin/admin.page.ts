@@ -137,6 +137,8 @@ export class AdminPage implements OnInit {
   }
 
   guardarEdicion(producto: Producto) {
+    console.log('[ADMIN] Guardando producto:', producto);
+    console.log('[ADMIN] Compatibilidad a enviar:', this.editarCompatibilidades);
     this.adminService.editarProductoConCompatibilidad(producto.producto_id, producto, this.editarCompatibilidades).subscribe(() => {
       this.editandoId = null;
       this.productoEditBackup = null;

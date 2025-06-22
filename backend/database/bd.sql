@@ -11,6 +11,7 @@ CREATE TABLE USUARIO (
   contrasena      VARCHAR(255)   NOT NULL,
   region          VARCHAR(100)   NOT NULL,
   comuna          VARCHAR(100)   NOT NULL,
+  telefono        VARCHAR(20)    NULL, -- <--- NUEVO CAMPO
   fecha_registro  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (personaid)
 ) ENGINE=InnoDB;
@@ -165,6 +166,17 @@ CREATE TABLE VALORACION_PRODUCTO (
   UNIQUE KEY uq_producto_usuario (producto_id, usuario_id),
   CONSTRAINT fk_valoracion_producto FOREIGN KEY (producto_id) REFERENCES PRODUCTO(producto_id) ON DELETE CASCADE,
   CONSTRAINT fk_valoracion_usuario FOREIGN KEY (usuario_id) REFERENCES USUARIO(personaid) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE DIRECCION (
+  direccion_id INT NOT NULL AUTO_INCREMENT,
+  usuario_id INT NOT NULL,
+  calle VARCHAR(255) NOT NULL,
+  ciudad VARCHAR(100) NOT NULL,
+  codigo_postal VARCHAR(20) NOT NULL,
+  es_principal BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (direccion_id),
+  FOREIGN KEY (usuario_id) REFERENCES USUARIO(personaid) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Usuario administrador por defecto

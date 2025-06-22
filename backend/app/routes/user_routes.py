@@ -9,7 +9,7 @@ bp = Blueprint('profile', __name__)
 
 @bp.route('/<personaid>/update_profile', methods=['PUT'])
 @token_required
-def update_profile(personaid):
+def update_profile(current_user, personaid):
     user = Usuario.query.get(personaid)
     if not user:
         return jsonify({'error':'Usuario no encontrado'}), 404

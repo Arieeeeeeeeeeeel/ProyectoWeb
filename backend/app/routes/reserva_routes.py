@@ -10,7 +10,7 @@ bp = Blueprint('reserva', __name__)
 @bp.route('', methods=['POST'])
 @bp.route('/', methods=['POST'])
 @token_required
-def crear_reserva():
+def crear_reserva(current_user):
     data = request.get_json()
     print('DEBUG: JSON recibido:', data, file=sys.stderr)
     try:
@@ -47,7 +47,7 @@ def crear_reserva():
 
 @bp.route('/nombre_completo/<int:usuario_id>', methods=['GET'])
 @token_required
-def obtener_nombre_completo(usuario_id):
+def obtener_nombre_completo(current_user, usuario_id):
     # Busca la última reserva del usuario y retorna el nombre completo si existe
     reserva = Reserva.query.filter_by(usuario_id=usuario_id).order_by(Reserva.reserva_id.desc()).first()
     if reserva:

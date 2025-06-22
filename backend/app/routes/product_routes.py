@@ -85,7 +85,7 @@ def get_product(producto_id):
 @bp.route('', methods=['POST'])
 @bp.route('/', methods=['POST'])
 @token_required
-def crear_producto():
+def crear_producto(current_user):
     data = request.get_json()
     compat = data.get('compatibilidad', [])
     ano_compatible = data.get('ano_compatible')
@@ -126,12 +126,14 @@ def crear_producto():
 
 @bp.route('/<int:producto_id>', methods=['PUT'])
 @token_required
-def editar_producto(producto_id):
+def editar_producto(current_user, producto_id):
     p = Producto.query.get(producto_id)
     if not p:
         return jsonify({'error':'Producto no encontrado'}),404
     data = request.get_json()
+    print('==== [LOG] PUT /products/<id> data recibido:', data, flush=True)
     compat = data.get('compatibilidad', [])
+    print('==== [LOG] compatibilidad recibida:', compat, flush=True)
     for k,v in data.items():
         if hasattr(p,k):
             setattr(p,k,v)
@@ -140,7 +142,9 @@ def editar_producto(producto_id):
     if compat is not None:
         from ..models.producto_compatibilidad import ProductoCompatibilidad
         ProductoCompatibilidad.query.filter_by(producto_id=producto_id).delete()
+        print('==== [LOG] compatibilidad previa eliminada', flush=True)
         for c in compat:
+            print('==== [LOG] agregando compatibilidad:', c, flush=True)
             pc = ProductoCompatibilidad(
                 producto_id=producto_id,
                 marca_auto=c.get('marca_auto'),
@@ -150,11 +154,12 @@ def editar_producto(producto_id):
             )
             db.session.add(pc)
         db.session.commit()
+        print('==== [LOG] compatibilidad nueva guardada', flush=True)
     return jsonify({'message':'Producto actualizado'}),200
 
 @bp.route('/<int:producto_id>', methods=['DELETE'])
 @token_required
-def eliminar_producto(producto_id):
+def eliminar_producto(current_user, producto_id):
     p = Producto.query.get(producto_id)
     if not p:
         return jsonify({'error':'Producto no encontrado'}),404
@@ -163,7 +168,8 @@ def eliminar_producto(producto_id):
     return jsonify({'message':'Producto eliminado'}),200
 
 @bp.route('/update_stock', methods=['POST'])
-def update_stock():
+@token_required
+def update_stock(current_user):
     data = request.get_json()
     items = data.get('items', [])
 
@@ -181,7 +187,7 @@ def update_stock():
 
 @bp.route('/<int:producto_id>/valorar', methods=['POST'])
 @token_required
-def valorar_producto(producto_id):
+def valorar_producto(current_user, producto_id):
     data = request.get_json()
     nuevo_rating = data.get('rating')
     if nuevo_rating is None:

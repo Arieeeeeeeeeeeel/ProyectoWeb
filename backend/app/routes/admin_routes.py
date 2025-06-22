@@ -10,7 +10,7 @@ bp = Blueprint('admin', __name__)
 # --- PRODUCTOS ---
 @bp.route('/productos', methods=['POST'])
 @token_required
-def crear_producto():
+def crear_producto(current_user):
     data = request.get_json()
     # Convertir ano_compatible a None si viene vacío o string vacío
     ano_compatible = data.get('ano_compatible')
@@ -40,7 +40,7 @@ def crear_producto():
 
 @bp.route('/productos/<int:producto_id>', methods=['PUT'])
 @token_required
-def editar_producto(producto_id):
+def editar_producto(current_user, producto_id):
     p = Producto.query.get(producto_id)
     if not p:
         return jsonify({'error':'Producto no encontrado'}),404
@@ -53,7 +53,7 @@ def editar_producto(producto_id):
 
 @bp.route('/productos/<int:producto_id>', methods=['DELETE'])
 @token_required
-def eliminar_producto(producto_id):
+def eliminar_producto(current_user, producto_id):
     p = Producto.query.get(producto_id)
     if not p:
         return jsonify({'error':'Producto no encontrado'}),404
@@ -64,7 +64,7 @@ def eliminar_producto(producto_id):
 # --- USUARIOS ---
 @bp.route('/usuarios', methods=['GET'])
 @token_required
-def listar_usuarios():
+def listar_usuarios(current_user):
     usuarios = Usuario.query.all()
     return jsonify([
         {'id':u.personaid,'nombre':u.usuario,'email':u.correo}
@@ -73,7 +73,7 @@ def listar_usuarios():
 
 @bp.route('/usuarios/<int:usuario_id>', methods=['DELETE'])
 @token_required
-def eliminar_usuario(usuario_id):
+def eliminar_usuario(current_user, usuario_id):
     u = Usuario.query.get(usuario_id)
     if not u:
         return jsonify({'error':'Usuario no encontrado'}),404
@@ -91,7 +91,7 @@ def eliminar_usuario(usuario_id):
 # --- RESERVAS ---
 @bp.route('/reservas', methods=['GET'])
 @token_required
-def listar_reservas():
+def listar_reservas(current_user):
     from ..models.servicio import Servicio
     reservas = Reserva.query.all()
     return jsonify([
@@ -114,7 +114,7 @@ def listar_reservas():
 
 @bp.route('/reservas/<int:reserva_id>', methods=['DELETE'])
 @token_required
-def eliminar_reserva(reserva_id):
+def eliminar_reserva(current_user, reserva_id):
     r = Reserva.query.get(reserva_id)
     if not r:
         return jsonify({'error':'Reserva no encontrada'}),404
@@ -125,7 +125,7 @@ def eliminar_reserva(reserva_id):
 # --- ESTADÍSTICAS ---
 @bp.route('/stats', methods=['GET'])
 @token_required
-def estadisticas():
+def estadisticas(current_user):
     total_usuarios = Usuario.query.count()
     total_productos = Producto.query.count()
     total_ofertas = Producto.query.filter_by(en_oferta=True).count() if hasattr(Producto,'en_oferta') else 0

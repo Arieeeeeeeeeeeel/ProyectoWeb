@@ -18,6 +18,7 @@
       <p><strong>Usuario:</strong> {{ currentUser.usuario }}</p>
       <p><strong>RUT:</strong> {{ currentUser.rut }}</p>
       <p><strong>Correo Electrónico:</strong> {{ currentUser.correo }}</p>
+      <p><strong>Teléfono:</strong> {{ currentUser.telefono || '-' }}</p>
       <p><strong>Región:</strong> {{ currentUser.region }}</p>
       <p><strong>Comuna:</strong> {{ currentUser.comuna }}</p>
       <p>Aquí podrás ver y gestionar tu información personal, historial de pedidos, favoritos, etc.</p>
@@ -98,6 +99,60 @@
       <ng-template #noAutos>
         <div class="ion-text-center ion-padding">
           <p>No tienes autos registrados.</p>
+        </div>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="ion-margin-top">
+    <ion-card-header>
+      <ion-card-title>Mis Ubicaciones</ion-card-title>
+      <ion-button fill="clear" size="small" (click)="mostrarFormularioUbicacion()" *ngIf="!showAddUbicacionForm" style="margin-left:8px;">
+        <ion-icon name="add-circle"></ion-icon> Agregar
+      </ion-button>
+    </ion-card-header>
+    <ion-card-content>
+      <form *ngIf="showAddUbicacionForm" (ngSubmit)="agregarUbicacionForm()" style="padding:12px 0;">
+        <ion-item>
+          <ion-label position="floating">Calle y Número</ion-label>
+          <ion-input [(ngModel)]="nuevaUbicacion.calle" name="calle" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Ciudad</ion-label>
+          <ion-input [(ngModel)]="nuevaUbicacion.ciudad" name="ciudad" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Código Postal</ion-label>
+          <ion-input [(ngModel)]="nuevaUbicacion.codigoPostal" name="codigoPostal" required></ion-input>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-checkbox [(ngModel)]="nuevaUbicacion.esPrincipal" name="esPrincipal"></ion-checkbox>
+          <ion-label>Marcar como dirección principal</ion-label>
+        </ion-item>
+        <ion-row class="ion-margin-top">
+          <ion-col size="6">
+            <ion-button expand="block" color="danger" type="submit">Guardar</ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="medium" type="button" (click)="cancelarAgregarUbicacion()">Cancelar</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+      <ion-list *ngIf="ubicaciones.length > 0 && !showAddUbicacionForm; else noUbicaciones">
+        <ion-item *ngFor="let ubicacion of ubicaciones; let i = index">
+          <ion-label>
+            <h2>{{ ubicacion.calle }}, {{ ubicacion.ciudad }}</h2>
+            <p>Código Postal: {{ ubicacion.codigoPostal }}</p>
+            <ion-badge *ngIf="ubicacion.esPrincipal" color="primary">Principal</ion-badge>
+          </ion-label>
+          <ion-button color="danger" fill="clear" slot="end" (click)="eliminarUbicacion(i)">
+            <ion-icon name="trash"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+      <ng-template #noUbicaciones>
+        <div class="ion-text-center ion-padding">
+          <p>No tienes ubicaciones guardadas.</p>
         </div>
       </ng-template>
     </ion-card-content>

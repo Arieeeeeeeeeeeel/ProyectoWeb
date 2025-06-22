@@ -114,6 +114,29 @@ export class ProductoDetallePage implements OnInit {
       this.compatibleCarModel = '';
       return;
     }
+    // Si el producto tiene compatibilidad definida, usarla
+    const compatList = (this.producto as any).compatibilidad;
+    if (Array.isArray(compatList) && compatList.length > 0) {
+      // Buscar si algún auto del usuario es compatible con alguna entrada
+      const compatibleCar = this.userCars.find(car =>
+        compatList.some((c: any) =>
+          c.marca_auto && c.modelo_auto &&
+          c.marca_auto.toLowerCase() === car.marca.toLowerCase() &&
+          c.modelo_auto.toLowerCase() === car.modelo.toLowerCase() &&
+          (!c.ano_desde || car.ano >= c.ano_desde) &&
+          (!c.ano_hasta || car.ano <= c.ano_hasta)
+        )
+      );
+      if (compatibleCar) {
+        this.isCompatible = true;
+        this.compatibleCarModel = `${compatibleCar.marca} ${compatibleCar.modelo} (${compatibleCar.patente})`;
+      } else {
+        this.isCompatible = false;
+        this.compatibleCarModel = '';
+      }
+      return;
+    }
+    // Si no hay compatibilidad definida, usar la lógica antigua (marca/modelo/año exactos)
     const compatibleCar = this.userCars.find(car =>
       !!car &&
       (this.producto!.marca || '').toLowerCase() === car.marca.toLowerCase() &&

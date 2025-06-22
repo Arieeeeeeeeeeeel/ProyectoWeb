@@ -6,30 +6,18 @@ import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { ProductosService } from '../../services/productos.service';
 import { FlowService } from '../../services/flow.service';
+import { UbicacionesService, DireccionUsuario as BackendDireccionUsuario } from '../../services/ubicaciones.service';
 import { Subscription, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 // Interfaz para una dirección de usuario (ejemplo)
-interface UserAddress {
+interface DireccionUsuario {
   id: string;
-  street: string;
-  city: string;
-  zipCode: string;
-  isDefault: boolean;
+  calle: string;
+  ciudad: string;
+  codigoPostal: string;
+  esPrincipal: boolean;
 }
-
-// SERVICIO SIMULADO PARA USUARIO Y DIRECCIONES
-// En un proyecto real, esto sería un servicio separado (e.g., UserService)
-export class UserService {
-  getUserAddresses(): Observable<UserAddress[]> {
-    // Simula una llamada a la API o datos de usuario
-    return of([
-      { id: 'addr1', street: 'Av. Siempre Viva 742', city: 'Santiago', zipCode: '8320000', isDefault: true },
-      { id: 'addr2', street: 'Calle Falsa 123', city: 'Viña del Mar', zipCode: '2520000', isDefault: false }
-    ]);
-  }
-}
-// FIN SERVICIO SIMULADO
 
 @Component({
   selector: 'app-carrito',
@@ -42,12 +30,12 @@ export class CarritoPage implements OnInit, OnDestroy {
   cartItems: CartItem[] = [];
   cartTotal: number = 0;
   isLoggedIn: boolean = false;
-  userAddresses: UserAddress[] = [];
+  userAddresses: DireccionUsuario[] = [];
 
   deliveryOption: 'pickup' | 'delivery' = 'delivery';
   selectedAddressId: string | null = null;
-  customAddress: { street: string, city: string, zipCode: string } = { street: '', city: '', zipCode: '' };
-  paymentMethod: 'credit' | 'debit' | 'cash' = 'credit';
+  customAddress: { calle: string, ciudad: string, codigoPostal: string } = { calle: '', ciudad: '', codigoPostal: '' };
+  paymentMethod: 'card' = 'card';
 
   private cartSubscription: Subscription | undefined;
   private authSubscription: Subscription | undefined;
@@ -56,12 +44,12 @@ export class CarritoPage implements OnInit, OnDestroy {
   constructor(
     private cartService: CartService,
     private authService: AuthService,
-    private userService: UserService,
     private toastController: ToastController,
     private alertController: AlertController,
     private navController: NavController,
     private productosService: ProductosService,
-    private flowService: FlowService // <--- Agregar FlowService
+    private flowService: FlowService, // <--- Agregar FlowService
+    private ubicacionesService: UbicacionesService // <--- Agregar UbicacionesService
   ) { }
 
   ngOnInit() {
@@ -90,12 +78,23 @@ export class CarritoPage implements OnInit, OnDestroy {
   }
 
   loadUserAddresses() {
-    this.userService.getUserAddresses().subscribe(addresses => {
-      this.userAddresses = addresses;
-      // Seleccionar la dirección por defecto si existe
-      const defaultAddress = addresses.find(addr => addr.isDefault);
-      if (defaultAddress) {
-        this.selectedAddressId = defaultAddress.id;
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      this.userAddresses = [];
+      return;
+    }
+    this.ubicacionesService.getUserAddresses().subscribe({
+      next: (addresses: any[]) => {
+        this.userAddresses = addresses.map(addr => ({
+          id: addr.id,
+          calle: addr.calle,
+          ciudad: addr.ciudad,
+          codigoPostal: addr.codigoPostal,
+          esPrincipal: addr.esPrincipal
+        }));
+      },
+      error: () => {
+        this.userAddresses = [];
       }
     });
   }
@@ -136,11 +135,7 @@ export class CarritoPage implements OnInit, OnDestroy {
 
   // Lógica para el método de pago
   onPaymentMethodChange() {
-    if (this.deliveryOption === 'pickup' && this.paymentMethod !== 'cash') {
-      // Si el retiro es en tienda, permitir efectivo
-      // Si el usuario cambia a pickup y el pago no es efectivo, podría avisarle o forzarlo.
-      // Por simplicidad, aquí no hacemos nada, solo limitamos las opciones en el HTML.
-    }
+    // Ya no es necesario, solo hay una opción
   }
 
   async processCheckout() {
@@ -148,18 +143,19 @@ export class CarritoPage implements OnInit, OnDestroy {
       await this.presentToast('Tu carrito está vacío.', 'danger');
       return;
     }
-
     let addressToUse = '';
+    let shouldAskToSave = false;
     if (this.deliveryOption === 'delivery') {
       if (this.isLoggedIn && this.selectedAddressId && this.selectedAddressId !== 'custom') {
         const selectedAddr = this.userAddresses.find(addr => addr.id === this.selectedAddressId);
-        addressToUse = selectedAddr ? `${selectedAddr.street}, ${selectedAddr.city}, ${selectedAddr.zipCode}` : 'Dirección desconocida';
+        addressToUse = selectedAddr ? `${selectedAddr.calle}, ${selectedAddr.ciudad}, ${selectedAddr.codigoPostal}` : 'Dirección desconocida';
       } else if (this.selectedAddressId === 'custom') {
-        if (!this.customAddress.street || !this.customAddress.city || !this.customAddress.zipCode) {
+        if (!this.customAddress.calle || !this.customAddress.ciudad || !this.customAddress.codigoPostal) {
           await this.presentToast('Por favor, completa todos los campos de la dirección personalizada.', 'danger');
           return;
         }
-        addressToUse = `${this.customAddress.street}, ${this.customAddress.city}, ${this.customAddress.zipCode}`;
+        addressToUse = `${this.customAddress.calle}, ${this.customAddress.ciudad}, ${this.customAddress.codigoPostal}`;
+        shouldAskToSave = true;
       } else {
         await this.presentToast('Por favor, selecciona una opción de envío o ingresa una dirección.', 'danger');
         return;
@@ -167,17 +163,43 @@ export class CarritoPage implements OnInit, OnDestroy {
     } else { // pickup
       addressToUse = 'Retiro en tienda';
     }
+    // Preguntar si se debe guardar la dirección personalizada
+    if (shouldAskToSave && this.isLoggedIn) {
+      const alert = await this.alertController.create({
+        header: '¿Guardar dirección?',
+        message: '¿Deseas guardar esta dirección en tus ubicaciones para futuros pedidos?',
+        buttons: [
+          {
+            text: 'No',
+            role: 'cancel',
+            handler: () => {}
+          },
+          {
+            text: 'Sí',
+            handler: () => {
+              this.ubicacionesService.addUserAddress({
+                calle: this.customAddress.calle,
+                ciudad: this.customAddress.ciudad,
+                codigoPostal: this.customAddress.codigoPostal,
+                esPrincipal: false
+              }).subscribe({
+                next: () => {
+                  this.loadUserAddresses();
+                  this.presentToast('Dirección guardada en tu perfil.', 'success');
+                },
+                error: () => {
+                  this.presentToast('No se pudo guardar la dirección.', 'danger');
+                }
+              });
+            }
+          }
+        ]
+      });
+      await alert.present();
+    }
 
     // Validación del método de pago
-    if (this.deliveryOption === 'pickup' && this.paymentMethod !== 'cash' && this.paymentMethod !== 'credit' && this.paymentMethod !== 'debit') {
-        await this.presentToast('Para retiro en tienda, solo se acepta efectivo, crédito o débito.', 'danger');
-        return;
-    }
-    if (this.deliveryOption === 'delivery' && this.paymentMethod === 'cash') {
-        await this.presentToast('El pago en efectivo no está disponible para envíos a domicilio.', 'danger');
-        return;
-    }
-
+    // Ya no es necesario validar efectivo
 
     // Aquí iría la lógica real para procesar el pedido:
     // 1. Enviar los datos del carrito, dirección y método de pago a tu backend.
@@ -226,19 +248,6 @@ export class CarritoPage implements OnInit, OnDestroy {
       await this.presentToast('No se pudo actualizar las horas agendadas.', 'warning');
     }
     // === FIN AGREGAR RESERVAS A HORAS AGENDADAS ADMIN ===
-
-    // Actualizar stock en backend
-    try {
-      const itemsToUpdate = this.cartItems.map(item => ({
-        producto_id: Number(item.productoId),
-        cantidad: item.quantity || 1
-      }));
-      if (itemsToUpdate.length > 0) {
-        await this.productosService.updateStock(itemsToUpdate).toPromise();
-      }
-    } catch (e) {
-      await this.presentToast('No se pudo actualizar el stock en el servidor.', 'warning');
-    }
 
     // === INTEGRACIÓN FLOW ===
     try {
@@ -294,10 +303,12 @@ export class CarritoPage implements OnInit, OnDestroy {
     toast.present();
   }
 
-  async presentAlertOrderSuccess() {
+  async presentAlertOrderSuccess(isCash: boolean = false) {
     const alert = await this.alertController.create({
       header: '¡Pedido Realizado!',
-      message: 'Su pedido fue hecho a la perfección. ¡Gracias por su compra!',
+      message: isCash
+        ? 'Tu pedido fue registrado. Estará listo para retiro en tienda entre 2 a 5 días hábiles. ¡Gracias por tu compra!'
+        : 'Su pedido fue hecho a la perfección. ¡Gracias por su compra!',
       buttons: ['OK']
     });
     await alert.present();

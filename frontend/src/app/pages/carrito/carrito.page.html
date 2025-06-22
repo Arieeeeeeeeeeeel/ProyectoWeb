@@ -76,8 +76,8 @@
               <ion-label position="stacked">Seleccionar Dirección Guardada</ion-label>
               <ion-select [(ngModel)]="selectedAddressId" placeholder="Selecciona una dirección">
                 <ion-select-option *ngFor="let address of userAddresses" [value]="address.id">
-                  {{ address.street }}, {{ address.city }}
-                  <span *ngIf="address.isDefault">(Por defecto)</span>
+                  {{ address.calle }}, {{ address.ciudad }}
+                  <span *ngIf="address.esPrincipal">(Por defecto)</span>
                 </ion-select-option>
                 <ion-select-option value="custom">Ingresar una nueva dirección</ion-select-option>
               </ion-select>
@@ -86,13 +86,13 @@
 
           <div *ngIf="!isLoggedIn || selectedAddressId === 'custom' || userAddresses.length === 0">
             <ion-item>
-              <ion-input label="Calle y Número" [(ngModel)]="customAddress.street" labelPlacement="floating" required></ion-input>
+              <ion-input label="Calle y Número" [(ngModel)]="customAddress.calle" labelPlacement="floating" required></ion-input>
             </ion-item>
             <ion-item>
-              <ion-input label="Ciudad" [(ngModel)]="customAddress.city" labelPlacement="floating" required></ion-input>
+              <ion-input label="Ciudad" [(ngModel)]="customAddress.ciudad" labelPlacement="floating" required></ion-input>
             </ion-item>
             <ion-item>
-              <ion-input label="Código Postal" [(ngModel)]="customAddress.zipCode" labelPlacement="floating" required></ion-input>
+              <ion-input label="Código Postal" [(ngModel)]="customAddress.codigoPostal" labelPlacement="floating" required></ion-input>
             </ion-item>
           </div>
         </div>
@@ -106,16 +106,8 @@
       <ion-card-content>
         <ion-radio-group [(ngModel)]="paymentMethod" (ionChange)="onPaymentMethodChange()">
           <ion-item>
-            <ion-label>Tarjeta de Crédito</ion-label>
-            <ion-radio slot="start" value="credit"></ion-radio>
-          </ion-item>
-          <ion-item>
-            <ion-label>Tarjeta de Débito</ion-label>
-            <ion-radio slot="start" value="debit"></ion-radio>
-          </ion-item>
-          <ion-item *ngIf="deliveryOption === 'pickup'">
-            <ion-label>Efectivo (Solo Retiro en Tienda)</ion-label>
-            <ion-radio slot="start" value="cash"></ion-radio>
+            <ion-label>Con Tarjeta</ion-label>
+            <ion-radio slot="start" value="card"></ion-radio>
           </ion-item>
         </ion-radio-group>
       </ion-card-content>

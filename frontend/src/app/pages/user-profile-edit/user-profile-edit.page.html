@@ -84,6 +84,21 @@
         <small *ngIf="editProfileForm.get('comuna')?.errors?.['required']">La comuna es requerida.</small>
       </div>
 
+      <ion-item>
+        <ion-input
+          label="Teléfono"
+          labelPlacement="floating"
+          formControlName="telefono"
+          type="tel"
+          placeholder="Ej: +56 9 1234 5678"
+        ></ion-input>
+      </ion-item>
+      <div *ngIf="editProfileForm.get('telefono')?.invalid && editProfileForm.get('telefono')?.touched" class="validation-error">
+        <small *ngIf="editProfileForm.get('telefono')?.errors?.['required']">El teléfono es requerido.</small>
+        <small *ngIf="editProfileForm.get('telefono')?.errors?.['minlength']">Mínimo 7 dígitos.</small>
+        <small *ngIf="editProfileForm.get('telefono')?.errors?.['pattern']">Formato de teléfono inválido.</small>
+      </div>
+
     </ion-list>
 
     <ion-button expand="block" type="submit" [disabled]="editProfileForm.invalid" class="ion-margin-top">

@@ -18,14 +18,14 @@ def serialize_reserva(r):
 
 @bp.route('/<int:car_id>/mechanic_services', methods=['GET'])
 @token_required
-def list_mechanic_services(car_id):
+def list_mechanic_services(current_user, car_id):
     reservas = Reserva.query.filter_by(vehiculo_id=car_id)\
         .join(Servicio).filter(Servicio.nombre.ilike('%mecánico%')).all()
     return jsonify([serialize_reserva(r) for r in reservas]), 200
 
 @bp.route('/<int:car_id>/visual_services', methods=['GET'])
 @token_required
-def list_visual_services(car_id):
+def list_visual_services(current_user, car_id):
     reservas = Reserva.query.filter_by(vehiculo_id=car_id)\
         .join(Servicio).filter(Servicio.nombre.ilike('%visual%')).all()
     return jsonify([serialize_reserva(r) for r in reservas]), 200
@@ -56,7 +56,7 @@ def get_all_services():
 
 @bp.route('/<int:car_id>/mechanic_services', methods=['POST'])
 @token_required
-def create_mechanic_service(car_id):
+def create_mechanic_service(current_user, car_id):
     data = request.get_json()
     for f in ['usuario_id','servicio_id','fecha_reserva','ubicacion']:
         if f not in data:
@@ -77,7 +77,7 @@ def create_mechanic_service(car_id):
 
 @bp.route('/<int:car_id>/visual_services', methods=['POST'])
 @token_required
-def create_visual_service(car_id):
+def create_visual_service(current_user, car_id):
     data = request.get_json()
     for f in ['usuario_id','servicio_id','fecha_reserva','ubicacion']:
         if f not in data:
@@ -98,7 +98,7 @@ def create_visual_service(car_id):
 
 @bp.route('/mechanic_services/<int:mechanic_services_id>', methods=['POST'])
 @token_required
-def update_mechanic_service(mechanic_services_id):
+def update_mechanic_service(current_user, mechanic_services_id):
     r = Reserva.query.get(mechanic_services_id)
     if not r:
         return jsonify({'error':'Reserva no encontrada'}),404
@@ -110,7 +110,7 @@ def update_mechanic_service(mechanic_services_id):
 
 @bp.route('/visual_services/<int:visual_services_id>', methods=['POST'])
 @token_required
-def update_visual_service(visual_services_id):
+def update_visual_service(current_user, visual_services_id):
     r = Reserva.query.get(visual_services_id)
     if not r:
         return jsonify({'error':'Reserva no encontrada'}),404

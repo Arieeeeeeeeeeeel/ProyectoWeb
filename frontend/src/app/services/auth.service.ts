@@ -13,6 +13,7 @@ export interface UserProfile {
   correo: string;
   region: string;
   comuna: string;
+  telefono?: string; // <--- NUEVO CAMPO
 }
 
 @Injectable({
@@ -132,12 +133,17 @@ export class AuthService {
    * @returns Un Observable que emite el perfil de usuario actualizado.
    */
   updateUserProfile(personaid: number,
-    changes: { usuario: string; correo: string; region: string; comuna: string; }): Observable<UserProfile> {
+    changes: { usuario: string; correo: string; region: string; comuna: string; telefono?: string; }): Observable<UserProfile> {
     const token = localStorage.getItem('authToken') || '';
     return this.http
       .put<UserProfile>(
         `${this.USER_URL}/${personaid}/update_profile`,
-        changes
+        changes,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       )
       .pipe(
         tap(user => {

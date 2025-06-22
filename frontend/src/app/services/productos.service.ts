@@ -41,6 +41,8 @@ export class ProductosService {
   }
 
   updateStock(items: { producto_id: number, cantidad: number }[]): Observable<any> {
-    return this.http.post('http://localhost:5000/products/update_stock', { items });
+    const token = localStorage.getItem('authToken');
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    return this.http.post('http://localhost:5000/products/update_stock', { items }, { headers });
   }
 }

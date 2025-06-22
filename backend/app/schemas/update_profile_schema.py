@@ -6,3 +6,4 @@ class UpdateProfileSchema(ma.Schema):
     region = fields.String(validate=validate.Length(min=1))
     comuna = fields.String(validate=validate.Length(min=1))
     correo = fields.Email(validate=validate.Length(min=1))
+    telefono = fields.String(validate=validate.Length(min=7, max=20))

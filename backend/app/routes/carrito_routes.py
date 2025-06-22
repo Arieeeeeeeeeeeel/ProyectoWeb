@@ -12,7 +12,7 @@ bp = Blueprint('carrito', __name__)
 # Obtener el carrito del usuario (por personaid)
 @bp.route('/carrito/<int:usuario_id>', methods=['GET'])
 @token_required
-def get_carrito(usuario_id):
+def get_carrito(current_user, usuario_id):
     carrito = Carrito.query.filter_by(usuario_id=usuario_id).first()
     if not carrito:
         return jsonify({'carrito': None, 'items': []}), 200
@@ -25,7 +25,7 @@ def get_carrito(usuario_id):
 # Agregar o actualizar un item en el carrito
 @bp.route('/carrito/<int:usuario_id>/item', methods=['POST'])
 @token_required
-def add_or_update_item(usuario_id):
+def add_or_update_item(current_user, usuario_id):
     data = request.get_json()
     producto_id = data.get('producto_id')
     cantidad = data.get('cantidad', 1)
@@ -50,7 +50,7 @@ def add_or_update_item(usuario_id):
 # Eliminar un item del carrito
 @bp.route('/carrito/<int:usuario_id>/item/<int:producto_id>', methods=['DELETE'])
 @token_required
-def remove_item(usuario_id, producto_id):
+def remove_item(current_user, usuario_id, producto_id):
     carrito = Carrito.query.filter_by(usuario_id=usuario_id).first()
     if not carrito:
         return jsonify({'error': 'Carrito no encontrado'}), 404
@@ -64,7 +64,7 @@ def remove_item(usuario_id, producto_id):
 # Vaciar el carrito
 @bp.route('/carrito/<int:usuario_id>/vaciar', methods=['POST'])
 @token_required
-def clear_carrito(usuario_id):
+def clear_carrito(current_user, usuario_id):
     carrito = Carrito.query.filter_by(usuario_id=usuario_id).first()
     if not carrito:
         return jsonify({'success': True}), 200
