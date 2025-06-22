@@ -45,6 +45,14 @@ export interface Stats {
   total_reservas: number;
 }
 
+export interface ProductoCompatibilidad {
+  producto_id: number;
+  marca_auto: string;
+  modelo_auto: string;
+  ano_desde: number;
+  ano_hasta?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private API_URL = 'http://localhost:5000'; // Cambiado para usar la raíz de la API
@@ -78,6 +86,15 @@ export class AdminService {
   }
   eliminarProducto(id: number) {
     return this.http.delete(`${this.API_URL}/products/${id}`, { headers: this.getAuthHeaders() });
+  }
+  crearProductoConCompatibilidad(producto: Partial<Producto>, compatibilidad: ProductoCompatibilidad[]) {
+    return this.http.post(`${this.API_URL}/products`, { ...producto, compatibilidad }, { headers: this.getAuthHeaders() });
+  }
+  editarProductoConCompatibilidad(id: number, producto: Partial<Producto>, compatibilidad: ProductoCompatibilidad[]) {
+    return this.http.put(`${this.API_URL}/products/${id}`, { ...producto, compatibilidad }, { headers: this.getAuthHeaders() });
+  }
+  getProductoConCompatibilidad(id: number) {
+    return this.http.get(`${this.API_URL}/products/${id}`, { headers: this.getAuthHeaders() });
   }
 
   // Reservas

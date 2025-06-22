@@ -3,6 +3,7 @@ from ..models.producto import Producto
 from ..models.valoracion_producto import ValoracionProducto
 from .. import db
 from app.utils import token_required
+from app.models.producto_compatibilidad import ProductoCompatibilidad
 
 bp = Blueprint('product', __name__)
 
@@ -53,6 +54,17 @@ def get_product(producto_id):
                     user_valoracion = float(valoracion.rating)
         except Exception:
             pass
+    # Obtener compatibilidades
+    from app.models.producto_compatibilidad import ProductoCompatibilidad
+    compat = ProductoCompatibilidad.query.filter_by(producto_id=producto_id).all()
+    compat_list = [
+        {
+            'marca_auto': c.marca_auto,
+            'modelo_auto': c.modelo_auto,
+            'ano_desde': c.ano_desde,
+            'ano_hasta': c.ano_hasta
+        } for c in compat
+    ]
     return jsonify({
         'producto_id': p.producto_id,
         'nombre': p.nombre,
@@ -66,7 +78,8 @@ def get_product(producto_id):
         'imagen_url': p.imagen_url,
         'en_oferta': getattr(p, 'en_oferta', False),
         'mostrar_en_inicio': getattr(p, 'mostrar_en_inicio', False),
-        'user_valoracion': user_valoracion
+        'user_valoracion': user_valoracion,
+        'compatibilidad': compat_list
     }), 200
 
 @bp.route('', methods=['POST'])
@@ -74,6 +87,7 @@ def get_product(producto_id):
 @token_required
 def crear_producto():
     data = request.get_json()
+    compat = data.get('compatibilidad', [])
     ano_compatible = data.get('ano_compatible')
     if ano_compatible in (None, '', ' '):
         ano_compatible = None
@@ -97,6 +111,17 @@ def crear_producto():
     )
     db.session.add(p)
     db.session.commit()
+    # Guardar compatibilidad
+    for c in compat:
+        pc = ProductoCompatibilidad(
+            producto_id=p.producto_id,
+            marca_auto=c.get('marca_auto'),
+            modelo_auto=c.get('modelo_auto'),
+            ano_desde=c.get('ano_desde'),
+            ano_hasta=c.get('ano_hasta')
+        )
+        db.session.add(pc)
+    db.session.commit()
     return jsonify({'message':'Producto creado','producto_id':p.producto_id}), 201
 
 @bp.route('/<int:producto_id>', methods=['PUT'])
@@ -106,10 +131,25 @@ def editar_producto(producto_id):
     if not p:
         return jsonify({'error':'Producto no encontrado'}),404
     data = request.get_json()
+    compat = data.get('compatibilidad', [])
     for k,v in data.items():
         if hasattr(p,k):
             setattr(p,k,v)
     db.session.commit()
+    # Actualizar compatibilidad
+    if compat is not None:
+        from ..models.producto_compatibilidad import ProductoCompatibilidad
+        ProductoCompatibilidad.query.filter_by(producto_id=producto_id).delete()
+        for c in compat:
+            pc = ProductoCompatibilidad(
+                producto_id=producto_id,
+                marca_auto=c.get('marca_auto'),
+                modelo_auto=c.get('modelo_auto'),
+                ano_desde=c.get('ano_desde'),
+                ano_hasta=c.get('ano_hasta')
+            )
+            db.session.add(pc)
+        db.session.commit()
     return jsonify({'message':'Producto actualizado'}),200
 
 @bp.route('/<int:producto_id>', methods=['DELETE'])

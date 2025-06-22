@@ -102,9 +102,7 @@
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Marca</ion-label>
-                    <ion-select [(ngModel)]="producto.marca" (ionChange)="onEditMarcaChange(producto)" placeholder="Marca">
-                      <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>
-                    </ion-select>
+                    <ion-input [(ngModel)]="producto.marca" placeholder="Marca"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -112,9 +110,7 @@
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Modelo</ion-label>
-                    <ion-select [(ngModel)]="producto.modelo" (ionChange)="onEditModeloChange(producto)" placeholder="Modelo" [disabled]="!modelos.length">
-                      <ion-select-option *ngFor="let modelo of modelos" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
-                    </ion-select>
+                    <ion-input [(ngModel)]="producto.modelo" placeholder="Modelo"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
@@ -150,6 +146,45 @@
                     <ion-label position="floating">Descripción</ion-label>
                     <ion-input [(ngModel)]="producto.descripcion" placeholder="Descripción"></ion-input>
                   </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12">
+                  <ion-item>
+                    <ion-label>Compatibilidad</ion-label>
+                  </ion-item>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="3">
+                        <ion-select [(ngModel)]="marcaCompatSeleccionada" (ionChange)="onMarcaCompatChange()" placeholder="Marca">
+                          <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>
+                        </ion-select>
+                      </ion-col>
+                      <ion-col size="3">
+                        <ion-select [(ngModel)]="modeloCompatSeleccionado" (ionChange)="onModeloCompatChange()" placeholder="Modelo" [disabled]="!modelosCompat.length">
+                          <ion-select-option *ngFor="let modelo of modelosCompat" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
+                        </ion-select>
+                      </ion-col>
+                      <ion-col size="2">
+                        <ion-input type="number" placeholder="Año desde" [(ngModel)]="nuevoProductoCompat.ano_desde"></ion-input>
+                      </ion-col>
+                      <ion-col size="2">
+                        <ion-input type="number" placeholder="Año hasta" [(ngModel)]="nuevoProductoCompat.ano_hasta"></ion-input>
+                      </ion-col>
+                      <ion-col size="2">
+                        <ion-button color="success" (click)="nuevoProductoCompat.marca_auto = marcaCompatSeleccionada; nuevoProductoCompat.modelo_auto = modeloCompatSeleccionado; agregarCompatibilidadEdicion()">+</ion-button>
+                      </ion-col>
+                    </ion-row>
+                    <ion-row *ngFor="let c of editarCompatibilidades; let i = index">
+                      <ion-col size="3">{{c.marca_auto}}</ion-col>
+                      <ion-col size="3">{{c.modelo_auto}}</ion-col>
+                      <ion-col size="2">{{c.ano_desde}}</ion-col>
+                      <ion-col size="2">{{c.ano_hasta}}</ion-col>
+                      <ion-col size="2">
+                        <ion-button color="danger" (click)="eliminarCompatibilidadEdicion(i)">-</ion-button>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
                 </ion-col>
               </ion-row>
               <ion-row class="edit-actions" style="align-items:center;">

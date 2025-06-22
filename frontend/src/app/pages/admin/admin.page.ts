@@ -23,6 +23,14 @@ export class AdminPage implements OnInit {
   cargandoMarcas: boolean = false;
   cargandoModelos: boolean = false;
 
+  // Compatibilidad para edición
+  marcaCompatSeleccionada: string = '';
+  modeloCompatSeleccionado: string = '';
+  modelosCompat: any[] = [];
+  cargandoModelosCompat: boolean = false;
+  nuevoProductoCompat: any = { marca_auto: '', modelo_auto: '', ano_desde: null, ano_hasta: null };
+  editarCompatibilidades: any[] = [];
+
   constructor(private adminService: AdminService, private vehiculoApi: VehiculoApiService) { }
 
   ngOnInit() {
@@ -91,14 +99,45 @@ export class AdminPage implements OnInit {
     this.adminService.editarProducto(producto.producto_id, { mostrar_en_inicio: !producto.mostrar_en_inicio }).subscribe(() => this.cargarDatos());
   }
 
+  // Compatibilidad para edición
+  onMarcaCompatChange() {
+    this.modelosCompat = [];
+    this.modeloCompatSeleccionado = '';
+    if (!this.marcaCompatSeleccionada) return;
+    this.cargandoModelosCompat = true;
+    this.vehiculoApi.getModelos(this.marcaCompatSeleccionada).subscribe(res => {
+      this.modelosCompat = res;
+      this.cargandoModelosCompat = false;
+    }, () => {
+      this.cargandoModelosCompat = false;
+    });
+  }
+
+  onModeloCompatChange() {
+    // El modelo de compatibilidad ya se actualiza por ngModel
+  }
+
+  agregarCompatibilidadEdicion() {
+    if (this.nuevoProductoCompat.marca_auto && this.nuevoProductoCompat.modelo_auto && this.nuevoProductoCompat.ano_desde) {
+      this.editarCompatibilidades.push({ ...this.nuevoProductoCompat });
+      this.nuevoProductoCompat = { marca_auto: '', modelo_auto: '', ano_desde: null, ano_hasta: null };
+    }
+  }
+  eliminarCompatibilidadEdicion(idx: number) {
+    this.editarCompatibilidades.splice(idx, 1);
+  }
+
   editarProducto(producto: Producto) {
     this.editandoId = producto.producto_id;
-    // Hacemos una copia para poder cancelar
     this.productoEditBackup = { ...producto };
+    // Cargar compatibilidades reales desde el backend
+    this.adminService.getProductoConCompatibilidad(producto.producto_id).subscribe((prod: any) => {
+      this.editarCompatibilidades = prod.compatibilidad ? [...prod.compatibilidad] : [];
+    });
   }
 
   guardarEdicion(producto: Producto) {
-    this.adminService.editarProducto(producto.producto_id, producto).subscribe(() => {
+    this.adminService.editarProductoConCompatibilidad(producto.producto_id, producto, this.editarCompatibilidades).subscribe(() => {
       this.editandoId = null;
       this.productoEditBackup = null;
       this.cargarDatos();

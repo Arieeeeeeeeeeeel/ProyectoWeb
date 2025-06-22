@@ -142,6 +142,17 @@ CREATE TABLE DETALLE_COMPRA (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+
+CREATE TABLE  PRODUCTO_COMPATIBILIDAD (
+  producto_id INT NOT NULL,
+  marca_auto VARCHAR(50) NOT NULL,
+  modelo_auto VARCHAR(50) NOT NULL,
+  ano_desde INT,
+  ano_hasta INT,
+  PRIMARY KEY (producto_id, marca_auto, modelo_auto, ano_desde),
+  FOREIGN KEY (producto_id) REFERENCES PRODUCTO(producto_id) ON DELETE CASCADE
+);
+
 CREATE TABLE RESERVA (
   reserva_id      INT           NOT NULL AUTO_INCREMENT,
   fecha_reserva   DATETIME      NOT NULL,
