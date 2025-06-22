@@ -31,6 +31,15 @@ export class ResetPasswordPage implements OnInit {
   }
 
   async resetPassword() {
+    if (!this.newPassword || this.newPassword.length < 6) {
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'La contraseña debe tener mínimo 6 caracteres.',
+        buttons: ['OK']
+      });
+      await alert.present();
+      return;
+    }
     if (this.newPassword !== this.confirmPassword) {
       const alert = await this.alertController.create({
         header: 'Error',
