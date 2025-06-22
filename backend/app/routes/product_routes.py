@@ -10,8 +10,10 @@ bp = Blueprint('product', __name__)
 @bp.route('', methods=['GET'])
 @bp.route('/', methods=['GET'])
 def get_products():
+    marca = request.args.get('marca')
+    modelo = request.args.get('modelo')
+    ano = request.args.get('ano', type=int)
     prods = Producto.query.all()
-    # Obtener compatibilidad para todos los productos
     from app.models.producto_compatibilidad import ProductoCompatibilidad
     compat_map = {}
     for c in ProductoCompatibilidad.query.all():
@@ -21,6 +23,20 @@ def get_products():
             'ano_desde': c.ano_desde,
             'ano_hasta': c.ano_hasta
         })
+    # Filtrado flexible según los filtros presentes
+    if marca or modelo or ano:
+        productos_filtrados = []
+        modelo_filtro = modelo if modelo and modelo.strip() else None
+        for p in prods:
+            compatibles = compat_map.get(p.producto_id, [])
+            for comp in compatibles:
+                marca_ok = not marca or (comp['marca_auto'] and comp['marca_auto'].upper() == marca.upper())
+                modelo_ok = not modelo_filtro or (comp['modelo_auto'] and comp['modelo_auto'].upper() == modelo_filtro.upper())
+                ano_ok = not ano or (comp['ano_desde'] <= ano <= (comp['ano_hasta'] or ano))
+                if marca_ok and modelo_ok and ano_ok:
+                    productos_filtrados.append(p)
+                    break
+        prods = productos_filtrados
     return jsonify([
         {
             'producto_id': p.producto_id,

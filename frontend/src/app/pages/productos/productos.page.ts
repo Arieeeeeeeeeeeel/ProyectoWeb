@@ -83,24 +83,22 @@ export class ProductosPage implements OnInit {
 
   buscarProductos() {
     this.hasSearched = true;
-    this.productos = this.productosOriginal.filter(producto => {
-      const marcaOk = !this.searchFilters.marca || (producto.marca || '').toLowerCase().includes(this.searchFilters.marca.toLowerCase());
-      const modeloOk = !this.searchFilters.modelo || (producto.modelo || '').toLowerCase().includes(this.searchFilters.modelo.toLowerCase());
-      // Compatibilidad: si no hay filtro, ok; si hay filtro, buscar en compatibilidad
-      let compatible = false;
-      if (this.searchFilters.marca || this.searchFilters.modelo) {
-        compatible = (producto.compatibilidad || []).some(c => {
-          const marcaMatch = !this.searchFilters.marca || (c.marca_auto || '').toLowerCase().includes(this.searchFilters.marca.toLowerCase());
-          const modeloMatch = !this.searchFilters.modelo || (c.modelo_auto || '').toLowerCase().includes(this.searchFilters.modelo.toLowerCase());
-          return marcaMatch && modeloMatch;
-        });
-      }
-      const anioOk = true;
-      const repuestoOk = !this.searchFilters.repuesto || (producto.descripcion || '').toLowerCase().includes(this.searchFilters.repuesto.toLowerCase());
-      // Mostrar si coincide por marca/modelo directo o por compatibilidad
-      return (marcaOk && modeloOk && anioOk && repuestoOk) || (compatible && repuestoOk);
+    this.cargandoProductos = true;
+    const filtros: any = {
+      marca: this.searchFilters.marca,
+      modelo: this.searchFilters.modelo,
+      repuesto: this.searchFilters.repuesto
+    };
+    if (this.searchFilters.anio !== null && this.searchFilters.anio !== undefined) {
+      filtros.ano = this.searchFilters.anio;
+    }
+    this.productosService.getProductosFiltrados(filtros).subscribe(productos => {
+      this.productos = productos;
+      this.sortProducts();
+      this.cargandoProductos = false;
+    }, () => {
+      this.cargandoProductos = false;
     });
-    this.sortProducts();
   }
 
   aplicarFiltro(tipoFiltro: string) {

@@ -50,4 +50,13 @@ export class ProductosService {
     const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
     return this.http.post('http://localhost:5000/products/update_stock', { items }, { headers });
   }
+
+  getProductosFiltrados(filtros: { marca?: string; modelo?: string; ano?: number; repuesto?: string }): Observable<Producto[]> {
+    let params: any = {};
+    if (filtros.marca) params.marca = filtros.marca;
+    if (filtros.modelo) params.modelo = filtros.modelo;
+    if (filtros.ano) params.ano = filtros.ano;
+    if (filtros.repuesto) params.repuesto = filtros.repuesto;
+    return this.http.get<Producto[]>(this.API_URL, { params });
+  }
 }

@@ -25,7 +25,10 @@ export class VehiculoApiService {
             'ALFA ROMEO', 'ACURA', 'ISUZU', 'INFINITI', 'LINCOLN', 'BUICK', 'CADILLAC', 'CHRYSLER',
             'SCION', 'SMART', 'TESLA', 'GENESIS', 'DAEWOO', 'DATSUN', 'SAAB', 'SKODA', 'TATA',
             'PROTON', 'ROVER', 'SATURN', 'SAMSUNG', 'SING', 'TALBOT', 'DAIHATSU', 'PERODUA',
-            'PEUGEOT'
+            // 20 nuevas marcas conocidas
+            'GMC', 'HUMMER', 'PONTIAC', 'OLDSMOBILE', 'FERRARI', 'LAMBORGHINI', 'MASERATI', 'ASTON MARTIN',
+            'BENTLEY', 'ROLLS-ROYCE', 'LOTUS', 'BUGATTI', 'MCLAREN', 'PAGANI', 'SCANIA', 'FREIGHTLINER',
+            'KENWORTH', 'PETERBILT', 'MACK', 'WESTERN STAR'
           ];
           const marcas = res.Results.filter((m: any) => marcasConocidas.includes(m.Make_Name.toUpperCase()));
           marcas.sort((a: any, b: any) => a.Make_Name.localeCompare(b.Make_Name));
