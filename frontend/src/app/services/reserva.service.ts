@@ -16,12 +16,12 @@ export class ReservaService {
     return this.http.post<any>(this.API_URL, reserva, { headers });
   }
 
-  obtenerNombreCompleto(usuario_rut: string): Observable<any> {
+  obtenerNombreCompleto(usuario_id: number): Observable<any> {
     const token = localStorage.getItem('authToken') || '';
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
-    return this.http.get<any>(`${this.API_URL}/nombre_completo/${usuario_rut}`, { headers });
+    return this.http.get<any>(`${this.API_URL}/nombre_completo/${usuario_id}`, { headers });
   }
 
   getReservasPorFecha(fecha: string): Observable<any[]> {

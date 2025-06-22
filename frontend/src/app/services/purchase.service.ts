@@ -10,6 +10,6 @@ export class PurchaseService {
 
   createPurchase(personaid: number, items: { producto_id: number, cantidad: number }[], token: string): Observable<any> {
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-    return this.http.post(`${this.API_URL}/${personaid}/purchase`, { items }, { headers });
+    return this.http.post(`${this.API_URL}/purchases/${personaid}/purchase`, { items }, { headers });
   }
 }

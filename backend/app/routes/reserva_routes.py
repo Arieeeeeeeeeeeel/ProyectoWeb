@@ -18,13 +18,13 @@ def crear_reserva():
         estado = data.get('estado', 'pendiente')
         ubicacion = data['ubicacion']
         notas = data.get('notas', '')
-        usuario_rut = data['usuario_rut']
+        usuario_id = data['usuario_id']
         vehiculo_id = data['vehiculo_id']
         servicio_id = data['servicio_id']
         print('DEBUG: fecha_reserva:', fecha_reserva, file=sys.stderr)
         print('DEBUG: estado:', estado, file=sys.stderr)
         print('DEBUG: ubicacion:', ubicacion, file=sys.stderr)
-        print('DEBUG: usuario_rut:', usuario_rut, file=sys.stderr)
+        print('DEBUG: usuario_id:', usuario_id, file=sys.stderr)
         print('DEBUG: vehiculo_id:', vehiculo_id, file=sys.stderr)
         print('DEBUG: servicio_id:', servicio_id, file=sys.stderr)
         reserva = Reserva(
@@ -32,7 +32,7 @@ def crear_reserva():
             estado=estado,
             ubicacion=ubicacion,
             notas=notas,
-            usuario_rut=usuario_rut,
+            usuario_id=usuario_id,
             vehiculo_id=vehiculo_id,
             servicio_id=servicio_id,
             nombre_completo=data['nombre_completo']
@@ -45,11 +45,11 @@ def crear_reserva():
         print('DEBUG: Error al crear reserva:', str(e), file=sys.stderr)
         return jsonify({'error': str(e)}), 400
 
-@bp.route('/nombre_completo/<usuario_rut>', methods=['GET'])
+@bp.route('/nombre_completo/<int:usuario_id>', methods=['GET'])
 @token_required
-def obtener_nombre_completo(usuario_rut):
+def obtener_nombre_completo(usuario_id):
     # Busca la última reserva del usuario y retorna el nombre completo si existe
-    reserva = Reserva.query.filter_by(usuario_rut=usuario_rut).order_by(Reserva.reserva_id.desc()).first()
+    reserva = Reserva.query.filter_by(usuario_id=usuario_id).order_by(Reserva.reserva_id.desc()).first()
     if reserva:
         return jsonify({'nombre_completo': reserva.nombre_completo})
     else:
@@ -57,7 +57,6 @@ def obtener_nombre_completo(usuario_rut):
 
 @bp.route('/fecha/<fecha>', methods=['GET'])
 def reservas_por_fecha(fecha):
-    from ..models.reserva import Reserva
     from ..models.vehiculo import Vehiculo
     from datetime import datetime
     try:
@@ -69,7 +68,7 @@ def reservas_por_fecha(fecha):
         {
             'hora': r.fecha_reserva.strftime('%H:%M'),
             'servicio': r.servicio_id,
-            'usuario': r.usuario_rut,
+            'usuario': r.usuario_id,
             'vehiculo_id': r.vehiculo_id
         }
         for r in reservas

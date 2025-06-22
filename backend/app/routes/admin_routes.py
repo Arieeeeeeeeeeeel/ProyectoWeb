@@ -136,3 +136,6 @@ def estadisticas():
         'total_ofertas':total_ofertas,
         'total_reservas':total_reservas
     }),200
+
+# --- Cambios para usar usuario_id en vez de usuario_rut en admin_routes.py ---
+# Busca y reemplaza en todas las queries y respuestas

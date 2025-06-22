@@ -101,12 +101,17 @@ export class CarritoPage implements OnInit, OnDestroy {
   }
 
   updateQuantity(item: CartItem, change: number) {
+    console.log('[CarritoPage] updateQuantity', item, change);
     if (item.hasOwnProperty('productoId') && typeof item.quantity === 'number') {
       const newQuantity = item.quantity + change;
       if (newQuantity > 0) {
         if (item.productoId) {
+          // Optimistic update: actualiza localmente y sincroniza en segundo plano
+          const prevQuantity = item.quantity;
           const success = this.cartService.updateItemQuantity(item.productoId, newQuantity);
           if (!success) {
+            // Si falla, revierte el cambio local y muestra error
+            this.cartService.updateItemQuantity(item.productoId, prevQuantity);
             this.presentToast('No hay suficiente stock disponible para esta cantidad.', 'warning');
           }
         }
@@ -119,8 +124,13 @@ export class CarritoPage implements OnInit, OnDestroy {
   }
 
   removeItem(productIdOrId: string | undefined) {
+    console.log('[CarritoPage] removeItem', productIdOrId);
     if (!productIdOrId) return;
+    // Optimistic update: elimina localmente y sincroniza en segundo plano
+    const prevItems = [...this.cartItems];
     this.cartService.removeItem(productIdOrId);
+    // Aquí podrías agregar lógica para revertir si la operación falla en backend
+    // Por ahora solo muestra el toast
     this.presentToast('Producto eliminado del carrito.', 'danger');
   }
 

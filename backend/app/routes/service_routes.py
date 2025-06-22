@@ -58,13 +58,13 @@ def get_all_services():
 @token_required
 def create_mechanic_service(car_id):
     data = request.get_json()
-    for f in ['usuario_rut','servicio_id','fecha_reserva','ubicacion']:
+    for f in ['usuario_id','servicio_id','fecha_reserva','ubicacion']:
         if f not in data:
             return jsonify({'error':f'{f} requerido'}), 400
     fecha = datetime.datetime.fromisoformat(data['fecha_reserva'])
     res = Reserva(
         vehiculo_id=car_id,
-        usuario_rut=data['usuario_rut'],
+        usuario_rut=data['usuario_id'],
         servicio_id=data['servicio_id'],
         fecha_reserva=fecha,
         ubicacion=data['ubicacion'],
@@ -79,13 +79,13 @@ def create_mechanic_service(car_id):
 @token_required
 def create_visual_service(car_id):
     data = request.get_json()
-    for f in ['usuario_rut','servicio_id','fecha_reserva','ubicacion']:
+    for f in ['usuario_id','servicio_id','fecha_reserva','ubicacion']:
         if f not in data:
             return jsonify({'error':f'{f} requerido'}), 400
     fecha = datetime.datetime.fromisoformat(data['fecha_reserva'])
     res = Reserva(
         vehiculo_id=car_id,
-        usuario_rut=data['usuario_rut'],
+        usuario_rut=data['usuario_id'],
         servicio_id=data['servicio_id'],
         fecha_reserva=fecha,
         ubicacion=data['ubicacion'],

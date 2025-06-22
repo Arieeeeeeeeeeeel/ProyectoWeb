@@ -15,7 +15,7 @@ def get_purchases(personaid):
     user = Usuario.query.get(personaid)
     if not user:
         return jsonify({'error':'Usuario no encontrado'}), 404
-    compras = Compra.query.filter_by(usuario_rut=user.rut).all()
+    compras = Compra.query.filter_by(usuario_id=user.usuario_id).all()
 
     compras_schema = CompraSchema(many=True)
     return compras_schema.jsonify(compras), 200
@@ -23,44 +23,40 @@ def get_purchases(personaid):
 @bp.route('/<personaid>/purchase', methods=['POST'])
 @token_required
 def create_purchase(personaid):
+    print(f'DEBUG: POST /purchases/{{personaid}}/purchase llamado con personaid={personaid}')
     user = Usuario.query.get(personaid)
     if not user:
+        print('DEBUG: Usuario no encontrado')
         return jsonify({'error':'Usuario no encontrado'}), 404
     data = request.get_json()
+    print(f'DEBUG: data recibida: {data}')
     if 'items' not in data or not isinstance(data['items'], list):
+        print('DEBUG: Items no válidos o no presentes')
         return jsonify({'error':'Items requeridos'}), 400
 
-    compra = Compra(usuario_rut=user.rut, estado_pago='pendiente', total=0)
+    compra = Compra(usuario_id=user.usuario_id, estado_pago='pendiente', total=0)
     db.session.add(compra)
     db.session.commit() 
 
     total = 0
     detalles = []
     for it in data['items']:
+        print(f'DEBUG: procesando item: {it}')
         prod = Producto.query.get(it.get('producto_id'))
-        qty = it.get('cantidad', 0)
-        if not prod or qty < 1:
+        if not prod:
+            print(f'DEBUG: Producto no encontrado: {it.get("producto_id")}', flush=True)
             continue
-        subtotal = float(prod.precio) * qty
+        cantidad = it.get('cantidad', 1)
+        subtotal = float(prod.precio) * cantidad
         total += subtotal
-        detalle = DetalleCompra(
-            compra_id=compra.compra_id,
-            producto_id=prod.producto_id,
-            cantidad=qty,
-            precio_unitario=prod.precio
-        )
+        detalle = DetalleCompra(compra_id=compra.compra_id, producto_id=prod.producto_id, cantidad=cantidad, precio_unitario=prod.precio)
         db.session.add(detalle)
-        detalles.append({'producto_id': prod.producto_id, 'cantidad': qty, 'subtotal': subtotal})
-
+        detalles.append(detalle)
     compra.total = total
+    compra.estado_pago = 'pagado'
     db.session.commit()
-
-    return jsonify({
-        'message': f'Compra creada para {personaid}',
-        'compra_id': compra.compra_id,
-        'detalles': detalles,
-        'total': total
-    }), 201
+    print(f'DEBUG: Compra creada con id={compra.compra_id}, total={total}, detalles={len(detalles)}')
+    return jsonify({'message':'Compra registrada','compra_id':compra.compra_id}), 201
 
 @bp.route('/purchase/<int:purchase_id>', methods=['POST'])
 @token_required

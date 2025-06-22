@@ -8,6 +8,7 @@ from .service_routes import bp as service_routes
 from .admin_routes import bp as admin_routes
 from .reserva_routes import bp as reserva_routes
 from .flow_routes import bp as flow_routes  # <--- Agregar import
+from .carrito_routes import bp as carrito_routes
 
 def init_app(app):
     app.register_blueprint(auth_routes, url_prefix='/auth')
@@ -20,3 +21,4 @@ def init_app(app):
     app.register_blueprint(admin_routes, url_prefix='/admin')
     app.register_blueprint(reserva_routes, url_prefix='/reservas')
     app.register_blueprint(flow_routes, url_prefix='/api')  # <--- Registrar blueprint
+    app.register_blueprint(carrito_routes, url_prefix='/cart')

@@ -24,11 +24,11 @@ CREATE TABLE VEHICULO (
   tipo_combustible VARCHAR(50) NOT NULL,
   color            VARCHAR(30) NOT NULL,
   apodo            VARCHAR(50),
-  usuario_rut      VARCHAR(20) NOT NULL,
+  usuario_id       INT         NOT NULL,
   PRIMARY KEY (vehiculo_id),
-  INDEX idx_usuario_rut (usuario_rut),
-  CONSTRAINT fk_veh_usuario FOREIGN KEY (usuario_rut)
-    REFERENCES USUARIO(rut)
+  INDEX idx_usuario_id (usuario_id),
+  CONSTRAINT fk_veh_usuario FOREIGN KEY (usuario_id)
+    REFERENCES USUARIO(personaid)
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -59,35 +59,14 @@ CREATE TABLE PRODUCTO (
   PRIMARY KEY (producto_id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE OFERTA (
-  oferta_id     INT            NOT NULL AUTO_INCREMENT,
-  tipo          VARCHAR(50),
-  descuento     DECIMAL(5,2),
-  fecha_inicio  DATE,
-  fecha_fin     DATE,
-  servicio_id   INT,
-  producto_id   INT,
-  PRIMARY KEY (oferta_id),
-  INDEX idx_oferta_servicio (servicio_id),
-  INDEX idx_oferta_producto (producto_id),
-  CONSTRAINT fk_oferta_servicio FOREIGN KEY (servicio_id)
-    REFERENCES SERVICIO(servicio_id)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE,
-  CONSTRAINT fk_oferta_producto FOREIGN KEY (producto_id)
-    REFERENCES PRODUCTO(producto_id)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
 CREATE TABLE CARRITO (
   carrito_id      INT         NOT NULL AUTO_INCREMENT,
   fecha_creacion  DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  usuario_rut     VARCHAR(20),
+  usuario_id      INT,
   PRIMARY KEY (carrito_id),
-  INDEX idx_carrito_usuario (usuario_rut),
-  CONSTRAINT fk_carrito_usuario FOREIGN KEY (usuario_rut)
-    REFERENCES USUARIO(rut)
+  INDEX idx_carrito_usuario (usuario_id),
+  CONSTRAINT fk_carrito_usuario FOREIGN KEY (usuario_id)
+    REFERENCES USUARIO(personaid)
     ON DELETE SET NULL
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -112,14 +91,13 @@ CREATE TABLE CARRITO_ITEM (
 CREATE TABLE COMPRA (
   compra_id            INT            NOT NULL AUTO_INCREMENT,
   fecha_compra         DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  fecha_entrega_estim  DATETIME,
   total                DECIMAL(10,2)  NOT NULL,
   estado_pago          VARCHAR(50)    NOT NULL,
-  usuario_rut          VARCHAR(20)    NOT NULL,
+  usuario_id           INT            NOT NULL,
   PRIMARY KEY (compra_id),
-  INDEX idx_compra_usuario (usuario_rut),
-  CONSTRAINT fk_compra_usuario FOREIGN KEY (usuario_rut)
-    REFERENCES USUARIO(rut)
+  INDEX idx_compra_usuario (usuario_id),
+  CONSTRAINT fk_compra_usuario FOREIGN KEY (usuario_id)
+    REFERENCES USUARIO(personaid)
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -159,13 +137,13 @@ CREATE TABLE RESERVA (
   estado          VARCHAR(50)   NOT NULL,
   ubicacion       VARCHAR(255)  NOT NULL,
   notas           TEXT,
-  usuario_rut     VARCHAR(20)   NOT NULL,
+  usuario_id      INT           NOT NULL,
   vehiculo_id     INT           NOT NULL,
   servicio_id     INT           NOT NULL,
   nombre_completo VARCHAR(255)  NOT NULL,
   PRIMARY KEY (reserva_id),
-  CONSTRAINT fk_reserva_usuario FOREIGN KEY (usuario_rut)
-    REFERENCES USUARIO(rut)
+  CONSTRAINT fk_reserva_usuario FOREIGN KEY (usuario_id)
+    REFERENCES USUARIO(personaid)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT fk_reserva_vehiculo FOREIGN KEY (vehiculo_id)

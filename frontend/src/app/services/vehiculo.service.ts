@@ -11,7 +11,7 @@ export interface Vehiculo {
   tipo_combustible: string;
   color: string;
   apodo?: string;
-  usuario_rut: string;
+  usuario_id: number;
 }
 
 @Injectable({ providedIn: 'root' })

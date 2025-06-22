@@ -22,7 +22,7 @@ def vehicle_data(car_id):
         'tipo_combustible': v.tipo_combustible,
         'color': v.color,
         'apodo': v.apodo,
-        'usuario_rut': v.usuario_rut
+        'usuario_id': v.usuario_id
     }), 200
 
 @bp.route('/<int:personaid>/new_car', methods=['POST', 'OPTIONS'])
@@ -45,7 +45,7 @@ def _new_car_impl(personaid):
     if any(f not in data for f in required):
         return jsonify({'error':'Faltan datos del vehículo'}), 400
     v = Vehiculo(
-        usuario_rut=user.rut,
+        usuario_id=user.personaid,
         marca=data['marca'],
         modelo=data['modelo'],
         ano=data['ano'],
@@ -73,7 +73,7 @@ def _get_vehicles_by_user_impl(personaid):
     user = Usuario.query.get(personaid)
     if not user:
         return jsonify({'error': 'Usuario no encontrado'}), 404
-    vehicles = Vehiculo.query.filter_by(usuario_rut=user.rut).all()
+    vehicles = Vehiculo.query.filter_by(usuario_id=user.personaid).all()
     return jsonify([
         {
             'vehiculo_id': v.vehiculo_id,
@@ -84,6 +84,6 @@ def _get_vehicles_by_user_impl(personaid):
             'tipo_combustible': v.tipo_combustible,
             'color': v.color,
             'apodo': v.apodo,
-            'usuario_rut': v.usuario_rut
+            'usuario_id': v.usuario_id
         } for v in vehicles
     ]), 200

@@ -85,7 +85,7 @@ export class SeleccionPage implements OnInit {
     // Autocompletar nombre solo si está vacío
     const user = this.authService.getCurrentUser();
     if (user && !this.reserva.nombre) {
-      this.reservaService.obtenerNombreCompleto(user.rut).subscribe(res => {
+      this.reservaService.obtenerNombreCompleto(user.personaid).subscribe(res => {
         if (res && res.nombre_completo) {
           this.reserva.nombre = res.nombre_completo;
         }
@@ -294,7 +294,7 @@ export class SeleccionPage implements OnInit {
         const servicio = servicios.find(s => s.nombre === this.reserva.servicio);
         if (!servicio) return;
         const reservaPayload = {
-          usuario_rut: user.rut,
+          usuario_id: user.personaid,
           vehiculo_id: auto.vehiculo_id,
           servicio_id: servicio.servicio_id,
           fecha_reserva: `${this.reserva.fecha.split('T')[0]}T${this.reserva.hora}:00`,
@@ -394,7 +394,7 @@ export class SeleccionPage implements OnInit {
       if (!servicio) return;
       const crearReserva = (vehiculo_id: number) => {
         const reservaPayload = {
-          usuario_rut: user.rut,
+          usuario_id: user.personaid,
           vehiculo_id,
           servicio_id: servicio.servicio_id,
           fecha_reserva: `${this.reserva.fecha.split('T')[0]}T${this.reserva.hora}:00`,

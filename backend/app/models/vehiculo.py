@@ -10,5 +10,5 @@ class Vehiculo(db.Model):
     tipo_combustible = db.Column(db.String(50), nullable=False)
     color            = db.Column(db.String(30), nullable=False)
     apodo            = db.Column(db.String(50))
-    usuario_rut      = db.Column(db.String(20), db.ForeignKey('USUARIO.rut'), nullable=False)
+    usuario_id       = db.Column(db.Integer, db.ForeignKey('USUARIO.personaid'), nullable=False)
     reservas         = db.relationship('Reserva', backref='vehiculo', lazy=True)
