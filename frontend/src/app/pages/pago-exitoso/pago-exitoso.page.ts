@@ -47,7 +47,8 @@ export class PagoExitosoPage implements OnInit {
                   cantidad: i.quantity || 1
                 }));
                 if (items.length > 0) {
-                  this.purchaseService.createPurchase(user.personaid, items, authToken).subscribe({
+                  // Si tienes la dirección de envío, pásala aquí. Si no, usa null.
+                  this.purchaseService.createPurchase(user.personaid, items, null, authToken).subscribe({
                     next: () => {
                       this.cartService.clearCart();
                     },

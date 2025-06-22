@@ -63,6 +63,19 @@
             <ion-label position="floating">Patente</ion-label>
             <ion-input [(ngModel)]="reserva.patente" placeholder="Ej: ABCD12" [disabled]="!!autoSeleccionado && autoSeleccionado !== -1"></ion-input>
           </ion-item>
+          <ion-item *ngIf="reserva.servicio === 'DESABOLLADURA Y PINTURA'">
+            <ion-label position="floating">Color</ion-label>
+            <ion-select [(ngModel)]="reserva.color" placeholder="Selecciona un color">
+              <ion-select-option value="Blanco">Blanco</ion-select-option>
+              <ion-select-option value="Negro">Negro</ion-select-option>
+              <ion-select-option value="Gris">Gris</ion-select-option>
+              <ion-select-option value="Rojo">Rojo</ion-select-option>
+              <ion-select-option value="Azul">Azul</ion-select-option>
+              <ion-select-option value="Verde">Verde</ion-select-option>
+              <ion-select-option value="Amarillo">Amarillo</ion-select-option>
+              <ion-select-option value="Otro">Otro</ion-select-option>
+            </ion-select>
+          </ion-item>
         </div>
         <div class="calendar-card">
           <ion-label class="calendar-label">Fecha</ion-label>
@@ -96,7 +109,7 @@
             <ion-label position="floating">Nombre completo</ion-label>
             <ion-input [(ngModel)]="reserva.nombre"></ion-input>
           </ion-item>
-          <ion-item>
+          <ion-item *ngIf="!(reserva.servicio === 'MECANICO A DOMICILIO')">
             <ion-label>Ubicación</ion-label>
             <ion-select [(ngModel)]="reserva.ubicacion">
               <ion-select-option value="Concón">Concón</ion-select-option>
@@ -109,8 +122,26 @@
             <ion-textarea [(ngModel)]="reserva.notas"></ion-textarea>
           </ion-item>
           <ion-item *ngIf="reserva.servicio === 'MECANICO A DOMICILIO'">
-            <ion-label position="floating">Domicilio para el servicio</ion-label>
-            <ion-input [(ngModel)]="domicilio" placeholder="Dirección completa"></ion-input>
+            <ion-label>Dirección para el servicio</ion-label>
+            <ng-container *ngIf="isLoggedIn && userAddresses.length > 0">
+              <ion-select [(ngModel)]="selectedAddressId" placeholder="Selecciona una dirección">
+                <ion-select-option *ngFor="let address of userAddresses" [value]="address.id">
+                  {{ address.calle }}, {{ address.ciudad }} <span *ngIf="address.esPrincipal">(Principal)</span>
+                </ion-select-option>
+                <ion-select-option value="custom">Ingresar nueva dirección</ion-select-option>
+              </ion-select>
+            </ng-container>
+            <ng-container *ngIf="!isLoggedIn || selectedAddressId === 'custom' || userAddresses.length === 0">
+              <ion-item>
+                <ion-input label="Calle y Número" [(ngModel)]="customAddress.calle" labelPlacement="floating" required></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-input label="Ciudad" [(ngModel)]="customAddress.ciudad" labelPlacement="floating" required></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-input label="Código Postal" [(ngModel)]="customAddress.codigoPostal" labelPlacement="floating" required></ion-input>
+              </ion-item>
+            </ng-container>
           </ion-item>
           <ion-item lines="none">
             <ion-checkbox slot="start" [(ngModel)]="reserva.aceptaTerminos"></ion-checkbox>

@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { ServicioService } from '../../services/servicio.service';
 import { VehiculoApiService } from '../../services/vehiculo-api.service';
 import { VehiculoService, Vehiculo } from '../../services/vehiculo.service';
+import { UbicacionesService, DireccionUsuario as BackendDireccionUsuario } from '../../services/ubicaciones.service';
 
 export interface CartItem {
   id: string;
@@ -48,7 +49,8 @@ export class SeleccionPage implements OnInit {
     nombre: '',
     ubicacion: '',
     aceptaTerminos: false,
-    notas: ''
+    notas: '',
+    color: '' // <-- agregado para desabolladura y pintura
   };
 
   servicioPrecio: number|null = null;
@@ -56,6 +58,11 @@ export class SeleccionPage implements OnInit {
   autosUsuario: Vehiculo[] = [];
   autoSeleccionado: number | null = null;
   mostrarAutoManual: boolean = false;
+
+  isLoggedIn: boolean = false;
+  userAddresses: BackendDireccionUsuario[] = [];
+  selectedAddressId: string | null = null;
+  customAddress: { calle: string, ciudad: string, codigoPostal: string } = { calle: '', ciudad: '', codigoPostal: '' };
 
   constructor(
     private route: ActivatedRoute,
@@ -67,7 +74,8 @@ export class SeleccionPage implements OnInit {
     private authService: AuthService,
     private servicioService: ServicioService,
     private vehiculoApi: VehiculoApiService,
-    private vehiculoService: VehiculoService
+    private vehiculoService: VehiculoService,
+    private ubicacionesService: UbicacionesService
   ) {
     this.route.queryParams.subscribe(params => {
       if (params['servicio']) {
@@ -93,6 +101,28 @@ export class SeleccionPage implements OnInit {
     }
     // Cargar horas ocupadas para la fecha actual
     this.onFechaChange();
+    this.isLoggedIn = !!this.authService.getCurrentUser();
+    if (this.isLoggedIn) {
+      this.loadUserAddresses();
+    }
+  }
+
+  loadUserAddresses() {
+    this.ubicacionesService.getUserAddresses().subscribe({
+      next: (addresses: any[]) => {
+        this.userAddresses = addresses;
+        if (this.userAddresses.length > 0) {
+          const principal = this.userAddresses.find(addr => addr.esPrincipal);
+          this.selectedAddressId = principal ? principal.id : this.userAddresses[0].id;
+        } else {
+          this.selectedAddressId = 'custom';
+        }
+      },
+      error: () => {
+        this.userAddresses = [];
+        this.selectedAddressId = 'custom';
+      }
+    });
   }
 
   onFechaChange() {
@@ -232,6 +262,26 @@ export class SeleccionPage implements OnInit {
   }
 
   async guardarReserva() {
+    if (this.reserva.servicio === 'MECANICO A DOMICILIO') {
+      let addressToUse = '';
+      if (this.isLoggedIn && this.selectedAddressId && this.selectedAddressId !== 'custom') {
+        const selectedAddr = this.userAddresses.find(addr => addr.id === this.selectedAddressId);
+        addressToUse = selectedAddr ? `${selectedAddr.calle}, ${selectedAddr.ciudad}, ${selectedAddr.codigoPostal}` : '';
+      } else {
+        if (!this.customAddress.calle || !this.customAddress.ciudad || !this.customAddress.codigoPostal) {
+          const toast = await this.toastController.create({
+            message: 'Por favor, completa todos los campos de la dirección.',
+            duration: 2000,
+            color: 'danger',
+            position: 'bottom'
+          });
+          await toast.present();
+          return;
+        }
+        addressToUse = `${this.customAddress.calle}, ${this.customAddress.ciudad}, ${this.customAddress.codigoPostal}`;
+      }
+      this.domicilio = addressToUse;
+    }
     if (this.reserva.servicio === 'MECANICO A DOMICILIO' && !this.domicilio) {
       const toast = await this.toastController.create({
         message: 'Debes ingresar el domicilio para el servicio a domicilio.',

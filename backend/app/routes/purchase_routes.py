@@ -34,7 +34,8 @@ def create_purchase(current_user, personaid):
         print('DEBUG: Items no válidos o no presentes')
         return jsonify({'error':'Items requeridos'}), 400
 
-    compra = Compra(usuario_id=user.personaid, estado_pago='pendiente', total=0)
+    direccion_envio = data.get('direccion_envio')
+    compra = Compra(usuario_id=user.personaid, estado_pago='pendiente', total=0, direccion_envio=direccion_envio)
     db.session.add(compra)
     db.session.commit() 
 

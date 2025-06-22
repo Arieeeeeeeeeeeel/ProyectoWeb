@@ -8,4 +8,5 @@ class Compra(db.Model):
     total               = db.Column(db.Numeric(10,2), nullable=False)
     estado_pago         = db.Column(db.String(50), nullable=False)
     usuario_id          = db.Column(db.Integer, db.ForeignKey('USUARIO.personaid'), nullable=False)
+    direccion_envio     = db.Column(db.String(255))  # Nuevo campo para dirección de despacho
     detalles            = db.relationship('DetalleCompra', backref='compra', lazy=True, cascade='all, delete-orphan')

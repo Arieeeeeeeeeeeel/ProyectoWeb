@@ -9,6 +9,7 @@ import { FlowService } from '../../services/flow.service';
 import { UbicacionesService, DireccionUsuario as BackendDireccionUsuario } from '../../services/ubicaciones.service';
 import { Subscription, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { PurchaseService } from '../../services/purchase.service'; // <--- Importar el servicio de compra
 
 // Interfaz para una dirección de usuario (ejemplo)
 interface DireccionUsuario {
@@ -49,7 +50,8 @@ export class CarritoPage implements OnInit, OnDestroy {
     private navController: NavController,
     private productosService: ProductosService,
     private flowService: FlowService, // <--- Agregar FlowService
-    private ubicacionesService: UbicacionesService // <--- Agregar UbicacionesService
+    private ubicacionesService: UbicacionesService, // <--- Agregar UbicacionesService
+    private purchaseService: PurchaseService // <--- Agrega el servicio de compra
   ) { }
 
   ngOnInit() {
@@ -144,7 +146,6 @@ export class CarritoPage implements OnInit, OnDestroy {
       return;
     }
     let addressToUse = '';
-    let shouldAskToSave = false;
     if (this.deliveryOption === 'delivery') {
       if (this.isLoggedIn && this.selectedAddressId && this.selectedAddressId !== 'custom') {
         const selectedAddr = this.userAddresses.find(addr => addr.id === this.selectedAddressId);
@@ -155,7 +156,6 @@ export class CarritoPage implements OnInit, OnDestroy {
           return;
         }
         addressToUse = `${this.customAddress.calle}, ${this.customAddress.ciudad}, ${this.customAddress.codigoPostal}`;
-        shouldAskToSave = true;
       } else {
         await this.presentToast('Por favor, selecciona una opción de envío o ingresa una dirección.', 'danger');
         return;
@@ -164,7 +164,7 @@ export class CarritoPage implements OnInit, OnDestroy {
       addressToUse = 'Retiro en tienda';
     }
     // Preguntar si se debe guardar la dirección personalizada
-    if (shouldAskToSave && this.isLoggedIn) {
+    if (this.selectedAddressId === 'custom' && this.isLoggedIn) {
       const alert = await this.alertController.create({
         header: '¿Guardar dirección?',
         message: '¿Deseas guardar esta dirección en tus ubicaciones para futuros pedidos?',
@@ -205,6 +205,8 @@ export class CarritoPage implements OnInit, OnDestroy {
     // 1. Enviar los datos del carrito, dirección y método de pago a tu backend.
     // 2. Manejar la respuesta del backend (éxito/error).
     // 3. Limpiar el carrito si el pedido fue exitoso.
+    // --- ELIMINADO: Registro de compra antes del pago exitoso ---
+    // El registro de la compra se debe hacer solo después del pago exitoso (en pago-exitoso.page.ts)
 
     console.log('Procesando pedido...');
     console.log('Items:', this.cartItems);

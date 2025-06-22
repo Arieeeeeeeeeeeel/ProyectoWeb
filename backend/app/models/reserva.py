@@ -11,3 +11,4 @@ class Reserva(db.Model):
     vehiculo_id   = db.Column(db.Integer, db.ForeignKey('VEHICULO.vehiculo_id'), nullable=False)
     servicio_id   = db.Column(db.Integer, db.ForeignKey('SERVICIO.servicio_id'), nullable=False)
     nombre_completo = db.Column(db.String(255), nullable=False)
+    color = db.Column(db.String(30))  # Nuevo campo para color solicitado
