@@ -3,7 +3,7 @@ from marshmallow import ValidationError
 from ..models.usuario import Usuario
 from ..schemas.login_schema import LoginSchema
 from ..schemas.usuario_schema import UsuarioSchema
-from werkzeug.security import check_password_hash, generate_password_hash
+import bcrypt
 import jwt
 import datetime
 from app.config.config import Config
@@ -24,11 +24,12 @@ def signup():
     
     if Usuario.query.filter_by(rut=user_data.rut).first() or Usuario.query.filter_by(correo=user_data.correo).first():
         return jsonify({'error': 'Usuario ya existe'}), 400
+    hashed_pw = bcrypt.hashpw(user_data.contrasena.encode('utf-8'), bcrypt.gensalt())
     user = Usuario(
         rut=user_data.rut,
         usuario=user_data.usuario,
         correo=user_data.correo,
-        contrasena=generate_password_hash(user_data.contrasena),
+        contrasena=hashed_pw.decode('utf-8'),
         region=user_data.region,
         comuna=user_data.comuna
     )
@@ -61,7 +62,7 @@ def login():
     contrasena = data['contrasena']
 
     user = Usuario.query.filter_by(correo=correo).first()
-    if not user or not check_password_hash(user.contrasena, contrasena):
+    if not user or not bcrypt.checkpw(contrasena.encode('utf-8'), user.contrasena.encode('utf-8')):
         return jsonify({'error': 'Credenciales inválidas'}), 401
 
     token = jwt.encode(
@@ -91,8 +92,8 @@ def change_password(current_user):
     if not old_password or not new_password:
         return jsonify({'error': 'Faltan datos'}), 400
     user = current_user
-    if not check_password_hash(user.contrasena, old_password):
+    if not bcrypt.checkpw(old_password.encode('utf-8'), user.contrasena.encode('utf-8')):
         return jsonify({'error': 'La contraseña actual es incorrecta'}), 400
-    user.contrasena = generate_password_hash(new_password)
+    user.contrasena = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     db.session.commit()
     return jsonify({'message': 'Contraseña actualizada correctamente'}), 200

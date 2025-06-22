@@ -182,6 +182,6 @@ CREATE TABLE DIRECCION (
 -- Usuario administrador por defecto
 INSERT INTO USUARIO (rut, usuario, correo, contrasena, region, comuna, fecha_registro)
 VALUES ('1-9', 'Administrador', 'admin@admin.com',
-  'scrypt:32768:8:1$XainujzOjI3TM1k7$2773fcd72845bfdf2001f3624802f91c0a3e5ea488dde7bbe76fcb683530f10ff4e58247b2afa94086ccad2f00438345019fd8f3730f832e0c740745d0ad9aed',
+  '$2b$12$JljMEYv3MUhaGT2waaOkAOLPxxN7vMJJCF4OTY65eh7ikt5j6/9wK',
   'Metropolitana', 'Santiago', NOW());
--- Contraseña por defecto: admin123 (hash válido Werkzeug)
+-- Contraseña por defecto: admin123 (hash bcrypt)
