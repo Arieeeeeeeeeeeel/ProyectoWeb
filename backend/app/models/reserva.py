@@ -4,7 +4,6 @@ class Reserva(db.Model):
     __tablename__ = 'RESERVA'
     reserva_id    = db.Column(db.Integer, primary_key=True)
     fecha_reserva = db.Column(db.DateTime, nullable=False)
-    estado        = db.Column(db.String(50), nullable=False)
     ubicacion     = db.Column(db.String(255), nullable=False)
     notas         = db.Column(db.Text)
     usuario_id    = db.Column(db.Integer, db.ForeignKey('USUARIO.personaid'), nullable=False)

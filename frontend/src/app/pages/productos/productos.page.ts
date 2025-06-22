@@ -101,6 +101,7 @@ export class ProductosPage implements OnInit {
   private sortProducts() {
     switch (this.currentSort) {
       case 'nuevo':
+        this.productos.sort((a, b) => (b.producto_id || 0) - (a.producto_id || 0));
         break;
       case 'precioAsc':
         this.productos.sort((a, b) => (a.precio || 0) - (b.precio || 0));

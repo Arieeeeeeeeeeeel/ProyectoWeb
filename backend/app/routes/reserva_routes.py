@@ -15,7 +15,6 @@ def crear_reserva(current_user):
     print('DEBUG: JSON recibido:', data, file=sys.stderr)
     try:
         fecha_reserva = datetime.fromisoformat(data['fecha_reserva'])
-        estado = data.get('estado', 'pendiente')
         ubicacion = data['ubicacion']
         notas = data.get('notas', '')
         usuario_id = data['usuario_id']
@@ -23,14 +22,12 @@ def crear_reserva(current_user):
         servicio_id = data['servicio_id']
         color = data.get('color')
         print('DEBUG: fecha_reserva:', fecha_reserva, file=sys.stderr)
-        print('DEBUG: estado:', estado, file=sys.stderr)
         print('DEBUG: ubicacion:', ubicacion, file=sys.stderr)
         print('DEBUG: usuario_id:', usuario_id, file=sys.stderr)
         print('DEBUG: vehiculo_id:', vehiculo_id, file=sys.stderr)
         print('DEBUG: servicio_id:', servicio_id, file=sys.stderr)
         reserva = Reserva(
             fecha_reserva=fecha_reserva,
-            estado=estado,
             ubicacion=ubicacion,
             notas=notas,
             usuario_id=usuario_id,

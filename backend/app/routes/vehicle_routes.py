@@ -87,3 +87,25 @@ def _get_vehicles_by_user_impl(current_user, personaid):
             'usuario_id': v.usuario_id
         } for v in vehicles
     ]), 200
+
+@bp.route('/<int:vehiculo_id>', methods=['DELETE', 'OPTIONS'])
+def delete_vehicle(vehiculo_id):
+    if request.method == 'OPTIONS':
+        response = make_response('', 200)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
+    return _delete_vehicle_impl(vehiculo_id)
+
+@token_required
+def _delete_vehicle_impl(current_user, vehiculo_id):
+    v = Vehiculo.query.get(vehiculo_id)
+    if not v:
+        return jsonify({'error': 'Vehículo no encontrado'}), 404
+    # Solo permitir borrar si el vehículo pertenece al usuario autenticado
+    if v.usuario_id != current_user.personaid:
+        return jsonify({'error': 'No autorizado para eliminar este vehículo'}), 403
+    db.session.delete(v)
+    db.session.commit()
+    return jsonify({'message': 'Vehículo eliminado correctamente'}), 200

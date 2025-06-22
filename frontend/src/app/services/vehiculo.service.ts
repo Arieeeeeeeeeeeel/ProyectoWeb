@@ -35,6 +35,6 @@ export class VehiculoService {
   eliminarVehiculo(vehiculo_id: number): Observable<any> {
     const token = localStorage.getItem('authToken');
     const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
-    return this.http.delete(`${this.API_URL}/${vehiculo_id}/delete`, { headers });
+    return this.http.delete(`${this.API_URL}/${vehiculo_id}`, { headers });
   }
 }

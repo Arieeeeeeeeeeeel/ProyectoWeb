@@ -46,6 +46,7 @@ export class SeleccionPage implements OnInit {
     modelo: '',
     anio: null as number | null,
     patente: '',
+    tipo_combustible: '', // <-- agregado
     nombre: '',
     ubicacion: '',
     aceptaTerminos: false,
@@ -521,6 +522,145 @@ export class SeleccionPage implements OnInit {
         });
       }
     });
+  }
+
+  agregarDireccionPersonalizada() {
+    if (!this.customAddress.calle || !this.customAddress.ciudad || !this.customAddress.codigoPostal) {
+      this.toastController.create({
+        message: 'Completa todos los campos de la dirección.',
+        duration: 2000,
+        color: 'danger',
+        position: 'bottom'
+      }).then(toast => toast.present());
+      return;
+    }
+    this.ubicacionesService.addUserAddress({
+      calle: this.customAddress.calle,
+      ciudad: this.customAddress.ciudad,
+      codigoPostal: this.customAddress.codigoPostal,
+      esPrincipal: false
+    }).subscribe({
+      next: (res) => {
+        this.loadUserAddresses();
+        // Seleccionar automáticamente la nueva dirección
+        setTimeout(() => {
+          if (res && res.id) {
+            this.selectedAddressId = res.id;
+          } else if (this.userAddresses.length > 0) {
+            // fallback: seleccionar la última dirección agregada
+            this.selectedAddressId = this.userAddresses[this.userAddresses.length - 1].id;
+          }
+        }, 500);
+        this.toastController.create({
+          message: 'Dirección guardada en tu perfil.',
+          duration: 2000,
+          color: 'success',
+          position: 'bottom'
+        }).then(toast => toast.present());
+      },
+      error: () => {
+        this.toastController.create({
+          message: 'No se pudo guardar la dirección.',
+          duration: 2000,
+          color: 'danger',
+          position: 'bottom'
+        }).then(toast => toast.present());
+      }
+    });
+  }
+
+  async onAddressSelectChange() {
+    if (this.selectedAddressId === 'custom') {
+      const alert = document.createElement('ion-alert');
+      alert.header = 'Nueva dirección';
+      alert.inputs = [
+        {
+          name: 'calle',
+          type: 'text',
+          placeholder: 'Calle y Número',
+        },
+        {
+          name: 'ciudad',
+          type: 'text',
+          placeholder: 'Ciudad',
+        },
+        {
+          name: 'codigoPostal',
+          type: 'text',
+          placeholder: 'Código Postal',
+        },
+      ];
+      alert.buttons = [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          handler: () => {
+            // Si cancela, volver a la dirección anterior si existe
+            if (this.userAddresses.length > 0) {
+              const principal = this.userAddresses.find(addr => addr.esPrincipal);
+              this.selectedAddressId = principal ? principal.id : this.userAddresses[0].id;
+            } else {
+              this.selectedAddressId = null;
+            }
+          }
+        },
+        {
+          text: 'Guardar',
+          handler: (data) => {
+            if (!data.calle || !data.ciudad || !data.codigoPostal) {
+              this.toastController.create({
+                message: 'Completa todos los campos de la dirección.',
+                duration: 2000,
+                color: 'danger',
+                position: 'bottom'
+              }).then(toast => toast.present());
+              // Mantener el popup si falta algún campo
+              setTimeout(() => this.onAddressSelectChange(), 500);
+              return false;
+            }
+            this.ubicacionesService.addUserAddress({
+              calle: data.calle,
+              ciudad: data.ciudad,
+              codigoPostal: data.codigoPostal,
+              esPrincipal: false
+            }).subscribe({
+              next: (newAddress) => {
+                this.loadUserAddresses();
+                // Seleccionar automáticamente la nueva dirección
+                if (newAddress && newAddress.id) {
+                  this.selectedAddressId = newAddress.id;
+                } else {
+                  // fallback: esperar a que se actualice la lista y seleccionar la última
+                  setTimeout(() => {
+                    if (this.userAddresses.length > 0) {
+                      this.selectedAddressId = this.userAddresses[this.userAddresses.length - 1].id;
+                    }
+                  }, 500);
+                }
+                this.toastController.create({
+                  message: 'Dirección guardada en tu perfil.',
+                  duration: 2000,
+                  color: 'success',
+                  position: 'bottom'
+                }).then(toast => toast.present());
+              },
+              error: () => {
+                this.toastController.create({
+                  message: 'No se pudo guardar la dirección.',
+                  duration: 2000,
+                  color: 'danger',
+                  position: 'bottom'
+                }).then(toast => toast.present());
+              }
+            });
+            return true;
+          }
+        }
+      ];
+      document.body.appendChild(alert);
+      await alert.present();
+      await alert.onDidDismiss();
+    }
   }
 }
 

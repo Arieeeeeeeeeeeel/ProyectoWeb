@@ -172,23 +172,27 @@ export class CarritoPage implements OnInit, OnDestroy {
           {
             text: 'No',
             role: 'cancel',
-            handler: () => {}
+            handler: async () => {
+              await this.realizarPago(addressToUse);
+            }
           },
           {
             text: 'Sí',
-            handler: () => {
+            handler: async () => {
               this.ubicacionesService.addUserAddress({
                 calle: this.customAddress.calle,
                 ciudad: this.customAddress.ciudad,
                 codigoPostal: this.customAddress.codigoPostal,
                 esPrincipal: false
               }).subscribe({
-                next: () => {
+                next: async () => {
                   this.loadUserAddresses();
                   this.presentToast('Dirección guardada en tu perfil.', 'success');
+                  await this.realizarPago(addressToUse);
                 },
-                error: () => {
+                error: async () => {
                   this.presentToast('No se pudo guardar la dirección.', 'danger');
+                  await this.realizarPago(addressToUse);
                 }
               });
             }
@@ -196,37 +200,33 @@ export class CarritoPage implements OnInit, OnDestroy {
         ]
       });
       await alert.present();
+      return;
     }
+    await this.realizarPago(addressToUse);
+  }
 
+  async realizarPago(addressToUse: string) {
     // Validación del método de pago
     // Ya no es necesario validar efectivo
-
     // Aquí iría la lógica real para procesar el pedido:
     // 1. Enviar los datos del carrito, dirección y método de pago a tu backend.
     // 2. Manejar la respuesta del backend (éxito/error).
     // 3. Limpiar el carrito si el pedido fue exitoso.
     // --- ELIMINADO: Registro de compra antes del pago exitoso ---
     // El registro de la compra se debe hacer solo después del pago exitoso (en pago-exitoso.page.ts)
-
     console.log('Procesando pedido...');
     console.log('Items:', this.cartItems);
     console.log('Total:', this.cartTotal);
     console.log('Opción de entrega:', this.deliveryOption);
     console.log('Dirección de entrega/retiro:', addressToUse);
     console.log('Método de pago:', this.paymentMethod);
-
     // === AGREGAR RESERVAS A HORAS AGENDADAS ADMIN ===
     try {
-      // Cargar horas agendadas actuales
       const horasStr = localStorage.getItem('admin_horas');
       let horas: any[] = horasStr ? JSON.parse(horasStr) : [];
-
-      // Por cada item de tipo reserva, agregarlo a horas agendadas si no existe
       this.cartItems.forEach(item => {
         if (item.detalles && item.detalles.servicio && item.detalles.fecha && item.detalles.hora && item.detalles.nombre) {
-          // Genera un identificador único para la hora agendada
           const id = Date.now() + Math.floor(Math.random() * 10000);
-          // Verifica si ya existe una hora igual (por servicio, fecha, hora y nombre)
           const existe = horas.some(h =>
             h.cliente === item.detalles.nombre &&
             h.fecha === `${item.detalles.fecha} ${item.detalles.hora}` &&
@@ -237,20 +237,17 @@ export class CarritoPage implements OnInit, OnDestroy {
               id,
               cliente: item.detalles.nombre,
               fecha: `${item.detalles.fecha} ${item.detalles.hora}`,
-              prioridad: 3, // Puedes ajustar la prioridad según tu lógica
+              prioridad: 3,
               detalle: item.detalles.servicio
             });
           }
         }
       });
-
-      // Guarda las horas agendadas actualizadas
       localStorage.setItem('admin_horas', JSON.stringify(horas));
     } catch (e) {
       await this.presentToast('No se pudo actualizar las horas agendadas.', 'warning');
     }
     // === FIN AGREGAR RESERVAS A HORAS AGENDADAS ADMIN ===
-
     // === INTEGRACIÓN FLOW ===
     try {
       const user = this.authService.getCurrentUser();
@@ -258,16 +255,12 @@ export class CarritoPage implements OnInit, OnDestroy {
         await this.presentToast('Debes iniciar sesión para pagar.', 'danger');
         return;
       }
-      // Construir subject y email
       const subject = `Compra de productos en LYL - ${user.usuario}`;
       const email = user.correo;
-      // Monto total
       const amount = this.cartTotal;
-      // Redirecciones (ajusta las URLs a tu entorno)
       const urlReturn = 'http://localhost:5000/api/flow/retorno';
       const urlConfirmation = window.location.origin + '/api/flow/confirmacion';
-      // Crear pago en Flow
-      const commerceOrder = Date.now().toString(); // identificador único simple
+      const commerceOrder = Date.now().toString();
       const resp = await this.flowService.createPayment({
         subject,
         currency: 'CLP',
@@ -275,10 +268,9 @@ export class CarritoPage implements OnInit, OnDestroy {
         email,
         urlReturn,
         urlConfirmation,
-        commerceOrder // <--- nuevo campo
+        commerceOrder
       }).toPromise();
       if (resp && resp.token && resp.url) {
-        // Redirigir a Flow
         window.location.href = `${resp.url}?token=${resp.token}`;
         return;
       } else {
@@ -289,7 +281,6 @@ export class CarritoPage implements OnInit, OnDestroy {
       await this.presentToast('Error al conectar con Flow.', 'danger');
       return;
     }
-
     await this.presentAlertOrderSuccess();
     this.cartService.clearCart();
     this.navController.navigateRoot('/home');

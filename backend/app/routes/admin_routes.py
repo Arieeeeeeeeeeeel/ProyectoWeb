@@ -97,9 +97,8 @@ def listar_reservas(current_user):
     return jsonify([
         {
             'id': r.reserva_id,
-            'cliente': r.usuario_rut,
+            'cliente': r.usuario_id,  # Mostrar el ID del usuario
             'fecha': r.fecha_reserva.isoformat(),
-            'estado': r.estado,
             'detalle': r.notas,
             'servicio_nombre': r.servicio.nombre if hasattr(r, 'servicio') and r.servicio else None,
             'vehiculo': {
