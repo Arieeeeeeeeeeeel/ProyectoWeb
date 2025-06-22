@@ -96,13 +96,13 @@
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Nombre</ion-label>
-                    <ion-input [(ngModel)]="producto.nombre" placeholder="Nombre"></ion-input>
+                    <ion-input [(ngModel)]="producto.nombre" placeholder="Nombre" (ionInput)="onEditFieldChange(producto)"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Marca</ion-label>
-                    <ion-input [(ngModel)]="producto.marca" placeholder="Marca"></ion-input>
+                    <ion-input [(ngModel)]="producto.marca" placeholder="Marca" (ionInput)="onEditFieldChange(producto)"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -110,27 +110,29 @@
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Modelo</ion-label>
-                    <ion-input [(ngModel)]="producto.modelo" placeholder="Modelo"></ion-input>
+                    <ion-input [(ngModel)]="producto.modelo" placeholder="Modelo" (ionInput)="onEditFieldChange(producto)"></ion-input>
                   </ion-item>
                 </ion-col>
+                <!--
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Año</ion-label>
-                    <ion-input type="number" [(ngModel)]="producto.ano_compatible" placeholder="Año"></ion-input>
+                    <ion-input type="number" [(ngModel)]="producto.ano_compatible" placeholder="Año" (ionInput)="onEditFieldChange(producto)"></ion-input>
                   </ion-item>
                 </ion-col>
+                -->
               </ion-row>
               <ion-row>
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Stock</ion-label>
-                    <ion-input type="number" [(ngModel)]="producto.stock" placeholder="Stock"></ion-input>
+                    <ion-input type="number" [(ngModel)]="producto.stock" placeholder="Stock" (ionInput)="onEditFieldChange(producto)"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Precio</ion-label>
-                    <ion-input type="number" [(ngModel)]="producto.precio" placeholder="Precio"></ion-input>
+                    <ion-input type="number" [(ngModel)]="producto.precio" placeholder="Precio" (ionInput)="onEditFieldChange(producto)"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -138,13 +140,13 @@
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">URL Imagen</ion-label>
-                    <ion-input [(ngModel)]="producto.imagen_url" placeholder="URL Imagen"></ion-input>
+                    <ion-input [(ngModel)]="producto.imagen_url" placeholder="URL Imagen" (ionInput)="onEditFieldChange(producto)"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item lines="inset">
                     <ion-label position="floating">Descripción</ion-label>
-                    <ion-input [(ngModel)]="producto.descripcion" placeholder="Descripción"></ion-input>
+                    <ion-input [(ngModel)]="producto.descripcion" placeholder="Descripción" (ionInput)="onEditFieldChange(producto)"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -189,13 +191,13 @@
               </ion-row>
               <ion-row class="edit-actions" style="align-items:center;">
                 <ion-col size="12" size-md="6">
-                  <ion-checkbox [(ngModel)]="producto.en_oferta">Oferta</ion-checkbox>
-                  <ion-checkbox [(ngModel)]="producto.mostrar_en_inicio" style="margin-left:16px;">Mostrar en inicio</ion-checkbox>
+                  <ion-checkbox [(ngModel)]="producto.en_oferta" (ionChange)="onEditFieldChange(producto)">Oferta</ion-checkbox>
+                  <ion-checkbox [(ngModel)]="producto.mostrar_en_inicio" style="margin-left:16px;" (ionChange)="onEditFieldChange(producto)">Mostrar en inicio</ion-checkbox>
                 </ion-col>
                 <ion-col size="12" size-md="6" style="text-align:right;">
                   <ion-spinner *ngIf="cargandoMarcas || cargandoModelos" name="crescent" style="display:block;margin:10px auto;"></ion-spinner>
                   <div *ngIf="cargandoMarcas || cargandoModelos" style="text-align:center;">Cargando autos...</div>
-                  <ion-button color="primary" fill="solid" size="small" (click)="guardarEdicion(producto)">
+                  <ion-button color="primary" fill="solid" size="small" (click)="guardarEdicion(producto)" [disabled]="!getProductoEditable(producto)._editChanged">
                     Guardar
                   </ion-button>
                   <ion-button color="medium" fill="solid" size="small" (click)="cancelarEdicion(producto)">
@@ -231,6 +233,12 @@
               <small>
                 <b>Vehículo:</b> {{hora.vehiculo.marca}} {{hora.vehiculo.modelo}} ({{hora.vehiculo.patente}}, {{hora.vehiculo.ano}})
               </small>
+            </div>
+            <div *ngIf="hora.servicio_nombre === 'DESABOLLADURA Y PINTURA' && hora.color">
+              <small><b>Color:</b> {{hora.color}}</small>
+            </div>
+            <div *ngIf="hora.servicio_nombre === 'MECANICO A DOMICILIO' && hora.ubicacion">
+              <small><b>Dirección:</b> {{hora.ubicacion}}</small>
             </div>
           </ion-label>
           <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarHora(hora)">

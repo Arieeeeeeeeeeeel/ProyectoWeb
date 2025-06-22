@@ -86,9 +86,19 @@ export class ProductosPage implements OnInit {
     this.productos = this.productosOriginal.filter(producto => {
       const marcaOk = !this.searchFilters.marca || (producto.marca || '').toLowerCase().includes(this.searchFilters.marca.toLowerCase());
       const modeloOk = !this.searchFilters.modelo || (producto.modelo || '').toLowerCase().includes(this.searchFilters.modelo.toLowerCase());
-      const anioOk = !this.searchFilters.anio || producto.ano_compatible === this.searchFilters.anio;
+      // Compatibilidad: si no hay filtro, ok; si hay filtro, buscar en compatibilidad
+      let compatible = false;
+      if (this.searchFilters.marca || this.searchFilters.modelo) {
+        compatible = (producto.compatibilidad || []).some(c => {
+          const marcaMatch = !this.searchFilters.marca || (c.marca_auto || '').toLowerCase().includes(this.searchFilters.marca.toLowerCase());
+          const modeloMatch = !this.searchFilters.modelo || (c.modelo_auto || '').toLowerCase().includes(this.searchFilters.modelo.toLowerCase());
+          return marcaMatch && modeloMatch;
+        });
+      }
+      const anioOk = true;
       const repuestoOk = !this.searchFilters.repuesto || (producto.descripcion || '').toLowerCase().includes(this.searchFilters.repuesto.toLowerCase());
-      return marcaOk && modeloOk && anioOk && repuestoOk;
+      // Mostrar si coincide por marca/modelo directo o por compatibilidad
+      return (marcaOk && modeloOk && anioOk && repuestoOk) || (compatible && repuestoOk);
     });
     this.sortProducts();
   }

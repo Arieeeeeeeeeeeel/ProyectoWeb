@@ -8,7 +8,6 @@ export interface Producto {
   descripcion?: string;
   marca?: string;
   modelo?: string;
-  ano_compatible?: number;
   stock: number;
   precio: number;
   rating?: number;
@@ -16,6 +15,12 @@ export interface Producto {
   en_oferta?: boolean;
   mostrar_en_inicio?: boolean;
   user_valoracion?: number; // <-- Añadido para soporte de valoración de usuario
+  compatibilidad?: Array<{
+    marca_auto: string;
+    modelo_auto: string;
+    ano_desde?: number;
+    ano_hasta?: number;
+  }>;
 }
 
 @Injectable({ providedIn: 'root' })

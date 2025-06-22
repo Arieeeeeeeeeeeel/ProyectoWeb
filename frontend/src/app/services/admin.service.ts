@@ -14,7 +14,6 @@ export interface Producto {
   descripcion?: string;
   marca?: string;
   modelo?: string;
-  ano_compatible?: number;
   stock: number;
   precio: number;
   rating?: number;
@@ -36,6 +35,8 @@ export interface Reserva {
     patente: string;
     ano: number;
   };
+  color?: string;
+  ubicacion?: string;
 }
 
 export interface Stats {

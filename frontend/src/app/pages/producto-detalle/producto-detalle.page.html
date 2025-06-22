@@ -12,11 +12,13 @@
 
     <div class="info-section">
       <h1 class="product-title">{{ producto.nombre }}</h1>
+      <!--
       <p>
         <strong>Año:</strong>
         <span *ngIf="producto.ano_compatible; else noAnio"> {{ producto.ano_compatible }}</span>
         <ng-template #noAnio><span style="color: #888;"> No disponible</span></ng-template>
       </p>
+      -->
       <p>
         <strong>Descripción:</strong>
         <span *ngIf="producto.descripcion; else noDesc"> {{ producto.descripcion }}</span>

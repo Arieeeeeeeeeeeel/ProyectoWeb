@@ -662,5 +662,16 @@ export class SeleccionPage implements OnInit {
       await alert.onDidDismiss();
     }
   }
+
+  async abrirTerminos(event: Event) {
+    event.preventDefault();
+    const alert = document.createElement('ion-alert');
+    alert.header = 'Términos y Condiciones';
+    alert.message = `Al reservar un servicio, aceptas que los datos proporcionados son verídicos y te comprometes a estar presente en la fecha y hora seleccionadas. La reserva puede ser cancelada o modificada con al menos 24 horas de anticipación. Para servicios a domicilio, asegúrate de que la dirección sea correcta y accesible.`;
+    alert.buttons = [{ text: 'Cerrar', role: 'cancel' }];
+    document.body.appendChild(alert);
+    await alert.present();
+    await alert.onDidDismiss();
+  }
 }
 

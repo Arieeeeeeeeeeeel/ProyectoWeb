@@ -285,3 +285,9 @@ ion-select .select-text {
     max-width: 100vw;
   }
 }
+
+.underline-link {
+  text-decoration: underline;
+  color: var(--ion-color-primary, #3880ff);
+  cursor: pointer;
+}

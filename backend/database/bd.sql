@@ -51,7 +51,6 @@ CREATE TABLE PRODUCTO (
   descripcion     TEXT,
   marca           VARCHAR(50),
   modelo          VARCHAR(50),
-  ano_compatible  INT,
   stock           INT           NOT NULL DEFAULT 0,
   precio          DECIMAL(10,2) NOT NULL,
   rating          DECIMAL(3,2),
@@ -96,7 +95,6 @@ CREATE TABLE COMPRA (
   total                DECIMAL(10,2)  NOT NULL,
   estado_pago          VARCHAR(50)    NOT NULL,
   usuario_id           INT            NOT NULL,
-  direccion_envio      VARCHAR(255), -- Dirección de despacho textual
   PRIMARY KEY (compra_id),
   INDEX idx_compra_usuario (usuario_id),
   CONSTRAINT fk_compra_usuario FOREIGN KEY (usuario_id)

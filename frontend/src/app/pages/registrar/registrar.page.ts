@@ -125,15 +125,14 @@ export class RegistrarPage implements OnInit {
       });
   }
 
-  async showTermsAndConditions(event: Event) {
+  showTermsAndConditions(event: Event) {
     event.preventDefault();
-    const toast = await this.toastController.create({
-      message: 'jaja acepta no más mi washx, confia',
-      duration: 5000,
-      color: 'light',
-      position: 'middle',
-    });
-    toast.present();
+    const alert = document.createElement('ion-alert');
+    alert.header = 'Términos y Condiciones';
+    alert.message = `Al reservar un servicio, aceptas que los datos proporcionados son verídicos y te comprometes a estar presente en la fecha y hora seleccionadas. La reserva puede ser cancelada o modificada con al menos 24 horas de anticipación. Para servicios a domicilio, asegúrate de que la dirección sea correcta y accesible. Consulta condiciones adicionales en nuestro sitio web.`;
+    alert.buttons = [{ text: 'Cerrar', role: 'cancel' }];
+    document.body.appendChild(alert);
+    alert.present();
   }
 
   private async presentToast(message: string, color: string) {

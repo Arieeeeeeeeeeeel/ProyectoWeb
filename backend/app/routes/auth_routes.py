@@ -81,3 +81,18 @@ def login():
 @token_required
 def signout(personaid):
     return jsonify({'message':f'Usuario {personaid} ha cerrado sesión'}), 200
+
+@bp.route('/change_password', methods=['POST'])
+@token_required
+def change_password(current_user):
+    data = request.get_json()
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+    if not old_password or not new_password:
+        return jsonify({'error': 'Faltan datos'}), 400
+    user = current_user
+    if not check_password_hash(user.contrasena, old_password):
+        return jsonify({'error': 'La contraseña actual es incorrecta'}), 400
+    user.contrasena = generate_password_hash(new_password)
+    db.session.commit()
+    return jsonify({'message': 'Contraseña actualizada correctamente'}), 200

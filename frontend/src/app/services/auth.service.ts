@@ -154,4 +154,18 @@ export class AuthService {
         map(user => user) // Mapea el Observable para devolver el UserProfile directamente
       );
   }
+
+  /**
+   * Cambia la contraseña del usuario autenticado.
+   * @param oldPassword Contraseña actual
+   * @param newPassword Nueva contraseña
+   */
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    return this.http.post<any>(
+      'http://localhost:5000/auth/change_password',
+      { old_password: oldPassword, new_password: newPassword },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+  }
 }

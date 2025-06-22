@@ -12,21 +12,11 @@ bp = Blueprint('admin', __name__)
 @token_required
 def crear_producto(current_user):
     data = request.get_json()
-    # Convertir ano_compatible a None si viene vacío o string vacío
-    ano_compatible = data.get('ano_compatible')
-    if ano_compatible in (None, '', ' '):
-        ano_compatible = None
-    else:
-        try:
-            ano_compatible = int(ano_compatible)
-        except Exception:
-            ano_compatible = None
     p = Producto(
         nombre=data['nombre'],
         descripcion=data.get('descripcion',''),
         marca=data.get('marca',''),
         modelo=data.get('modelo',''),
-        ano_compatible=ano_compatible,
         stock=data.get('stock',0),
         precio=data.get('precio',0),
         rating=data.get('rating',0),
@@ -106,7 +96,9 @@ def listar_reservas(current_user):
                 'modelo': r.vehiculo.modelo if r.vehiculo else None,
                 'patente': r.vehiculo.patente if r.vehiculo else None,
                 'ano': r.vehiculo.ano if r.vehiculo else None
-            } if hasattr(r, 'vehiculo') and r.vehiculo else None
+            } if hasattr(r, 'vehiculo') and r.vehiculo else None,
+            'color': r.color if hasattr(r, 'color') else None,
+            'ubicacion': r.ubicacion if hasattr(r, 'ubicacion') else None
         }
         for r in reservas
     ]), 200

@@ -141,7 +141,7 @@ export class ProductoDetallePage implements OnInit {
       !!car &&
       (this.producto!.marca || '').toLowerCase() === car.marca.toLowerCase() &&
       (this.producto!.modelo || '').toLowerCase() === car.modelo.toLowerCase() &&
-      (!this.producto!.ano_compatible || (typeof car.ano === 'number' && this.producto!.ano_compatible === car.ano))
+      true
     );
     if (compatibleCar) {
       this.isCompatible = true;

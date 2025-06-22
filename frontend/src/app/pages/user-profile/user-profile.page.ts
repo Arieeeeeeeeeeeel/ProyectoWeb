@@ -242,4 +242,59 @@ export class UserProfilePage implements OnInit, OnDestroy {
   goToPurchases() {
     this.navController.navigateForward('/user-purchases');
   }
+
+  async abrirDialogoCambioContrasena() {
+    const alert = document.createElement('ion-alert');
+    alert.header = 'Cambiar Contraseña';
+    alert.inputs = [
+      {
+        name: 'oldPassword',
+        type: 'password',
+        placeholder: 'Contraseña actual',
+      },
+      {
+        name: 'newPassword',
+        type: 'password',
+        placeholder: 'Nueva contraseña',
+      },
+      {
+        name: 'confirmPassword',
+        type: 'password',
+        placeholder: 'Confirmar nueva contraseña',
+      }
+    ];
+    alert.buttons = [
+      {
+        text: 'Cancelar',
+        role: 'cancel',
+      },
+      {
+        text: 'Cambiar',
+        handler: async (data) => {
+          if (!data.oldPassword || !data.newPassword || !data.confirmPassword) {
+            this.presentToast('Completa todos los campos.', 'danger');
+            setTimeout(() => this.abrirDialogoCambioContrasena(), 500);
+            return false;
+          }
+          if (data.newPassword !== data.confirmPassword) {
+            this.presentToast('Las contraseñas no coinciden.', 'danger');
+            setTimeout(() => this.abrirDialogoCambioContrasena(), 500);
+            return false;
+          }
+          this.authService.changePassword(data.oldPassword, data.newPassword).subscribe({
+            next: () => this.presentToast('Contraseña cambiada correctamente.', 'success'),
+            error: (err) => {
+              const msg = err?.error?.error || 'Error al cambiar la contraseña.';
+              this.presentToast(msg, 'danger');
+              setTimeout(() => this.abrirDialogoCambioContrasena(), 500);
+            }
+          });
+          return true;
+        }
+      }
+    ];
+    document.body.appendChild(alert);
+    await alert.present();
+    await alert.onDidDismiss();
+  }
 }

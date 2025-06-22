@@ -11,6 +11,16 @@ bp = Blueprint('product', __name__)
 @bp.route('/', methods=['GET'])
 def get_products():
     prods = Producto.query.all()
+    # Obtener compatibilidad para todos los productos
+    from app.models.producto_compatibilidad import ProductoCompatibilidad
+    compat_map = {}
+    for c in ProductoCompatibilidad.query.all():
+        compat_map.setdefault(c.producto_id, []).append({
+            'marca_auto': c.marca_auto,
+            'modelo_auto': c.modelo_auto,
+            'ano_desde': c.ano_desde,
+            'ano_hasta': c.ano_hasta
+        })
     return jsonify([
         {
             'producto_id': p.producto_id,
@@ -18,13 +28,13 @@ def get_products():
             'descripcion': p.descripcion,
             'marca': p.marca,
             'modelo': p.modelo,
-            'ano_compatible': p.ano_compatible,
             'stock': p.stock,
             'precio': float(p.precio),
             'rating': float(p.rating) if p.rating is not None else 0,
             'imagen_url': p.imagen_url,
             'en_oferta': getattr(p, 'en_oferta', False),
-            'mostrar_en_inicio': getattr(p, 'mostrar_en_inicio', False)
+            'mostrar_en_inicio': getattr(p, 'mostrar_en_inicio', False),
+            'compatibilidad': compat_map.get(p.producto_id, [])
         }
         for p in prods
     ]), 200
@@ -71,7 +81,6 @@ def get_product(producto_id):
         'descripcion': p.descripcion,
         'marca': p.marca,
         'modelo': p.modelo,
-        'ano_compatible': p.ano_compatible,
         'stock': p.stock,
         'precio': float(p.precio),
         'rating': float(p.rating) if p.rating is not None else 0,
@@ -88,20 +97,11 @@ def get_product(producto_id):
 def crear_producto(current_user):
     data = request.get_json()
     compat = data.get('compatibilidad', [])
-    ano_compatible = data.get('ano_compatible')
-    if ano_compatible in (None, '', ' '):
-        ano_compatible = None
-    else:
-        try:
-            ano_compatible = int(ano_compatible)
-        except Exception:
-            ano_compatible = None
     p = Producto(
         nombre=data['nombre'],
         descripcion=data.get('descripcion',''),
         marca=data.get('marca',''),
         modelo=data.get('modelo',''),
-        ano_compatible=ano_compatible,
         stock=data.get('stock',0),
         precio=data.get('precio',0),
         rating=data.get('rating',0),
