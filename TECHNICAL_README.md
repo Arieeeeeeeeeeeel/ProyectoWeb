@@ -26,8 +26,18 @@ frontend/
 otros/
   Especificación de requerimientos.pdf
 ```
+## Variables de entorno
 
----
+Para configurar la conexión a la base de datos y la clave secreta de JWT, debes editar el archivo `backend/app/config/config.py`.
+
+- Cambia el usuario y la contraseña de la base de datos en la variable de conexión.
+- Cambia la `SECRET_KEY` para mayor seguridad.
+
+Ejemplo:
+```python
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://usuario:contraseña@localhost/BD_lyl'
+SECRET_KEY = 'tu_clave_secreta'
+```
 
 ## Modelos Principales
 
