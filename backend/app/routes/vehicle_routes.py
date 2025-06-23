@@ -7,23 +7,6 @@ from app.utils import token_required
 
 bp = Blueprint('vehicle', __name__)
 
-@bp.route('/<int:car_id>/data', methods=['GET'])
-@token_required
-def vehicle_data(current_user, car_id):
-    v = Vehiculo.query.get(car_id)
-    if not v:
-        return jsonify({'error':'Vehículo no encontrado'}), 404
-    return jsonify({
-        'vehiculo_id': v.vehiculo_id,
-        'marca': v.marca,
-        'modelo': v.modelo,
-        'ano': v.ano,
-        'patente': v.patente,
-        'tipo_combustible': v.tipo_combustible,
-        'color': v.color,
-        'apodo': v.apodo,
-        'usuario_id': v.usuario_id
-    }), 200
 
 @bp.route('/<int:personaid>/new_car', methods=['POST', 'OPTIONS'])
 def new_car(personaid):

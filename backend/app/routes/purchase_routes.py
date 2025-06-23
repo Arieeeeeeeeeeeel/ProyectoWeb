@@ -67,15 +67,3 @@ def create_purchase(current_user, personaid):
         db.session.rollback()
         print(f'Error al registrar compra: {e}')
         return jsonify({'error': 'Error al registrar la compra'}), 500
-
-@bp.route('/purchase/<int:purchase_id>', methods=['POST'])
-@token_required
-def update_purchase(current_user, purchase_id):
-    compra = Compra.query.get(purchase_id)
-    if not compra:
-        return jsonify({'error': 'Compra no encontrada'}), 404
-    data = request.get_json()
-    if 'estado_pago' in data:
-        compra.estado_pago = data['estado_pago']
-        db.session.commit()
-    return jsonify({'message': f'Compra {purchase_id} actualizada'}), 200

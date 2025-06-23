@@ -78,11 +78,6 @@ def login():
         'user': user_data
     }), 200
 
-@bp.route('/<personaid>/signout', methods=['POST'])
-@token_required
-def signout(personaid):
-    return jsonify({'message':f'Usuario {personaid} ha cerrado sesión'}), 200
-
 @bp.route('/change_password', methods=['POST'])
 @token_required
 def change_password(current_user):
