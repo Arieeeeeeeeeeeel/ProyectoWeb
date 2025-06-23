@@ -14,6 +14,7 @@ class UsuarioSchema(ma.SQLAlchemyAutoSchema):
     region = fields.String(required=True)
     comuna = fields.String(required=True)
     usuario = fields.String(required=True)
+    telefono = fields.String(required=False)  # <--- NUEVO CAMPO
 
 class StartRecoverySchema(ma.Schema):
     correo = fields.Email(required=True, error_messages={"required": "Correo es requerido"})

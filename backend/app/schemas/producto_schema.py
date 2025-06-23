@@ -18,4 +18,3 @@ class ProductoCompradoSchema(ma.SQLAlchemyAutoSchema):
     descripcion = fields.String()
     marca = fields.String()
     modelo = fields.String()
-    ano_compatible = fields.Integer()

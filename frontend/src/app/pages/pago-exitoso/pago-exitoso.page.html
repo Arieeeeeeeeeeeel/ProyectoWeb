@@ -1,0 +1,18 @@
+<ion-content class="ion-padding">
+  <div class="pago-estado ion-text-center">
+    <h2>{{ estado }}</h2>
+    <div *ngIf="detalles">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Detalles del Pago</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div><b>Monto:</b> {{ detalles.amount | currency:'CLP' }}</div>
+          <div><b>Orden Flow:</b> {{ detalles.flowOrder }}</div>
+          <div><b>Estado:</b> {{ detalles.status === 2 ? 'Pagado' : detalles.status }}</div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <button ion-button expand="block" color="primary" (click)="volverAlInicio()">Volver al inicio</button>
+  </div>
+</ion-content>

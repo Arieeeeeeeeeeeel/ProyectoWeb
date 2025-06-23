@@ -217,32 +217,9 @@ ion-select .select-text {
   color: #111 !important;
 }
 
-/* Información de reserva: título y contenido en blanco */
-.right-card ion-card-title,
-.right-card ion-card-header {
-  color: #fff !important;
-}
-
-/* Información de reserva: campos en blanco */
-.right-card ion-label,
-.right-card ion-input,
-.right-card ion-select,
-.right-card ion-textarea,
-.right-card ion-checkbox,
-.right-card ion-item,
-.right-card ion-select::part(text),
-.right-card ion-select .select-text {
-  color: #fff !important;
-}
-
-/* Placeholder "Seleccionar hora" en blanco */
-.right-card ion-select::part(placeholder) {
-  color: #fff !important;
-}
-
-/* Fondo oscuro para que el texto blanco sea visible */
+/* Mantener fondo oscuro si se desea, pero asegurar contraste con texto */
 .right-card {
-  background: #222;
+  background: #fff;
   border: 1px solid #333;
 }
 
@@ -307,4 +284,10 @@ ion-select .select-text {
     min-width: 0;
     max-width: 100vw;
   }
+}
+
+.underline-link {
+  text-decoration: underline;
+  color: var(--ion-color-primary, #3880ff);
+  cursor: pointer;
 }

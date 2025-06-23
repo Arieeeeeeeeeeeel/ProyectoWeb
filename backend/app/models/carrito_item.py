@@ -5,3 +5,5 @@ class CarritoItem(db.Model):
     carrito_id   = db.Column(db.Integer, db.ForeignKey('CARRITO.carrito_id'), primary_key=True)
     producto_id  = db.Column(db.Integer, db.ForeignKey('PRODUCTO.producto_id'), primary_key=True)
     cantidad     = db.Column(db.Integer, nullable=False)
+    # Relación a Producto
+    producto = db.relationship('Producto', backref='carrito_items', lazy=True)

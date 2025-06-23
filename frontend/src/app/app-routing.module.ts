@@ -61,7 +61,8 @@ const routes: Routes = [
   {
     path: 'producto-detalle/:id',
     loadChildren: () => import('./pages/producto-detalle/producto-detalle.module').then( m => m.ProductoDetallePageModule)
-  },  {
+  },
+  {
     path: 'carrito',
     loadChildren: () => import('./pages/carrito/carrito.module').then( m => m.CarritoPageModule)
   },
@@ -72,6 +73,14 @@ const routes: Routes = [
   {
     path: 'inventario-admin',
     loadChildren: () => import('./pages/inventario-admin/inventario-admin.module').then( m => m.InventarioAdminPageModule)
+  },
+  {
+    path: 'pago-exitoso',
+    loadChildren: () => import('./pages/pago-exitoso/pago-exitoso.module').then(m => m.PagoExitosoPageModule)
+  },
+  {
+    path: 'user-purchases',
+    loadChildren: () => import('./pages/user-purchases/user-purchases.module').then(m => m.UserPurchasesPageModule)
   }
 
 

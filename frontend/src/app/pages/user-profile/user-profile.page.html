@@ -18,6 +18,7 @@
       <p><strong>Usuario:</strong> {{ currentUser.usuario }}</p>
       <p><strong>RUT:</strong> {{ currentUser.rut }}</p>
       <p><strong>Correo Electrónico:</strong> {{ currentUser.correo }}</p>
+      <p><strong>Teléfono:</strong> {{ currentUser.telefono || '-' }}</p>
       <p><strong>Región:</strong> {{ currentUser.region }}</p>
       <p><strong>Comuna:</strong> {{ currentUser.comuna }}</p>
       <p>Aquí podrás ver y gestionar tu información personal, historial de pedidos, favoritos, etc.</p>
@@ -27,10 +28,143 @@
         Editar Perfil
       </ion-button>
 
+      <ion-button expand="block" color="warning" class="ion-margin-top" (click)="abrirDialogoCambioContrasena()">
+        <ion-icon slot="start" name="key-outline"></ion-icon>
+        Cambiar Contraseña
+      </ion-button>
+
+      <ion-button expand="block" color="secondary" class="ion-margin-top" (click)="goToPurchases()">
+        <ion-icon slot="start" name="receipt-outline"></ion-icon>
+        Ver Compras Realizadas
+      </ion-button>
+
       <ion-button expand="block" color="danger" class="ion-margin-top" (click)="logout()">
         <ion-icon slot="start" name="log-out-outline"></ion-icon>
         Cerrar Sesión
       </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="ion-margin-top">
+    <ion-card-header>
+      <ion-card-title>Mis Autos</ion-card-title>
+      <ion-button fill="clear" size="small" (click)="mostrarFormularioAuto()" *ngIf="!showAddAutoForm" style="margin-left:8px;">
+        <ion-icon name="add-circle"></ion-icon> Agregar
+      </ion-button>
+    </ion-card-header>
+    <ion-card-content>
+      <form *ngIf="showAddAutoForm" (ngSubmit)="agregarAutoForm()" style="padding:12px 0;">
+        <ion-item>
+          <ion-label position="floating">Marca</ion-label>
+          <ion-select [(ngModel)]="marcaSeleccionada" name="marca" (ionChange)="onMarcaChangeForm()" required>
+            <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Modelo</ion-label>
+          <ion-select [(ngModel)]="modeloSeleccionado" name="modelo" required>
+            <ion-select-option *ngFor="let modelo of modelos" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Año</ion-label>
+          <ion-input type="number" [(ngModel)]="nuevoAuto.ano" name="ano" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Patente</ion-label>
+          <ion-input type="text" [(ngModel)]="nuevoAuto.patente" name="patente" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Tipo de combustible</ion-label>
+          <ion-input type="text" [(ngModel)]="nuevoAuto.tipo_combustible" name="tipo_combustible" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Color</ion-label>
+          <ion-input type="text" [(ngModel)]="nuevoAuto.color" name="color" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Apodo (opcional)</ion-label>
+          <ion-input type="text" [(ngModel)]="nuevoAuto.apodo" name="apodo"></ion-input>
+        </ion-item>
+        <ion-row class="ion-margin-top">
+          <ion-col size="6">
+            <ion-button expand="block" color="danger" type="submit">Guardar</ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="medium" type="button" (click)="cancelarAgregarAuto()">Cancelar</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+      <ion-list *ngIf="autos.length > 0 && !showAddAutoForm; else noAutos">
+        <ion-item *ngFor="let auto of autos">
+          <ion-label>
+            <h2>{{ auto.marca }} {{ auto.modelo }}</h2>
+            <p>Año: {{ auto.ano }}</p>
+          </ion-label>
+          <ion-button color="danger" fill="clear" slot="end" (click)="eliminarAuto(auto.vehiculo_id)">
+            <ion-icon name="trash"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+      <ng-template #noAutos>
+        <div class="ion-text-center ion-padding">
+          <p>No tienes autos registrados.</p>
+        </div>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="ion-margin-top">
+    <ion-card-header>
+      <ion-card-title>Mis Ubicaciones</ion-card-title>
+      <ion-button fill="clear" size="small" (click)="mostrarFormularioUbicacion()" *ngIf="!showAddUbicacionForm" style="margin-left:8px;">
+        <ion-icon name="add-circle"></ion-icon> Agregar
+      </ion-button>
+    </ion-card-header>
+    <ion-card-content>
+      <form *ngIf="showAddUbicacionForm" (ngSubmit)="agregarUbicacionForm()" style="padding:12px 0;">
+        <ion-item>
+          <ion-label position="floating">Calle y Número</ion-label>
+          <ion-input [(ngModel)]="nuevaUbicacion.calle" name="calle" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Ciudad</ion-label>
+          <ion-input [(ngModel)]="nuevaUbicacion.ciudad" name="ciudad" required></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Código Postal</ion-label>
+          <ion-input [(ngModel)]="nuevaUbicacion.codigoPostal" name="codigoPostal" required></ion-input>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-checkbox [(ngModel)]="nuevaUbicacion.esPrincipal" name="esPrincipal"></ion-checkbox>
+          <ion-label>Marcar como dirección principal</ion-label>
+        </ion-item>
+        <ion-row class="ion-margin-top">
+          <ion-col size="6">
+            <ion-button expand="block" color="danger" type="submit">Guardar</ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="medium" type="button" (click)="cancelarAgregarUbicacion()">Cancelar</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+      <ion-list *ngIf="ubicaciones.length > 0 && !showAddUbicacionForm; else noUbicaciones">
+        <ion-item *ngFor="let ubicacion of ubicaciones; let i = index">
+          <ion-label>
+            <h2>{{ ubicacion.calle }}, {{ ubicacion.ciudad }}</h2>
+            <p>Código Postal: {{ ubicacion.codigoPostal }}</p>
+            <ion-badge *ngIf="ubicacion.esPrincipal" color="primary">Principal</ion-badge>
+          </ion-label>
+          <ion-button color="danger" fill="clear" slot="end" (click)="eliminarUbicacion(i)">
+            <ion-icon name="trash"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+      <ng-template #noUbicaciones>
+        <div class="ion-text-center ion-padding">
+          <p>No tienes ubicaciones guardadas.</p>
+        </div>
+      </ng-template>
     </ion-card-content>
   </ion-card>
 

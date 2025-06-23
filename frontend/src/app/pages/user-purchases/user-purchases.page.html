@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/user-profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mis Compras</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card *ngIf="loading">
+    <ion-card-content>
+      <ion-spinner></ion-spinner> Cargando compras...
+    </ion-card-content>
+  </ion-card>
+  <ion-card *ngIf="error">
+    <ion-card-content>
+      <ion-text color="danger">{{ error }}</ion-text>
+    </ion-card-content>
+  </ion-card>
+  <ion-list *ngIf="!loading && !error && compras.length > 0">
+    <ion-item *ngFor="let compra of compras">
+      <ion-label>
+        <h2>Compra #{{ compra.compra_id }}</h2>
+        <p>Fecha: {{ compra.fecha_compra | date:'short' }}</p>
+        <p>Total: ${{ compra.total | number:'1.0-0' }}</p>
+        <p>Estado: <ion-badge color="success">{{ compra.estado_pago }}</ion-badge></p>
+        <div *ngIf="compra.detalles && compra.detalles.length > 0">
+          <p><b>Productos:</b></p>
+          <ul>
+            <li *ngFor="let d of compra.detalles">
+              Producto ID: {{ d.producto_id }}, Cantidad: {{ d.cantidad }}, Precio: ${{ d.precio_unitario }}
+            </li>
+          </ul>
+        </div>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+  <div *ngIf="!loading && !error && compras.length === 0" class="ion-text-center ion-padding">
+    <p>No tienes compras registradas.</p>
+  </div>
+</ion-content>

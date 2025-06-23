@@ -14,3 +14,4 @@ class CompraSchema(ma.SQLAlchemyAutoSchema):
     estado_pago = fields.String()
     fecha_compra = fields.DateTime()
     fecha_entrega_estim = fields.DateTime()
+    direccion_envio = fields.String()  # Nuevo campo

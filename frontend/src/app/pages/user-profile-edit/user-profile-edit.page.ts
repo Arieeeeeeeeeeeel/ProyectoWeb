@@ -55,11 +55,10 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
     this.editProfileForm = this.fb.group({
       usuario: ['', [Validators.required, Validators.minLength(3)]],
       rut: ['', [Validators.required, Validators.pattern(/^[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}-[0-9Kk]$/)]],
-      correo: ['', [Validators.required, Validators.email]], // Usar 'email' consistentemente
+      correo: ['', [Validators.required, Validators.email]],
       region: ['', Validators.required],
       comuna: ['', Validators.required],
-      // La contraseña y confirmación no las incluimos aquí para una edición simple
-      // Si el usuario quiere cambiar la contraseña, debería ser un flujo separado.
+      telefono: ['', [Validators.required, Validators.pattern(/^\+?\d{8,15}$/)]] // Teléfono requerido y validación básica
     });
   }
 
@@ -75,6 +74,7 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
           correo: this.currentUser.correo,
           region: this.currentUser.region,
           comuna: this.currentUser.comuna,
+          telefono: this.currentUser.telefono || ''
         });
         // Asegurarse de que las comunas se carguen correctamente al precargar la región
         this.onRegionChange();
@@ -128,7 +128,8 @@ export class UserProfileEditPage implements OnInit, OnDestroy {
         usuario: this.editProfileForm.value.usuario.trim(),
         correo: this.editProfileForm.value.correo.trim().toLowerCase(),
         region: this.editProfileForm.value.region,
-        comuna: this.editProfileForm.value.comuna
+        comuna: this.editProfileForm.value.comuna,
+        telefono: this.editProfileForm.value.telefono.trim()
       };
 
       this.authService.updateUserProfile(this.currentUser.personaid, payload)

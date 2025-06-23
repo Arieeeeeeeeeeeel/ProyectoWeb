@@ -63,13 +63,13 @@
                 </a>
               </li>
               <li *ngIf="isLoggedIn">
-                <a (click)="goToUserPage(); closeMenu()">
+                <a (click)="goToUserPage(); closeMenu()" style="cursor: pointer;">
                   <ion-icon name="person-circle-outline" class="icono-menu"></ion-icon>
                   Mi Perfil
                 </a>
               </li>
               <li *ngIf="isLoggedIn">
-                <a (click)="logout(); closeMenu()">
+                <a (click)="logout(); closeMenu()" style="cursor: pointer;">
                   <ion-icon name="log-out-outline" class="icono-menu"></ion-icon>
                   Cerrar Sesión
                 </a>
@@ -89,12 +89,12 @@
                 <ion-button routerLink="/registrar">Registrar</ion-button>
               </ng-container>
               <ng-container *ngIf="isLoggedIn">
-                <ion-button (click)="goToUserPage()">
+                <ion-button (click)="goToUserPage()" style="cursor: pointer;">
                   <ion-icon name="person-circle-outline"></ion-icon>
-                  Usuario
+                  {{ userName || 'Usuario' }}
                 </ion-button>
                 <span class="divider">|</span>
-                <ion-button (click)="logout()">
+                <ion-button (click)="logout()" style="cursor: pointer;">
                   <ion-icon name="log-out-outline"></ion-icon>
                   Salir
                 </ion-button>

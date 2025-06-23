@@ -8,24 +8,46 @@
     <img src="/assets/auto prmo.jpg" alt="Ofertas Imperdibles" />
     <div class="grad-overlay"></div>
     <div class="banner-text">
-      <h1>OFERTAS <br /> IMPERDIBLES</h1>
+      <h1 style="color:#d32f2f; text-shadow:2px 2px 8px #000;">OFERTAS <br /> IMPERDIBLES</h1>
     </div>
   </div>
 
-    <div class="ofertas-container">
-      <h2>Ofertas</h2>
-      <div class="ofertas-grid">
-        <div class="oferta-card" *ngFor="let oferta of ofertas">
-          <div class="oferta-imagen">
-            <img [src]="oferta.imagen || 'assets/placeholder-detail.png'" alt="{{oferta.nombre}}" style="width:100%;height:100%;object-fit:cover;">
-          </div>
-          <div class="nuevo-etiqueta" *ngIf="oferta.esNuevo">NUEVO</div>
-          <div class="oferta-info" style="padding: 12px;">
-            <div style="font-weight:bold;">{{oferta.nombre}}</div>
-            <div style="color:#e10600;font-size:18px;">${{oferta.precio | number:'1.0-0'}}</div>
-          </div>
-        </div>
+  <div class="destacados" *ngIf="productosDestacados.length">
+    <div style="text-align:center; margin-top:32px; margin-bottom:16px;">
+      <h2 style="display:inline-block; background: linear-gradient(90deg, #1a1a1a 30%, #d32f2f 70%); color:white; padding:10px 32px; border-radius:30px; box-shadow:0 2px 12px #d32f2f88; font-weight:bold; letter-spacing:1px; font-size:2rem;">
+        <ion-icon name="star" style="vertical-align:middle; margin-right:8px; color:#d32f2f;"></ion-icon>
+        Productos destacados
+        <ion-icon name="star" style="vertical-align:middle; margin-left:8px; color:#d32f2f;"></ion-icon>
+      </h2>
+      <div style="font-size:1.1em; color:#d32f2f; margin-top:8px; font-weight:500; letter-spacing:0.5px;">
+        ¡No te pierdas lo mejor para tu auto!
       </div>
     </div>
-
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="4" *ngFor="let producto of productosDestacados; let i = index">
+          <ion-card 
+            [ngClass]="{'hovered': hoveredIndex === i}"
+            (mouseenter)="setHovered(i)" 
+            (mouseleave)="setHovered(null)"
+            (click)="verDetalleProducto(producto.producto_id)"
+            style="transition:transform 0.3s cubic-bezier(.25,1.5,.5,1), box-shadow 0.2s; box-shadow:0 2px 12px #d32f2f44; cursor:pointer; position:relative; overflow:hidden; background:#fff;">
+            <div style="display:flex;justify-content:center;align-items:center;width:100%;height:180px;overflow:hidden;position:relative;">
+              <img *ngIf="producto.imagen_url" [src]="producto.imagen_url" [alt]="producto.nombre" style="max-height:100%;max-width:100%;object-fit:contain;display:block;margin:auto;z-index:1;filter:drop-shadow(0 2px 8px #d32f2f33);"/>
+              <div *ngIf="hoveredIndex === i" class="shine-effect"></div>
+            </div>
+            <ion-card-header style="text-align:center;">
+              <ion-card-title>{{producto.nombre}}</ion-card-title>
+              <ion-card-subtitle>${{producto.precio}}</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content style="text-align:center;">
+              <p>{{producto.descripcion}}</p>
+              <div *ngIf="producto.stock <= 0" style="color:#d32f2f; font-weight:bold; margin-top:8px;">Sin stock</div>
+            </ion-card-content>
+            <div *ngIf="hoveredIndex === i" class="card-glow"></div>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 </ion-content>

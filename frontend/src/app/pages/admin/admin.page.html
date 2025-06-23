@@ -62,7 +62,7 @@
             <b>{{usuario.nombre}}</b>
             <div>{{usuario.email}}</div>
           </ion-label>
-          <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarUsuario(usuario)">
+          <ion-button *ngIf="usuario.nombre !== 'Administrador'" color="danger" fill="clear" size="small" slot="end" (click)="eliminarUsuario(usuario)">
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
         </ion-item>
@@ -72,33 +72,149 @@
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title style="display: flex; align-items: center; justify-content: space-between;">
-        <span>Inventario de Productos</span>
-        <ion-button [routerLink]="['/inventario-admin']" size="small" color="primary" fill="outline">
-          Ver listado
-          <ion-icon name="list-outline" slot="end"></ion-icon>
-        </ion-button>
-      </ion-card-title>
+      <ion-card-title>Inventario de Productos</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-list>
-        <ng-container *ngFor="let producto of inventario | slice:0:3">
-          <ion-item>
+        <ng-container *ngFor="let producto of inventario">
+          <ion-item *ngIf="editandoId !== producto.producto_id">
             <ion-label>
               <b>{{producto.nombre}}</b> - Stock: {{producto.stock}} - ${{producto.precio}}
             </ion-label>
-            <ion-checkbox slot="end" [(ngModel)]="producto.en_oferta" (ionChange)="toggleOferta(producto)">
-              Oferta
-            </ion-checkbox>
+            <ion-checkbox slot="end" [checked]="producto.en_oferta" (ionChange)="toggleOferta(producto)">Oferta</ion-checkbox>
+            <ion-checkbox slot="end" style="margin-left:8px;" [checked]="producto.mostrar_en_inicio" (ionChange)="toggleMostrarEnInicio(producto)">Mostrar en inicio</ion-checkbox>
+            <ion-button color="primary" fill="clear" size="small" slot="end" (click)="editarProducto(producto)">
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
             <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarProducto(producto)">
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
           </ion-item>
+          <ion-item *ngIf="editandoId === producto.producto_id" class="edit-item">
+            <ion-grid style="width:100%;">
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Nombre</ion-label>
+                    <ion-input [(ngModel)]="producto.nombre" placeholder="Nombre" (ionInput)="onEditFieldChange(producto)"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Marca</ion-label>
+                    <ion-input [(ngModel)]="producto.marca" placeholder="Marca" (ionInput)="onEditFieldChange(producto)"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Modelo</ion-label>
+                    <ion-input [(ngModel)]="producto.modelo" placeholder="Modelo" (ionInput)="onEditFieldChange(producto)"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <!--
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Año</ion-label>
+                    <ion-input type="number" [(ngModel)]="producto.ano_compatible" placeholder="Año" (ionInput)="onEditFieldChange(producto)"></ion-input>
+                  </ion-item>
+                </ion-col>
+                -->
+              </ion-row>
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Stock</ion-label>
+                    <ion-input type="number" [(ngModel)]="producto.stock" placeholder="Stock" (ionInput)="onEditFieldChange(producto)"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Precio</ion-label>
+                    <ion-input type="number" [(ngModel)]="producto.precio" placeholder="Precio" (ionInput)="onEditFieldChange(producto)"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">URL Imagen</ion-label>
+                    <ion-input [(ngModel)]="producto.imagen_url" placeholder="URL Imagen" (ionInput)="onEditFieldChange(producto)"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6">
+                  <ion-item lines="inset">
+                    <ion-label position="floating">Descripción</ion-label>
+                    <ion-input [(ngModel)]="producto.descripcion" placeholder="Descripción" (ionInput)="onEditFieldChange(producto)"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12">
+                  <ion-item>
+                    <ion-label>Compatibilidad</ion-label>
+                  </ion-item>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="3">
+                        <ion-select [(ngModel)]="marcaCompatSeleccionada" (ionChange)="onMarcaCompatChange()" placeholder="Marca">
+                          <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>
+                        </ion-select>
+                      </ion-col>
+                      <ion-col size="3">
+                        <ion-select [(ngModel)]="modeloCompatSeleccionado" (ionChange)="onModeloCompatChange()" placeholder="Modelo" [disabled]="!modelosCompat.length">
+                          <ion-select-option *ngFor="let modelo of modelosCompat" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
+                        </ion-select>
+                      </ion-col>
+                      <ion-col size="2">
+                        <ion-input type="number" placeholder="Año desde" [(ngModel)]="nuevoProductoCompat.ano_desde"></ion-input>
+                      </ion-col>
+                      <ion-col size="2">
+                        <ion-input type="number" placeholder="Año hasta" [(ngModel)]="nuevoProductoCompat.ano_hasta"></ion-input>
+                      </ion-col>
+                      <ion-col size="2">
+                        <ion-button color="success" (click)="nuevoProductoCompat.marca_auto = marcaCompatSeleccionada; nuevoProductoCompat.modelo_auto = modeloCompatSeleccionado; agregarCompatibilidadEdicion()">+</ion-button>
+                      </ion-col>
+                    </ion-row>
+                    <ion-row *ngFor="let c of editarCompatibilidades; let i = index">
+                      <ion-col size="3">{{c.marca_auto}}</ion-col>
+                      <ion-col size="3">{{c.modelo_auto}}</ion-col>
+                      <ion-col size="2">{{c.ano_desde}}</ion-col>
+                      <ion-col size="2">{{c.ano_hasta}}</ion-col>
+                      <ion-col size="2">
+                        <ion-button color="danger" (click)="eliminarCompatibilidadEdicion(i)">-</ion-button>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-col>
+              </ion-row>
+              <ion-row class="edit-actions" style="align-items:center;">
+                <ion-col size="12" size-md="6">
+                  <ion-checkbox [(ngModel)]="producto.en_oferta" (ionChange)="onEditFieldChange(producto)">Oferta</ion-checkbox>
+                  <ion-checkbox [(ngModel)]="producto.mostrar_en_inicio" style="margin-left:16px;" (ionChange)="onEditFieldChange(producto)">Mostrar en inicio</ion-checkbox>
+                </ion-col>
+                <ion-col size="12" size-md="6" style="text-align:right;">
+                  <ion-spinner *ngIf="cargandoMarcas || cargandoModelos" name="crescent" style="display:block;margin:10px auto;"></ion-spinner>
+                  <div *ngIf="cargandoMarcas || cargandoModelos" style="text-align:center;">Cargando autos...</div>
+                  <ion-button color="primary" fill="solid" size="small" (click)="guardarEdicion(producto)" [disabled]="!getProductoEditable(producto)._editChanged">
+                    Guardar
+                  </ion-button>
+                  <ion-button color="medium" fill="solid" size="small" (click)="cancelarEdicion(producto)">
+                    Cancelar
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
         </ng-container>
-        <ion-item *ngIf="inventario.length > 3" lines="none" style="justify-content:center; color:#888; font-size:1.5em;">
-          ...
+        <ion-item *ngIf="inventario.length === 0">
+          <ion-label>No hay productos para mostrar.</ion-label>
         </ion-item>
       </ion-list>
+      <ion-button expand="block" color="primary" [routerLink]="['/inventario-admin']">
+        Agregar producto
+      </ion-button>
     </ion-card-content>
   </ion-card>
 
@@ -110,8 +226,20 @@
       <ion-list>
         <ion-item *ngFor="let hora of horas">
           <ion-label>
-            <b>{{hora.cliente}}</b> - {{hora.fecha}}
+            <b>{{hora.cliente}}</b> - {{hora.fecha | date:'dd/MM/yyyy HH:mm'}}
+            <div><b>Servicio:</b> {{hora.servicio_nombre || 'Sin información'}}</div>
             <div>{{hora.detalle}}</div>
+            <div *ngIf="hora.vehiculo">
+              <small>
+                <b>Vehículo:</b> {{hora.vehiculo.marca}} {{hora.vehiculo.modelo}} ({{hora.vehiculo.patente}}, {{hora.vehiculo.ano}})
+              </small>
+            </div>
+            <div *ngIf="hora.servicio_nombre === 'DESABOLLADURA Y PINTURA' && hora.color">
+              <small><b>Color:</b> {{hora.color}}</small>
+            </div>
+            <div *ngIf="hora.servicio_nombre === 'MECANICO A DOMICILIO' && hora.ubicacion">
+              <small><b>Dirección:</b> {{hora.ubicacion}}</small>
+            </div>
           </ion-label>
           <ion-button color="danger" fill="clear" size="small" slot="end" (click)="eliminarHora(hora)">
             <ion-icon name="trash-outline"></ion-icon>

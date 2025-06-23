@@ -4,26 +4,43 @@
       <div class="servicio-row">
         <div class="servicio-select">
           <ion-label class="servicio-label">Servicio que necesito:</ion-label>
-          <ion-select placeholder="Seleccionar servicio" [(ngModel)]="reserva.servicio">
-            <ion-select-option value="Cambio neumático">Cambio neumático</ion-select-option>
-            <ion-select-option value="Mecánico a domicilio">Mecánico a domicilio</ion-select-option>
-            <ion-select-option value="Desabolladura y pintura">Desabolladura y pintura</ion-select-option>
-            <ion-select-option value="Mantenimiento">Mantenimiento</ion-select-option>
-            <ion-select-option value="Diagnóstico">Diagnóstico</ion-select-option>
+          <ion-select placeholder="Seleccionar servicio" [(ngModel)]="reserva.servicio" (ionChange)="onServicioChange()">
+            <ion-select-option value="SERVICIO DE DIAGNOSTICO">SERVICIO DE DIAGNOSTICO</ion-select-option>
+            <ion-select-option value="DESABOLLADURA Y PINTURA">DESABOLLADURA Y PINTURA</ion-select-option>
+            <ion-select-option value="CAMBIO DE NEUMATICOS">CAMBIO DE NEUMATICOS</ion-select-option>
+            <ion-select-option value="MECANICO A DOMICILIO">MECANICO A DOMICILIO</ion-select-option>
+            <ion-select-option value="SERVICIO DE MANTENIMIENTO">SERVICIO DE MANTENIMIENTO</ion-select-option>
           </ion-select>
         </div>
-        <div class="valor-atencion">Valor atención: <span>$50.000</span></div>
+        <div class="valor-atencion">Valor atención: <span *ngIf="servicioPrecio !== null">${{ servicioPrecio | number:'1.0-0' }}</span><span *ngIf="servicioPrecio === null">Seleccione un servicio</span></div>
       </div>
       <div class="datos-row">
         <div class="vehiculo-card">
           <ion-label class="vehiculo-label">Datos del vehículo :</ion-label>
-          <ion-item>
+
+          <!-- Dropdown para autos guardados -->
+          <ion-item *ngIf="autosUsuario.length > 0">
+            <span style="font-size:0.95em;font-weight:500;margin-bottom:2px;display:block;">Selecciona un auto guardado</span>
+            <ion-select [(ngModel)]="autoSeleccionado" (ionChange)="onAutoSeleccionadoChange()">
+              <ion-select-option [value]="-1">Agregar nuevo vehículo</ion-select-option>
+              <ion-select-option *ngFor="let auto of autosUsuario" [value]="auto.vehiculo_id">
+                {{ auto.marca }} {{ auto.modelo }} ({{ auto.patente }})
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <!-- Campos de vehículo, deshabilitados si se selecciona un auto guardado -->
+          <ion-item *ngIf="!cargandoMarcas">
             <ion-label position="floating">Marca</ion-label>
-            <ion-input [(ngModel)]="reserva.marca" placeholder="Toyota"></ion-input>
+            <ion-select [(ngModel)]="marcaSeleccionada" (ionChange)="onMarcaChange()" placeholder="Selecciona una marca" [disabled]="!!autoSeleccionado && autoSeleccionado !== -1">
+              <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>
+            </ion-select>
           </ion-item>
           <ion-item>
             <ion-label position="floating">Modelo</ion-label>
-            <ion-input [(ngModel)]="reserva.modelo" placeholder="Hilux"></ion-input>
+            <ion-select [(ngModel)]="modeloSeleccionado" (ionChange)="onModeloChange()" placeholder="Selecciona un modelo" [disabled]="!modelos.length || (!!autoSeleccionado && autoSeleccionado !== -1)">
+              <ion-select-option *ngFor="let modelo of modelos" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
+            </ion-select>
           </ion-item>
           <ion-item>
             <ion-label position="floating">Año</ion-label>
@@ -36,26 +53,42 @@
               #anioInput="ngModel"
               required
               [ngModelOptions]="{standalone: true}"
+              [disabled]="!!autoSeleccionado && autoSeleccionado !== -1"
             ></ion-input>
             <ion-text color="danger" *ngIf="reserva.anio && (reserva.anio < 1900 || reserva.anio > 2099)">
               <p>Año debe estar entre 1900 y 2099.</p>
             </ion-text>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Patente</ion-label>
+            <ion-input [(ngModel)]="reserva.patente" placeholder="Ej: ABCD12" [disabled]="!!autoSeleccionado && autoSeleccionado !== -1"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Tipo de combustible</ion-label>
+            <ion-input [(ngModel)]="reserva.tipo_combustible" placeholder="Ej: Gasolina, Diésel, Eléctrico" [disabled]="!!autoSeleccionado && autoSeleccionado !== -1"></ion-input>
+          </ion-item>
+          <ion-item *ngIf="reserva.servicio === 'DESABOLLADURA Y PINTURA'">
+            <ion-label position="floating">Color</ion-label>
+            <ion-input [(ngModel)]="reserva.color" placeholder="Ej: Rojo, Azul, etc." [disabled]="!!autoSeleccionado && autoSeleccionado !== -1"></ion-input>
           </ion-item>
         </div>
         <div class="calendar-card">
           <ion-label class="calendar-label">Fecha</ion-label>
           <ion-datetime
             [(ngModel)]="reserva.fecha"
+            (ionChange)="onFechaChange()"
             [min]="minDate"
             presentation="date"
             color="primary"
             mode="ios"
             class="custom-calendar"
           ></ion-datetime>
-          <ion-item class="hora-item">
+          <ion-item class="hora-item" style="margin-top:12px;">
             <ion-label position="floating">Hora</ion-label>
             <ion-select [(ngModel)]="reserva.hora" interface="popover" placeholder="Seleccionar hora">
-              <ion-select-option *ngFor="let hora of horasDisponibles" [value]="hora">{{ hora }}</ion-select-option>
+              <ion-select-option *ngFor="let hora of horasDisponibles" [value]="hora" [disabled]="horasOcupadas.includes(hora)" [style.color]="horasOcupadas.includes(hora) ? '#aaa' : 'inherit'">
+                {{ hora }} <span *ngIf="horasOcupadas.includes(hora)"> (Ocupada) </span>
+              </ion-select-option>
             </ion-select>
           </ion-item>
         </div>
@@ -71,7 +104,7 @@
             <ion-label position="floating">Nombre completo</ion-label>
             <ion-input [(ngModel)]="reserva.nombre"></ion-input>
           </ion-item>
-          <ion-item>
+          <ion-item *ngIf="!(reserva.servicio === 'MECANICO A DOMICILIO')">
             <ion-label>Ubicación</ion-label>
             <ion-select [(ngModel)]="reserva.ubicacion">
               <ion-select-option value="Concón">Concón</ion-select-option>
@@ -83,11 +116,25 @@
             <ion-label position="floating">Notas para el mecánico</ion-label>
             <ion-textarea [(ngModel)]="reserva.notas"></ion-textarea>
           </ion-item>
+          <ion-item *ngIf="reserva.servicio === 'MECANICO A DOMICILIO'">
+            <ion-label>Dirección para el servicio</ion-label>
+            <ion-select [(ngModel)]="selectedAddressId" placeholder="Selecciona una dirección" (ionChange)="onAddressSelectChange()">
+              <ng-container *ngIf="userAddresses.length > 0">
+                <ion-select-option *ngFor="let address of userAddresses" [value]="address.id">
+                  {{ address.calle }}, {{ address.ciudad }} <span *ngIf="address.esPrincipal">(Principal)</span>
+                </ion-select-option>
+              </ng-container>
+              <ion-select-option value="custom">Ingresar nueva dirección</ion-select-option>
+            </ion-select>
+          </ion-item>
           <ion-item lines="none">
             <ion-checkbox slot="start" [(ngModel)]="reserva.aceptaTerminos"></ion-checkbox>
-            <ion-label>Acepto los términos de reserva <a href="#">Leer los términos</a></ion-label>
+            <ion-label>
+              Acepto los términos de reserva 
+              <a href="#" class="underline-link" (click)="abrirTerminos($event)">Leer los términos</a>
+            </ion-label>
           </ion-item>
-          <ion-button expand="block" (click)="guardarReserva()" [disabled]="!reservaValida()">
+          <ion-button expand="block" (click)="guardarReserva()" [disabled]="!reservaValida()" color="danger" style="margin-top:18px;font-weight:bold;">
             Guardar reserva
           </ion-button>
         </ion-card-content>

@@ -1,6 +1,8 @@
 // src/app/services/cart.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { CartApiService } from './cart-api.service';
+import { AuthService } from './auth.service';
 
 export interface CartItem {
   productoId?: string; // Solo productos
@@ -19,13 +21,47 @@ export interface CartItem {
 export class CartService {
   private _cartItems = new BehaviorSubject<CartItem[]>([]);
   readonly cartItems$: Observable<CartItem[]> = this._cartItems.asObservable();
+  private usuarioId: number | null = null;
 
-  constructor() {
+  constructor(
+    private cartApi: CartApiService,
+    private authService: AuthService
+  ) {
     // Cargar el carrito desde localStorage al iniciar el servicio
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
       this._cartItems.next(JSON.parse(storedCart));
     }
+    // Obtener rut del usuario autenticado
+    this.authService.currentUser$.subscribe(user => {
+      this.usuarioId = user?.personaid || null;
+      if (this.usuarioId) {
+        this.syncCartFromBackend();
+      }
+    });
+  }
+
+  private syncCartFromBackend() {
+    if (!this.usuarioId) return;
+    this.cartApi.getCart(this.usuarioId).subscribe((data: any) => {
+      if (data && data.items) {
+        // Mapear items del backend al formato CartItem
+        const items: CartItem[] = data.items.map((item: any) => ({
+          productoId: item.producto_id !== undefined
+            ? String(item.producto_id)
+            : (item.producto && item.producto.producto_id !== undefined
+                ? String(item.producto.producto_id)
+                : undefined),
+          nombre: item.producto?.nombre || '',
+          imagen: item.producto?.imagen_url,
+          precio: item.producto?.precio || 0,
+          quantity: item.cantidad,
+          stock: item.producto?.stock
+        }));
+        this._cartItems.next(items);
+        this.saveCart();
+      }
+    });
   }
 
   private saveCart(): void {
@@ -67,45 +103,96 @@ export class CartService {
 
     this._cartItems.next([...currentItems]);
     this.saveCart();
+
+    if (this.usuarioId && item.productoId) {
+      this.cartApi.addOrUpdateItem(this.usuarioId, Number(item.productoId), (item.quantity || 0) + quantity)
+        .subscribe(() => this.syncCartFromBackend());
+    }
     return true;
   }
 
   removeItem(id: string) {
     const currentItems = this._cartItems.getValue();
-    // Busca si es producto (por productoId)
-    const productIndex = currentItems.findIndex(item => item.productoId === id);
+    console.log('[CartService] Intentando eliminar producto/reserva:', id, currentItems);
+    // Busca si es producto (por productoId, siempre string)
+    const productIndex = currentItems.findIndex(item => String(item.productoId) === String(id));
     if (productIndex > -1) {
-      // Elimina todos los productos de ese tipo (sin importar la cantidad)
+      console.log('[CartService] Producto encontrado en el carrito, eliminando localmente');
+      // Guardar copia para posible rollback
+      const prevItems = [...currentItems];
       currentItems.splice(productIndex, 1);
       this._cartItems.next([...currentItems]);
       this.saveCart();
+      if (this.usuarioId && id) {
+        console.log('[CartService] Llamando a backend para eliminar producto', this.usuarioId, id);
+        this.cartApi.removeItem(this.usuarioId, Number(id)).subscribe(
+          () => {
+            // Éxito: no hacer nada, ya está actualizado localmente
+          },
+          error => {
+            console.error('[CartService] Error al eliminar producto en backend', error);
+            // Rollback local
+            this._cartItems.next(prevItems);
+            this.saveCart();
+            // Opcional: notificar error visualmente
+            // Puedes emitir un evento o usar un servicio de notificación
+          }
+        );
+      }
       return;
     }
     // Si es reserva (por id), elimina solo esa reserva
-    const filteredItems = currentItems.filter(item => !(item.id && item.id === id));
+    const filteredItems = currentItems.filter(item => !(item.id && String(item.id) === String(id)));
+    if (filteredItems.length !== currentItems.length) {
+      console.log('[CartService] Reserva encontrada y eliminada localmente');
+    }
     this._cartItems.next(filteredItems);
     this.saveCart();
   }
 
   updateItemQuantity(productId: string, quantity: number): boolean {
     const currentItems = this._cartItems.getValue();
-    const item = currentItems.find(i => i.productoId === productId);
-
+    const item = currentItems.find(i => String(i.productoId) === String(productId));
+    console.log('[CartService] Actualizando cantidad', productId, 'a', quantity, 'Item:', item);
     if (item && item.stock !== undefined && quantity > item.stock) {
+      console.warn('[CartService] Stock insuficiente para producto', productId);
       return false;
     }
     if (item && item.quantity !== undefined) {
+      // Guardar copia para posible rollback
+      const prevQuantity = item.quantity;
       item.quantity = quantity;
       this._cartItems.next(currentItems);
       this.saveCart();
+      if (this.usuarioId && productId) {
+        console.log('[CartService] Llamando a backend para actualizar cantidad', this.usuarioId, productId, quantity);
+        this.cartApi.addOrUpdateItem(this.usuarioId, Number(productId), quantity)
+          .subscribe(
+            () => {
+              // Éxito: no hacer nada, ya está actualizado localmente
+            },
+            error => {
+              console.error('[CartService] Error al actualizar cantidad en backend', error);
+              // Rollback local
+              item.quantity = prevQuantity;
+              this._cartItems.next([...currentItems]);
+              this.saveCart();
+              // Opcional: notificar error visualmente
+            }
+          );
+      }
       return true;
     }
+    console.warn('[CartService] No se encontró el producto para actualizar cantidad', productId);
     return false;
   }
 
   clearCart(): void {
     this._cartItems.next([]);
     this.saveCart();
+    if (this.usuarioId) {
+      this.cartApi.clearCart(this.usuarioId).subscribe(() => this.syncCartFromBackend());
+    }
   }
 
   getCartTotal(): number {

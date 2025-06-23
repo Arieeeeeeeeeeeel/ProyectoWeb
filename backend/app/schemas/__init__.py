@@ -10,3 +10,4 @@ from .servicios_schema import ServicioSchema
 from .update_profile_schema import UpdateProfileSchema
 from .usuario_schema import UsuarioSchema
 from .vehiculo_schema import VehiculoSchema
+from .producto_compatibilidad_schema import ProductoCompatibilidadSchema

@@ -7,16 +7,18 @@
   <div class="product-detail-container" *ngIf="producto; else loadingOrError">
     <div class="image-section">
       <img [src]="producto.imagen_url || 'assets/placeholder.jpg'" alt="Imagen del producto">
-      <div class="new-badge" *ngIf="producto.en_oferta">OFERTA</div>
+      <div class="new-badge" *ngIf="producto.en_oferta" style="top:10px;right:10px;z-index:2;">OFERTA</div>
     </div>
 
     <div class="info-section">
       <h1 class="product-title">{{ producto.nombre }}</h1>
+      <!--
       <p>
         <strong>Año:</strong>
         <span *ngIf="producto.ano_compatible; else noAnio"> {{ producto.ano_compatible }}</span>
         <ng-template #noAnio><span style="color: #888;"> No disponible</span></ng-template>
       </p>
+      -->
       <p>
         <strong>Descripción:</strong>
         <span *ngIf="producto.descripcion; else noDesc"> {{ producto.descripcion }}</span>
@@ -33,7 +35,7 @@
         <ng-template #noModelo><span style="color: #888;"> No disponible</span></ng-template>
       </p>
 
-      <div class="compatibility-section">
+      <div class="compatibility-section" style="margin:12px 0;">
         <p>
           <strong>¿Sirve para mi auto?</strong>
           <span *ngIf="isLoggedIn && hasCars; else notAvailable">
@@ -56,10 +58,25 @@
 
       <p>
         <strong>Stock:</strong>
-        <span class="stock-available" *ngIf="producto.stock > 0">¡Sí! Quedan {{ producto.stock }} disponibles</span>
-        <span class="stock-unavailable" *ngIf="producto.stock === 0">Sin stock</span>
+        <span class="stock-available" *ngIf="producto.stock > 0" style="margin-left:8px;">¡Sí! Quedan {{ producto.stock }} disponibles</span>
+        <span class="stock-unavailable" *ngIf="producto.stock === 0" style="margin-left:8px;">Sin stock</span>
       </p>
       <p class="product-price">Precio: ${{ producto.precio | number: '1.0-0' }}</p>
+
+      <div class="rating-section">
+        <strong>Valoración:</strong>
+        <span *ngIf="producto.rating; else noRating">{{ producto.rating | number: '1.1-1' }} / 5</span>
+        <ng-template #noRating><span style="color: #888;">Sin valoraciones</span></ng-template>
+      </div>
+      <div class="user-rating-section" *ngIf="isLoggedIn">
+        <strong>Tu valoración:</strong>
+        <span class="star-rating">
+          <ion-icon *ngFor="let star of [1,2,3,4,5]" [name]="userRating >= star ? 'star' : 'star-outline'" (click)="setRating(star)" [color]="userRating >= star ? 'warning' : 'medium'" style="font-size: 2em; cursor:pointer;"></ion-icon>
+        </span>
+        <ion-button size="small" color="primary" (click)="enviarValoracion()" [disabled]="ratingSubmitting || !userRating">Valorar</ion-button>
+        <ion-spinner *ngIf="ratingSubmitting" name="crescent" style="margin-left:8px;"></ion-spinner>
+        <div *ngIf="ratingError" style="color:red;">{{ ratingError }}</div>
+      </div>
 
       <ion-button expand="block" color="danger" class="add-to-cart-button" (click)="addToCart()">
         <ion-icon slot="start" name="cart"></ion-icon>

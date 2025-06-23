@@ -11,6 +11,8 @@ CREATE TABLE USUARIO (
   contrasena      VARCHAR(255)   NOT NULL,
   region          VARCHAR(100)   NOT NULL,
   comuna          VARCHAR(100)   NOT NULL,
+  telefono        VARCHAR(20)    NULL, -- <--- NUEVO CAMPO
+  ultimo_token_recuperacion VARCHAR(512) NULL,
   fecha_registro  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (personaid)
 ) ENGINE=InnoDB;
@@ -24,11 +26,11 @@ CREATE TABLE VEHICULO (
   tipo_combustible VARCHAR(50) NOT NULL,
   color            VARCHAR(30) NOT NULL,
   apodo            VARCHAR(50),
-  usuario_rut      VARCHAR(20) NOT NULL,
+  usuario_id       INT         NOT NULL,
   PRIMARY KEY (vehiculo_id),
-  INDEX idx_usuario_rut (usuario_rut),
-  CONSTRAINT fk_veh_usuario FOREIGN KEY (usuario_rut)
-    REFERENCES USUARIO(rut)
+  INDEX idx_usuario_id (usuario_id),
+  CONSTRAINT fk_veh_usuario FOREIGN KEY (usuario_id)
+    REFERENCES USUARIO(personaid)
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -49,7 +51,6 @@ CREATE TABLE PRODUCTO (
   descripcion     TEXT,
   marca           VARCHAR(50),
   modelo          VARCHAR(50),
-  ano_compatible  INT,
   stock           INT           NOT NULL DEFAULT 0,
   precio          DECIMAL(10,2) NOT NULL,
   rating          DECIMAL(3,2),
@@ -59,35 +60,14 @@ CREATE TABLE PRODUCTO (
   PRIMARY KEY (producto_id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE OFERTA (
-  oferta_id     INT            NOT NULL AUTO_INCREMENT,
-  tipo          VARCHAR(50),
-  descuento     DECIMAL(5,2),
-  fecha_inicio  DATE,
-  fecha_fin     DATE,
-  servicio_id   INT,
-  producto_id   INT,
-  PRIMARY KEY (oferta_id),
-  INDEX idx_oferta_servicio (servicio_id),
-  INDEX idx_oferta_producto (producto_id),
-  CONSTRAINT fk_oferta_servicio FOREIGN KEY (servicio_id)
-    REFERENCES SERVICIO(servicio_id)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE,
-  CONSTRAINT fk_oferta_producto FOREIGN KEY (producto_id)
-    REFERENCES PRODUCTO(producto_id)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
 CREATE TABLE CARRITO (
   carrito_id      INT         NOT NULL AUTO_INCREMENT,
   fecha_creacion  DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  usuario_rut     VARCHAR(20),
+  usuario_id      INT,
   PRIMARY KEY (carrito_id),
-  INDEX idx_carrito_usuario (usuario_rut),
-  CONSTRAINT fk_carrito_usuario FOREIGN KEY (usuario_rut)
-    REFERENCES USUARIO(rut)
+  INDEX idx_carrito_usuario (usuario_id),
+  CONSTRAINT fk_carrito_usuario FOREIGN KEY (usuario_id)
+    REFERENCES USUARIO(personaid)
     ON DELETE SET NULL
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -112,14 +92,13 @@ CREATE TABLE CARRITO_ITEM (
 CREATE TABLE COMPRA (
   compra_id            INT            NOT NULL AUTO_INCREMENT,
   fecha_compra         DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  fecha_entrega_estim  DATETIME,
   total                DECIMAL(10,2)  NOT NULL,
   estado_pago          VARCHAR(50)    NOT NULL,
-  usuario_rut          VARCHAR(20)    NOT NULL,
+  usuario_id           INT            NOT NULL,
   PRIMARY KEY (compra_id),
-  INDEX idx_compra_usuario (usuario_rut),
-  CONSTRAINT fk_compra_usuario FOREIGN KEY (usuario_rut)
-    REFERENCES USUARIO(rut)
+  INDEX idx_compra_usuario (usuario_id),
+  CONSTRAINT fk_compra_usuario FOREIGN KEY (usuario_id)
+    REFERENCES USUARIO(personaid)
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -142,21 +121,30 @@ CREATE TABLE DETALLE_COMPRA (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+
+CREATE TABLE  PRODUCTO_COMPATIBILIDAD (
+  producto_id INT NOT NULL,
+  marca_auto VARCHAR(50) NOT NULL,
+  modelo_auto VARCHAR(50) NOT NULL,
+  ano_desde INT,
+  ano_hasta INT,
+  PRIMARY KEY (producto_id, marca_auto, modelo_auto, ano_desde),
+  FOREIGN KEY (producto_id) REFERENCES PRODUCTO(producto_id) ON DELETE CASCADE
+);
+
 CREATE TABLE RESERVA (
-  reserva_id    INT         NOT NULL AUTO_INCREMENT,
-  fecha_reserva DATETIME    NOT NULL,
-  estado        VARCHAR(50) NOT NULL,
-  ubicacion     VARCHAR(255) NOT NULL,
-  notas         TEXT,
-  usuario_rut   VARCHAR(20) NOT NULL,
-  vehiculo_id   INT         NOT NULL,
-  servicio_id   INT         NOT NULL,
+  reserva_id      INT           NOT NULL AUTO_INCREMENT,
+  fecha_reserva   DATETIME      NOT NULL,
+  ubicacion       VARCHAR(255)  NOT NULL,
+  notas           TEXT,
+  usuario_id      INT           NOT NULL,
+  vehiculo_id     INT           NOT NULL,
+  servicio_id     INT           NOT NULL,
+  nombre_completo VARCHAR(255)  NOT NULL,
+  color           VARCHAR(30), -- Nuevo campo para color solicitado
   PRIMARY KEY (reserva_id),
-  INDEX idx_reserva_usuario (usuario_rut),
-  INDEX idx_reserva_vehiculo (vehiculo_id),
-  INDEX idx_reserva_servicio (servicio_id),
-  CONSTRAINT fk_reserva_usuario FOREIGN KEY (usuario_rut)
-    REFERENCES USUARIO(rut)
+  CONSTRAINT fk_reserva_usuario FOREIGN KEY (usuario_id)
+    REFERENCES USUARIO(personaid)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT fk_reserva_vehiculo FOREIGN KEY (vehiculo_id)
@@ -169,9 +157,31 @@ CREATE TABLE RESERVA (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE VALORACION_PRODUCTO (
+  id INT NOT NULL AUTO_INCREMENT,
+  producto_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  rating DECIMAL(3,2) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_producto_usuario (producto_id, usuario_id),
+  CONSTRAINT fk_valoracion_producto FOREIGN KEY (producto_id) REFERENCES PRODUCTO(producto_id) ON DELETE CASCADE,
+  CONSTRAINT fk_valoracion_usuario FOREIGN KEY (usuario_id) REFERENCES USUARIO(personaid) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE DIRECCION (
+  direccion_id INT NOT NULL AUTO_INCREMENT,
+  usuario_id INT NOT NULL,
+  calle VARCHAR(255) NOT NULL,
+  ciudad VARCHAR(100) NOT NULL,
+  codigo_postal VARCHAR(20) NOT NULL,
+  es_principal BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (direccion_id),
+  FOREIGN KEY (usuario_id) REFERENCES USUARIO(personaid) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- Usuario administrador por defecto
 INSERT INTO USUARIO (rut, usuario, correo, contrasena, region, comuna, fecha_registro)
 VALUES ('1-9', 'Administrador', 'admin@admin.com',
-  'scrypt:32768:8:1$XainujzOjI3TM1k7$2773fcd72845bfdf2001f3624802f91c0a3e5ea488dde7bbe76fcb683530f10ff4e58247b2afa94086ccad2f00438345019fd8f3730f832e0c740745d0ad9aed',
+  '$2b$12$JljMEYv3MUhaGT2waaOkAOLPxxN7vMJJCF4OTY65eh7ikt5j6/9wK',
   'Metropolitana', 'Santiago', NOW());
--- Contraseña por defecto: admin123 (hash válido Werkzeug)
+-- Contraseña por defecto: admin123 (hash bcrypt)

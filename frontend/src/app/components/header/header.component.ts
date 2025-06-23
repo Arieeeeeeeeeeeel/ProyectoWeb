@@ -16,6 +16,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   cartItemCount: number = 0;
   isAdmin: boolean = false;
+  userName: string = '';
   private authSubscription: Subscription | undefined;
   private cartSubscription: Subscription | undefined;
 
@@ -31,6 +32,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authSubscription = this.authService.currentUser$
       .subscribe(user => {
         this.isLoggedIn = !!user;
+        this.userName = user?.usuario || '';
         // TEMPORAL: Detectar admin por correo
         this.isAdmin = !!user && (user as any).correo === 'admin@admin.com';
       });

@@ -3,19 +3,27 @@ from marshmallow import ValidationError
 from ..models.usuario import Usuario
 from ..schemas.login_schema import LoginSchema
 from ..schemas.usuario_schema import UsuarioSchema
-from werkzeug.security import check_password_hash, generate_password_hash
+import bcrypt
 import jwt
 import datetime
 from app.config.config import Config
 from app.utils import token_required
 from .. import db
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+import bleach
 
 bp = Blueprint('auth', __name__)
+limiter = Limiter(key_func=get_remote_address)
 
 @bp.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-
+    # Sanitizar entradas
+    data['usuario'] = bleach.clean(data.get('usuario', ''))
+    data['correo'] = bleach.clean(data.get('correo', ''))
+    data['region'] = bleach.clean(data.get('region', ''))
+    data['comuna'] = bleach.clean(data.get('comuna', ''))
     user_schema = UsuarioSchema()
     try:
         user_data = user_schema.load(data) 
@@ -24,11 +32,12 @@ def signup():
     
     if Usuario.query.filter_by(rut=user_data.rut).first() or Usuario.query.filter_by(correo=user_data.correo).first():
         return jsonify({'error': 'Usuario ya existe'}), 400
+    hashed_pw = bcrypt.hashpw(user_data.contrasena.encode('utf-8'), bcrypt.gensalt())
     user = Usuario(
         rut=user_data.rut,
         usuario=user_data.usuario,
         correo=user_data.correo,
-        contrasena=generate_password_hash(user_data.contrasena),
+        contrasena=hashed_pw.decode('utf-8'),
         region=user_data.region,
         comuna=user_data.comuna
     )
@@ -49,6 +58,7 @@ def signup():
     }), 201
 
 @bp.route('/login', methods=['POST'])
+@limiter.limit("5 per minute")  # Limita a 5 intentos por minuto por IP
 def login():
     login_schema = LoginSchema()
 
@@ -56,12 +66,12 @@ def login():
         data = login_schema.load(request.get_json())  
     except Exception as e:
         return jsonify({'error': 'Datos inválidos', 'message': str(e)}), 400
-
-    correo = data['correo']
+    # Sanitizar correo
+    correo = bleach.clean(data['correo'])
     contrasena = data['contrasena']
 
     user = Usuario.query.filter_by(correo=correo).first()
-    if not user or not check_password_hash(user.contrasena, contrasena):
+    if not user or not bcrypt.checkpw(contrasena.encode('utf-8'), user.contrasena.encode('utf-8')):
         return jsonify({'error': 'Credenciales inválidas'}), 401
 
     token = jwt.encode(
@@ -77,7 +87,18 @@ def login():
         'user': user_data
     }), 200
 
-@bp.route('/<personaid>/signout', methods=['POST'])
+@bp.route('/change_password', methods=['POST'])
 @token_required
-def signout(personaid):
-    return jsonify({'message':f'Usuario {personaid} ha cerrado sesión'}), 200
+def change_password(current_user):
+    data = request.get_json()
+    # Sanitizar contraseñas (por si acaso)
+    old_password = bleach.clean(data.get('old_password', ''))
+    new_password = bleach.clean(data.get('new_password', ''))
+    if not old_password or not new_password:
+        return jsonify({'error': 'Faltan datos'}), 400
+    user = current_user
+    if not bcrypt.checkpw(old_password.encode('utf-8'), user.contrasena.encode('utf-8')):
+        return jsonify({'error': 'La contraseña actual es incorrecta'}), 400
+    user.contrasena = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    db.session.commit()
+    return jsonify({'message': 'Contraseña actualizada correctamente'}), 200

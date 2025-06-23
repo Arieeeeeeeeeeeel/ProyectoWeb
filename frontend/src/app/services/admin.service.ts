@@ -14,7 +14,6 @@ export interface Producto {
   descripcion?: string;
   marca?: string;
   modelo?: string;
-  ano_compatible?: number;
   stock: number;
   precio: number;
   rating?: number;
@@ -29,6 +28,15 @@ export interface Reserva {
   fecha: string;
   estado: string;
   detalle: string;
+  servicio_nombre?: string;
+  vehiculo?: {
+    marca: string;
+    modelo: string;
+    patente: string;
+    ano: number;
+  };
+  color?: string;
+  ubicacion?: string;
 }
 
 export interface Stats {
@@ -38,17 +46,24 @@ export interface Stats {
   total_reservas: number;
 }
 
+export interface ProductoCompatibilidad {
+  producto_id: number;
+  marca_auto: string;
+  modelo_auto: string;
+  ano_desde: number;
+  ano_hasta?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private API_URL = 'https://3aeb-190-8-112-252.ngrok-free.app'; // Cambiado para usar la raíz de la API
+  private API_URL = 'http://localhost:5000'; // Cambiado para usar la raíz de la API
 
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken');
     return new HttpHeaders({
-      'Authorization': token ? `Bearer ${token}` : '',
-      'ngrok-skip-browser-warning': 'true'
+      'Authorization': token ? `Bearer ${token}` : ''
     });
   }
 
@@ -72,6 +87,15 @@ export class AdminService {
   }
   eliminarProducto(id: number) {
     return this.http.delete(`${this.API_URL}/products/${id}`, { headers: this.getAuthHeaders() });
+  }
+  crearProductoConCompatibilidad(producto: Partial<Producto>, compatibilidad: ProductoCompatibilidad[]) {
+    return this.http.post(`${this.API_URL}/products`, { ...producto, compatibilidad }, { headers: this.getAuthHeaders() });
+  }
+  editarProductoConCompatibilidad(id: number, producto: Partial<Producto>, compatibilidad: ProductoCompatibilidad[]) {
+    return this.http.put(`${this.API_URL}/products/${id}`, { ...producto, compatibilidad }, { headers: this.getAuthHeaders() });
+  }
+  getProductoConCompatibilidad(id: number) {
+    return this.http.get(`${this.API_URL}/products/${id}`, { headers: this.getAuthHeaders() });
   }
 
   // Reservas

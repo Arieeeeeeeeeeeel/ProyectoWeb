@@ -30,6 +30,10 @@ def start_recovery():
     }
     token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
 
+    # Guardar el token en la base de datos para un solo uso
+    user.ultimo_token_recuperacion = token
+    db.session.commit()
+
     FRONTEND_URL = current_app.config.get('FRONTEND_URL', 'http://localhost:8100')
     recovery_link = (
     f"{FRONTEND_URL}/reset-password?"
@@ -80,8 +84,13 @@ def complete_recovery(personaid):
     if not user:
         return jsonify({'error': 'Usuario no encontrado'}), 404
 
+    # Verificar que el token coincida con el último emitido
+    if not user.ultimo_token_recuperacion or user.ultimo_token_recuperacion != token:
+        return jsonify({'error': 'Token ya fue usado o es inválido'}), 401
+
     # Actualizar contraseña
     user.contrasena = generate_password_hash(new_pass)
+    user.ultimo_token_recuperacion = None  # Invalida el token tras el uso
     db.session.commit()
 
     return jsonify({'message': 'Contraseña restablecida correctamente'}), 200

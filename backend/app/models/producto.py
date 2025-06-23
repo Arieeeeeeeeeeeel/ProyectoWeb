@@ -7,7 +7,6 @@ class Producto(db.Model):
     descripcion    = db.Column(db.Text)
     marca          = db.Column(db.String(50))
     modelo         = db.Column(db.String(50))
-    ano_compatible = db.Column(db.Integer)
     stock          = db.Column(db.Integer, default=0)
     precio         = db.Column(db.Numeric(10,2), nullable=False)
     rating         = db.Column(db.Numeric(3,2))

@@ -1,22 +1,32 @@
 <ion-content>
-  <div class="main-container">
+  <ion-spinner *ngIf="cargandoProductos" name="crescent" style="display:block;margin:40px auto;"></ion-spinner>
+  <div *ngIf="!cargandoProductos" class="main-container">
     <div class="search-panel">
       <h2>BUSCA TUS PRODUCTOS</h2>
       <ion-list>
-        <ion-item>
-          <ion-input label="Marca" labelPlacement="stacked" [(ngModel)]="searchFilters.marca" placeholder="Toyota"></ion-input>
+        <ion-item *ngIf="cargandoMarcas" lines="none" class="ion-justify-content-center">
+          <ion-spinner name="crescent"></ion-spinner>
+          <ion-label style="margin-left:10px;">Cargando autos...</ion-label>
         </ion-item>
-
-        <ion-item>
-          <ion-input label="Modelo" labelPlacement="stacked" [(ngModel)]="searchFilters.modelo" placeholder="Hilux"></ion-input>
+        <ion-item *ngIf="!cargandoMarcas">
+          <ion-label position="floating">Marca</ion-label>
+          <ion-select [(ngModel)]="marcaSeleccionada" (ionChange)="onMarcaChange()" placeholder="Marca">
+            <ion-select-option *ngFor="let marca of marcas" [value]="marca.Make_Name">{{ marca.Make_Name }}</ion-select-option>
+          </ion-select>
         </ion-item>
-
         <ion-item>
-          <ion-input label="Año" labelPlacement="stacked" type="number" [(ngModel)]="searchFilters.anio" placeholder="2024"></ion-input>
+          <ion-label position="floating">Modelo</ion-label>
+          <ion-select [(ngModel)]="modeloSeleccionado" (ionChange)="onModeloChange()" placeholder="Modelo" [disabled]="!modelos.length || cargandoMarcas">
+            <ion-select-option *ngFor="let modelo of modelos" [value]="modelo.Model_Name">{{ modelo.Model_Name }}</ion-select-option>
+          </ion-select>
         </ion-item>
-
         <ion-item>
-          <ion-input label="Repuesto" labelPlacement="stacked" [(ngModel)]="searchFilters.repuesto" placeholder="Todo"></ion-input>
+          <ion-label position="floating">Año</ion-label>
+          <ion-input type="number" [(ngModel)]="searchFilters.anio" placeholder="2024"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Repuesto</ion-label>
+          <ion-input [(ngModel)]="searchFilters.repuesto" placeholder="Todo"></ion-input>
         </ion-item>
 
         <ion-button expand="block" class="search-button" (click)="buscarProductos()">Buscar</ion-button>
@@ -44,10 +54,12 @@
         <div *ngFor="let producto of productos; trackBy: trackByProductoId" class="product-card">
           <div class="product-image-placeholder">
             <img [src]="producto.imagen_url || 'assets/placeholder.png'" alt="Imagen de producto">
-            <!-- El botón "Ver" navega al detalle del producto usando routerLink -->
-            <ion-button color="danger" class="view-button" [routerLink]="['/producto-detalle', producto.producto_id]">Ver</ion-button>
+            <ion-button color="danger" class="view-button" [routerLink]="['/producto-detalle', producto.producto_id]" style="margin-bottom:8px;">Ver</ion-button>
           </div>
-          <p class="product-name">{{ producto.nombre }}</p>
+          <p class="product-name" style="margin-bottom:4px;">{{ producto.nombre }}</p>
+          <p class="product-price" style="font-size:1.2em; color:#d32f2f; font-weight:bold; margin:0 0 12px 0;">
+            ${{ producto.precio | number:'1.0-0' }}
+          </p>
         </div>
       </div>
 
