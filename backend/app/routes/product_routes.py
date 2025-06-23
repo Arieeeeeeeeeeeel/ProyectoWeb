@@ -4,6 +4,7 @@ from ..models.valoracion_producto import ValoracionProducto
 from .. import db
 from app.utils import token_required
 from app.models.producto_compatibilidad import ProductoCompatibilidad
+import bleach
 
 bp = Blueprint('product', __name__)
 
@@ -113,11 +114,16 @@ def get_product(producto_id):
 def crear_producto(current_user):
     data = request.get_json()
     compat = data.get('compatibilidad', [])
+    # Sanitizar entradas
+    nombre = bleach.clean(data['nombre'])
+    descripcion = bleach.clean(data.get('descripcion',''))
+    marca = bleach.clean(data.get('marca',''))
+    modelo = bleach.clean(data.get('modelo',''))
     p = Producto(
-        nombre=data['nombre'],
-        descripcion=data.get('descripcion',''),
-        marca=data.get('marca',''),
-        modelo=data.get('modelo',''),
+        nombre=nombre,
+        descripcion=descripcion,
+        marca=marca,
+        modelo=modelo,
         stock=data.get('stock',0),
         precio=data.get('precio',0),
         rating=data.get('rating',0),
@@ -131,8 +137,8 @@ def crear_producto(current_user):
     for c in compat:
         pc = ProductoCompatibilidad(
             producto_id=p.producto_id,
-            marca_auto=c.get('marca_auto'),
-            modelo_auto=c.get('modelo_auto'),
+            marca_auto=bleach.clean(c.get('marca_auto','')),
+            modelo_auto=bleach.clean(c.get('modelo_auto','')),
             ano_desde=c.get('ano_desde'),
             ano_hasta=c.get('ano_hasta')
         )
@@ -150,28 +156,29 @@ def editar_producto(current_user, producto_id):
     print('==== [LOG] PUT /products/<id> data recibido:', data, flush=True)
     compat = data.get('compatibilidad', [])
     print('==== [LOG] compatibilidad recibida:', compat, flush=True)
+    # Sanitizar entradas
     for k,v in data.items():
         if hasattr(p,k):
-            setattr(p,k,v)
+            if isinstance(v, str):
+                setattr(p,k, bleach.clean(v))
+            else:
+                setattr(p,k,v)
     db.session.commit()
     # Actualizar compatibilidad
     if compat is not None:
         from ..models.producto_compatibilidad import ProductoCompatibilidad
         ProductoCompatibilidad.query.filter_by(producto_id=producto_id).delete()
-        print('==== [LOG] compatibilidad previa eliminada', flush=True)
         for c in compat:
-            print('==== [LOG] agregando compatibilidad:', c, flush=True)
             pc = ProductoCompatibilidad(
                 producto_id=producto_id,
-                marca_auto=c.get('marca_auto'),
-                modelo_auto=c.get('modelo_auto'),
+                marca_auto=bleach.clean(c.get('marca_auto','')),
+                modelo_auto=bleach.clean(c.get('modelo_auto','')),
                 ano_desde=c.get('ano_desde'),
                 ano_hasta=c.get('ano_hasta')
             )
             db.session.add(pc)
         db.session.commit()
-        print('==== [LOG] compatibilidad nueva guardada', flush=True)
-    return jsonify({'message':'Producto actualizado'}),200
+    return jsonify({'message':'Producto actualizado'}), 200
 
 @bp.route('/<int:producto_id>', methods=['DELETE'])
 @token_required

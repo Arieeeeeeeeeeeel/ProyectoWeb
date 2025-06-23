@@ -9,13 +9,21 @@ import datetime
 from app.config.config import Config
 from app.utils import token_required
 from .. import db
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+import bleach
 
 bp = Blueprint('auth', __name__)
+limiter = Limiter(key_func=get_remote_address)
 
 @bp.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-
+    # Sanitizar entradas
+    data['usuario'] = bleach.clean(data.get('usuario', ''))
+    data['correo'] = bleach.clean(data.get('correo', ''))
+    data['region'] = bleach.clean(data.get('region', ''))
+    data['comuna'] = bleach.clean(data.get('comuna', ''))
     user_schema = UsuarioSchema()
     try:
         user_data = user_schema.load(data) 
@@ -50,6 +58,7 @@ def signup():
     }), 201
 
 @bp.route('/login', methods=['POST'])
+@limiter.limit("5 per minute")  # Limita a 5 intentos por minuto por IP
 def login():
     login_schema = LoginSchema()
 
@@ -57,8 +66,8 @@ def login():
         data = login_schema.load(request.get_json())  
     except Exception as e:
         return jsonify({'error': 'Datos inválidos', 'message': str(e)}), 400
-
-    correo = data['correo']
+    # Sanitizar correo
+    correo = bleach.clean(data['correo'])
     contrasena = data['contrasena']
 
     user = Usuario.query.filter_by(correo=correo).first()
@@ -82,8 +91,9 @@ def login():
 @token_required
 def change_password(current_user):
     data = request.get_json()
-    old_password = data.get('old_password')
-    new_password = data.get('new_password')
+    # Sanitizar contraseñas (por si acaso)
+    old_password = bleach.clean(data.get('old_password', ''))
+    new_password = bleach.clean(data.get('new_password', ''))
     if not old_password or not new_password:
         return jsonify({'error': 'Faltan datos'}), 400
     user = current_user

@@ -4,6 +4,7 @@ from ..models.usuario import Usuario
 from .. import db
 from ..config.config import Config
 from app.utils import token_required
+import bleach
 
 bp = Blueprint('vehicle', __name__)
 
@@ -29,13 +30,13 @@ def _new_car_impl(current_user, personaid):
         return jsonify({'error':'Faltan datos del vehículo'}), 400
     v = Vehiculo(
         usuario_id=user.personaid,
-        marca=data['marca'],
-        modelo=data['modelo'],
+        marca=bleach.clean(data['marca']),
+        modelo=bleach.clean(data['modelo']),
         ano=data['ano'],
-        patente=data['patente'],
-        tipo_combustible=data['tipo_combustible'],
-        color=data['color'],
-        apodo=data.get('apodo')
+        patente=bleach.clean(data['patente']),
+        tipo_combustible=bleach.clean(data['tipo_combustible']),
+        color=bleach.clean(data['color']),
+        apodo=bleach.clean(data.get('apodo','')) if data.get('apodo') else None
     )
     db.session.add(v)
     db.session.commit()

@@ -6,6 +6,7 @@ from app.utils import token_required
 from .. import db
 from ..models.detalle_compra import DetalleCompra
 from ..models.producto import Producto
+import bleach
 
 bp = Blueprint('purchases', __name__)
 
@@ -34,7 +35,7 @@ def create_purchase(current_user, personaid):
         print('DEBUG: Items no válidos o no presentes')
         return jsonify({'error':'Items requeridos'}), 400
 
-    direccion_envio = data.get('direccion_envio')
+    direccion_envio = bleach.clean(data.get('direccion_envio', ''))
     compra = Compra(usuario_id=user.personaid, estado_pago='pendiente', total=0, direccion_envio=direccion_envio)
     db.session.add(compra)
     db.session.commit() 

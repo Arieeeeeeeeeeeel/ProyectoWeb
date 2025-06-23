@@ -4,6 +4,7 @@ from .. import db
 from app.utils import token_required
 from datetime import datetime
 import sys  # <-- Agregar para debug
+import bleach
 
 bp = Blueprint('reserva', __name__)
 
@@ -15,12 +16,13 @@ def crear_reserva(current_user):
     print('DEBUG: JSON recibido:', data, file=sys.stderr)
     try:
         fecha_reserva = datetime.fromisoformat(data['fecha_reserva'])
-        ubicacion = data['ubicacion']
-        notas = data.get('notas', '')
+        ubicacion = bleach.clean(data['ubicacion'])
+        notas = bleach.clean(data.get('notas', ''))
         usuario_id = data['usuario_id']
         vehiculo_id = data['vehiculo_id']
         servicio_id = data['servicio_id']
-        color = data.get('color')
+        color = bleach.clean(data.get('color', '')) if data.get('color') else None
+        nombre_completo = bleach.clean(data['nombre_completo'])
         print('DEBUG: fecha_reserva:', fecha_reserva, file=sys.stderr)
         print('DEBUG: ubicacion:', ubicacion, file=sys.stderr)
         print('DEBUG: usuario_id:', usuario_id, file=sys.stderr)
@@ -33,7 +35,7 @@ def crear_reserva(current_user):
             usuario_id=usuario_id,
             vehiculo_id=vehiculo_id,
             servicio_id=servicio_id,
-            nombre_completo=data['nombre_completo'],
+            nombre_completo=nombre_completo,
             color=color
         )
         db.session.add(reserva)

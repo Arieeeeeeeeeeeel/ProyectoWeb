@@ -3,6 +3,7 @@ from app.models.ubicacion import Direccion
 from app.models.usuario import Usuario
 from app import db
 from app.utils import token_required
+import bleach
 
 bp = Blueprint('direccion', __name__)
 
@@ -28,9 +29,9 @@ def add_direccion(current_user):
         Direccion.query.filter_by(usuario_id=current_user.personaid).update({'es_principal': False})
     direccion = Direccion(
         usuario_id=current_user.personaid,
-        calle=data['calle'],
-        ciudad=data['ciudad'],
-        codigo_postal=data['codigoPostal'],
+        calle=bleach.clean(data['calle']),
+        ciudad=bleach.clean(data['ciudad']),
+        codigo_postal=bleach.clean(data['codigoPostal']),
         es_principal=data.get('esPrincipal', False)
     )
     db.session.add(direccion)
