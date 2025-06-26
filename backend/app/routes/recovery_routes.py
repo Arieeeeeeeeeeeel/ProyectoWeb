@@ -3,7 +3,8 @@ from flask_mail import Message
 from .. import mail, db
 from ..models.usuario import Usuario
 from ..schemas.usuario_schema import StartRecoverySchema, CompleteRecoverySchema
-from werkzeug.security import generate_password_hash
+import bcrypt  # Usar bcrypt para hashing seguro
+import bleach  # Sanitizar entradas
 import jwt
 import datetime
 
@@ -88,8 +89,14 @@ def complete_recovery(personaid):
     if not user.ultimo_token_recuperacion or user.ultimo_token_recuperacion != token:
         return jsonify({'error': 'Token ya fue usado o es inválido'}), 401
 
-    # Actualizar contraseña
-    user.contrasena = generate_password_hash(new_pass)
+    # Sanitizar y validar la nueva contraseña
+    new_pass_clean = bleach.clean(new_pass)
+    if len(new_pass_clean) < 8:
+        return jsonify({'error': 'La contraseña debe tener al menos 8 caracteres'}), 400
+
+    # Hashear la nueva contraseña con bcrypt
+    hashed = bcrypt.hashpw(new_pass_clean.encode('utf-8'), bcrypt.gensalt())
+    user.contrasena = hashed.decode('utf-8')
     user.ultimo_token_recuperacion = None  # Invalida el token tras el uso
     db.session.commit()
 
